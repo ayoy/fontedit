@@ -13,19 +13,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
+add_subdirectory(glypheditview)
+
 add_executable(qgraphicstest MACOSX_BUNDLE
-    focuswidget.h
-    focuswidget.cpp
-    glyphwidget.h
-    glyphwidget.cpp
-    graphicsview.h
-    graphicsview.cpp
     main.cpp
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    pixelitem.h
-    pixelitem.cpp
 )
 
-target_link_libraries(qgraphicstest PRIVATE Qt5::Widgets Qt5::Core font2bytes GSL)
+target_include_directories(qgraphicstest PRIVATE glypheditview)
+
+target_link_libraries(qgraphicstest PRIVATE Qt5::Widgets Qt5::Core glypheditview font2bytes GSL)

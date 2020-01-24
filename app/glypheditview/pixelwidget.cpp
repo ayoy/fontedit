@@ -1,15 +1,15 @@
-#include "pixelitem.h"
+#include "pixelwidget.h"
 #include <QPainter>
 #include <iostream>
 #include <QDebug>
 
-PixelItem::PixelItem(QGraphicsItem *parent)
+PixelWidget::PixelWidget(QGraphicsItem *parent)
     : QGraphicsWidget(parent)
     , m_set { false }
 {
 }
 
-void PixelItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void PixelWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);

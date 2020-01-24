@@ -1,5 +1,5 @@
 #include "glyphwidget.h"
-#include "pixelitem.h"
+#include "pixelwidget.h"
 #include "focuswidget.h"
 #include <QGraphicsGridLayout>
 #include <QDebug>
@@ -27,7 +27,7 @@ void GlyphWidget::setupFontLayout(uint8_t width, uint8_t height)
 
     for (auto x = 0; x < width; x++) {
         for (auto y = 0; y < height; y++) {
-            PixelItem *pixel = new PixelItem();
+            PixelWidget *pixel = new PixelWidget();
             pixel->setPreferredSize(m_pixelDimension, m_pixelDimension);
             m_layout->addItem(pixel, y, x, 1, 1);
         }
@@ -126,7 +126,7 @@ void GlyphWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
 
 void GlyphWidget::toggleItemSet(QGraphicsLayoutItem *item)
 {
-    if (auto pixel = dynamic_cast<PixelItem *>(item)) {
+    if (auto pixel = dynamic_cast<PixelWidget *>(item)) {
         pixel->setSet(!pixel->isSet());
     }
 }

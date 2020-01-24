@@ -1,15 +1,15 @@
-#ifndef PIXELITEM_H
-#define PIXELITEM_H
+#ifndef PIXELWIDGET_H
+#define PIXELWIDGET_H
 
 #include <QGraphicsWidget>
 
-class PixelItem : public QGraphicsWidget
+class PixelWidget : public QGraphicsWidget
 {
     Q_OBJECT
 public:
     Q_PROPERTY(bool set READ isSet WRITE setSet)
 
-    PixelItem(QGraphicsItem *parent = nullptr);
+    PixelWidget(QGraphicsItem *parent = nullptr);
 
     bool isSet() const { return m_set; }
     void setSet(bool value) { m_set = value; this->update(); }
@@ -20,4 +20,4 @@ private:
     bool m_set;
 };
 
-#endif // PIXELITEM_H
+#endif // PIXELWIDGET_H
