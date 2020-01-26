@@ -15,13 +15,21 @@ find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
 add_subdirectory(glypheditview)
 
-add_executable(qgraphicstest MACOSX_BUNDLE
+set(SRC_FILES
     main.cpp
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-)
+    )
 
-target_include_directories(qgraphicstest PRIVATE glypheditview)
+if (APPLE AND (NOT CMAKE_BUILD_TYPE STREQUAL "Debug"))
+    message(STATUS "Using MacOS X Bundle (release)")
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SRC_FILES})
+    set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/macos/Info.plist)
+else()
+    add_executable(${PROJECT_NAME} ${SRC_FILES})
+endif()
 
-target_link_libraries(qgraphicstest PRIVATE Qt5::Widgets Qt5::Core glypheditview font2bytes GSL)
+target_include_directories(${PROJECT_NAME} PRIVATE glypheditview)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Core glypheditview font2bytes GSL)
