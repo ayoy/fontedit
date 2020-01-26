@@ -1,20 +1,21 @@
 #include "bytewriter.h"
+#include <sstream>
 
-const std::string ByteWriter::identifier = "";
-const std::string ByteWriter::description = "";
+const std::string ByteWriter::identifier;
+const std::string ByteWriter::description;
 
 
-const std::string ByteWriter::beginArrayRow() const
+std::string ByteWriter::beginArrayRow() const
 {
     return "\t";
 }
 
-const std::string ByteWriter::lineBreak() const
+std::string ByteWriter::lineBreak() const
 {
     return "\n";
 }
 
-const std::string ByteWriter::end() const
+std::string ByteWriter::end() const
 {
     return "\n\n";
 }
@@ -39,11 +40,14 @@ std::string CCodeGenerator::beginArray(const std::string &name) const
 
 std::string CCodeGenerator::byte(uint8_t byte) const
 {
-    constexpr char format[] { "0x%02X," };
-    std::string byteString(5, '\0');
-    std::sprintf(&byteString[0], format, byte);
+    std::stringstream b;
+    b << "0x" << std::hex << byte;
+    return b.str();
+//    constexpr char format[] { "0x%02X," };
+//    std::string byteString(5, '\0');
+//    std::sprintf(&byteString[0], format, byte);
 
-    return byteString;
+//    return byteString;
 }
 
 std::string CCodeGenerator::comment(const std::string &comment) const
@@ -51,7 +55,7 @@ std::string CCodeGenerator::comment(const std::string &comment) const
     return " // " + comment;
 }
 
-const std::string CCodeGenerator::endArray() const
+std::string CCodeGenerator::endArray() const
 {
     return "};\n";
 }
@@ -107,7 +111,7 @@ std::string PythonListCodeGenerator::comment(const std::string &comment) const
     return " # " + comment;
 }
 
-const std::string PythonListCodeGenerator::endArray() const
+std::string PythonListCodeGenerator::endArray() const
 {
     return "\n]\n";
 }
@@ -130,7 +134,7 @@ std::string PythonBytesCodeGenerator::beginArray(const std::string &name) const
     return "\n\n" + name + " = b'' \\\n";
 }
 
-const std::string PythonBytesCodeGenerator::beginArrayRow() const
+std::string PythonBytesCodeGenerator::beginArrayRow() const
 {
     return "\t'";
 }
@@ -150,7 +154,7 @@ std::string PythonBytesCodeGenerator::comment(const std::string &comment) const
     return "' \\";
 }
 
-const std::string PythonBytesCodeGenerator::endArray() const
+std::string PythonBytesCodeGenerator::endArray() const
 {
     return "";
 }

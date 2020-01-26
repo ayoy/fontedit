@@ -27,7 +27,7 @@ void GlyphWidget::setupFontLayout(uint8_t width, uint8_t height)
 
     for (auto x = 0; x < width; x++) {
         for (auto y = 0; y < height; y++) {
-            PixelWidget *pixel = new PixelWidget();
+            auto pixel = new PixelWidget();
             pixel->setPreferredSize(m_pixelDimension, m_pixelDimension);
             m_layout->addItem(pixel, y, x, 1, 1);
         }
@@ -47,10 +47,11 @@ bool GlyphWidget::sceneEvent(QEvent *event)
     case QActionEvent::GraphicsSceneMousePress:
     case QActionEvent::GraphicsSceneMouseDoubleClick:
         if (auto mouseEvent = dynamic_cast<QGraphicsSceneMouseEvent *>(event)) {
-            qreal leftMargin, topMargin;
+            qreal leftMargin;
+            qreal topMargin;
             m_layout->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
-            int row = (mouseEvent->pos().y() - topMargin)/m_pixelDimension;
-            int col = (mouseEvent->pos().x() - leftMargin)/m_pixelDimension;
+            int row = static_cast<int>((mouseEvent->pos().y() - topMargin) / m_pixelDimension);
+            int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / m_pixelDimension);
             qDebug() << mouseEvent << row << col;
             auto item = m_layout->itemAt(row, col);
             setFocusForItem(item, true);
@@ -69,11 +70,12 @@ void GlyphWidget::handleKeyPress(QKeyEvent *event) {
     }
 
     const auto pos = m_focusedItem->geometry().topLeft();
-    qreal leftMargin, topMargin;
+    qreal leftMargin;
+    qreal topMargin;
     m_layout->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
 
-    const QPoint current((pos.x() - leftMargin) / m_pixelDimension,
-                         (pos.y() - topMargin) / m_pixelDimension);
+    const QPoint current(static_cast<int>((pos.x() - leftMargin) / m_pixelDimension),
+                         static_cast<int>((pos.y() - topMargin) / m_pixelDimension));
     QPoint updated(current);
 
     switch (event->key()) {

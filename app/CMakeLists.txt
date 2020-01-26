@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
+add_subdirectory(fontdata)
 add_subdirectory(glypheditview)
 
 set(SRC_FILES

@@ -11,7 +11,7 @@ ConverterError & ConverterError::operator =(std::string summary)
 
 bool ConverterError::operator ==(const ConverterError &rhs) const
 {
-    return (summary.compare(rhs.summary) == 0) and (description.compare(rhs.description) == 0);
+    return summary == rhs.summary and description == rhs.description;
 }
 
 bool ConverterError::operator !=(const ConverterError &rhs) const

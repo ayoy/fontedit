@@ -35,7 +35,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupGraphicsView()
 {
-    graphicsScene.reset(new QGraphicsScene());
+    graphicsScene = std::make_unique<QGraphicsScene>();
     ui->graphicsView->setScene(graphicsScene.get());
 }
 
