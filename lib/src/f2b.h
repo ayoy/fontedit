@@ -5,5 +5,6 @@
 #include "fixedwidthfontconverter.h"
 #include "inputimage.h"
 #include "sourcecodegenerator.h"
+#include "fontdata.h"
 
 #endif // F2B_PRIVATE_H

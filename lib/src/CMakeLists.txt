@@ -5,15 +5,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(font2bytes)
 
-find_package(Freetype REQUIRED)
-
-add_subdirectory(fontdata)
-
 set(HEADERS
     bytewriter.h
     convertererror.h
     f2b.h
     fixedwidthfontconverter.h
+    fontdata.h
     inputimage.h
     sourcecodegenerator.h
     )
@@ -24,13 +21,13 @@ add_library(${PROJECT_NAME}
     bytewriter.cpp
     convertererror.cpp
     fixedwidthfontconverter.cpp
+    fontdata.cpp
     )
 
-target_link_libraries(${PROJECT_NAME} ${FREETYPE_LIBRARIES} fontdata GSL)
+target_link_libraries(${PROJECT_NAME} GSL)
 target_include_directories(${PROJECT_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
-    ${FREETYPE_INCLUDE_DIRS})
-
+    )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
         SOVERSION 1.0.0

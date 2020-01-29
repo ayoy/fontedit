@@ -16,10 +16,9 @@ set(TARGET_NAME font2bytes_tests)
 add_executable(${TARGET_NAME}
     ${UNIT_TEST_SOURCE_LIST})
 
-target_link_libraries(${TARGET_NAME}
-    PUBLIC font2bytes gtest_main)
+target_link_libraries(${TARGET_NAME} PUBLIC font2bytes gtest_main)
 
 target_include_directories(${TARGET_NAME}
-    PUBLIC ../../catch2/ ../src ../src/fontdata)
+    PUBLIC ../src)
 
 add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})

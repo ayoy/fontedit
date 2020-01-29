@@ -2,6 +2,8 @@
 #define FONTDATA_H
 
 #include <vector>
+#include <optional>
+#include <sstream>
 
 class Glyph {
 
@@ -22,10 +24,11 @@ private:
 class FontFace
 {
 public:
-    FontFace() = default;
+    FontFace(std::istringstream &bitmap_data);
 
 private:
     std::vector<Glyph> glyphs_;
 };
+
 
 #endif // FONTDATA_H
