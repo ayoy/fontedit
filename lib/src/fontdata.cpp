@@ -1,37 +1,42 @@
 #include "fontdata.h"
-#include "bmp.h"
 
-Glyph::Glyph(size_t width, size_t height) :
-    width_ { width },
-    height_ { height },
-    pixels_ { std::vector<bool>(width * height, false) }
+Glyph::Glyph(Size sz) :
+    size_ { sz },
+    pixels_ { std::vector<bool>(sz.width * sz.height, false) }
 {}
 
-Glyph::Glyph(size_t width, size_t height, std::vector<bool> pixels) :
-    width_ { width },
-    height_ { height },
+Glyph::Glyph(Size sz, std::vector<bool> pixels) :
+    size_ { sz },
     pixels_ { std::move(pixels) }
 {}
 
-FontFace::FontFace(std::istringstream &bitmap_data)
+FontFace::FontFace(const RawFontFaceData &data) :
+    sz_ { data.font_size() },
+    glyphs_ { read_glyphs(data) }
+{}
+
+std::vector<Glyph> FontFace::read_glyphs(const RawFontFaceData &data)
 {
-    std::istream bitmap_stream { bitmap_data.rdbuf() };
-    BMP p(bitmap_stream);
+    std::vector<Glyph> glyphs;
+    glyphs.reserve(data.num_glyphs());
 
-    if (p.bmp_info_header.bit_count != 1) {
-        throw std::runtime_error("Error! 1-bit BMP is required");
+    const std::vector<bool>::size_type pixels_per_glyph { data.font_size().width * data.font_size().height };
+
+    for (std::size_t i = 0; i < data.num_glyphs(); i++) {
+
+        std::vector<bool> pixels;
+        pixels.reserve(pixels_per_glyph);
+
+        for (std::size_t y = 0; y < data.font_size().height; y++) {
+            for (std::size_t x = 0; x < data.font_size().width; x++) {
+                Point p { x, y };
+                pixels.push_back(data.is_pixel_set(i, p));
+            }
+        }
+
+        Glyph g { data.font_size(), pixels };
+        glyphs.push_back(g);
     }
 
-    std::cout << "width: " << p.bmp_info_header.width << "px" << std::endl
-              << "height: " << p.bmp_info_header.height << "px" << std::endl
-              << "bit count: " << p.bmp_info_header.bit_count << std::endl;
-
-    for (const auto &b : p.data) {
-        std::cout << "0x"
-                  << std::setw(2)
-                  << std::setfill('0')
-                  << std::hex
-                  << static_cast<uint>(b)
-                  << ", ";
-    }
+    return glyphs;
 }

@@ -1,7 +1,8 @@
 #include "gtest/gtest.h"
 #include "fontdata.h"
 
-TEST(glyph, glyphwidth)
+TEST(GlyphTest, API)
 {
-    ASSERT_EQ(Glyph(5, 5).width(), 5);
+    EXPECT_EQ(5, Glyph(Size { 5, 5 }).width());
+    EXPECT_EQ(8, Glyph(Size { 5, 8 }).height());
 }
