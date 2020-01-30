@@ -3,14 +3,16 @@
 
 #include <vector>
 
-struct Point {
-    std::size_t x;
-    std::size_t y;
-};
-
 struct Size {
     std::size_t width;
     std::size_t height;
+};
+
+struct Point {
+    std::size_t x;
+    std::size_t y;
+
+    std::size_t offset(Size sz) { return y * sz.width + x; }
 };
 
 class Glyph {
@@ -23,7 +25,7 @@ public:
     std::size_t height() const { return size_.height; }
 
     bool is_pixel_set(Point p) const {
-        return bool(pixels_[p.y * size_.width + p.x]);
+        return bool(pixels_[p.offset(size_)]);
     }
 
 private:
