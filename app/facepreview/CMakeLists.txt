@@ -9,4 +9,4 @@ add_library(facepreview
     facewidget.h
 )
 
-target_link_libraries(facepreview PRIVATE Qt5::Widgets Qt5::Core)
+target_link_libraries(facepreview PRIVATE Qt5::Widgets Qt5::Core font2bytes)

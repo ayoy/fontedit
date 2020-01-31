@@ -15,4 +15,4 @@ add_library(glypheditview
     pixelwidget.cpp
 )
 
-target_link_libraries(glypheditview PRIVATE Qt5::Widgets Qt5::Core)
+target_link_libraries(glypheditview PRIVATE Qt5::Widgets Qt5::Core font2bytes)

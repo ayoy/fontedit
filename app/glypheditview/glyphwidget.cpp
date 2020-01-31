@@ -5,35 +5,42 @@
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 
-GlyphWidget::GlyphWidget(uint8_t width, uint8_t height, qreal size, QGraphicsItem *parent)
-    : QGraphicsWidget(parent)
-    , m_layout { new QGraphicsGridLayout() }
-    , m_focusWidget { nullptr }
-    , m_focusedItem { nullptr }
-    , m_width { width }
-    , m_height { height }
-    , m_pixelDimension { size }
+GlyphWidget::GlyphWidget(qreal pixel_size, QGraphicsItem *parent) :
+    QGraphicsWidget(parent),
+    pixel_size_ { pixel_size }
 {
     auto palette = QPalette(this->palette());
     palette.setColor(QPalette::WindowText, QColor(Qt::red));
     setPalette(palette);
-    setupFontLayout(width, height);
+
     setFocusPolicy(Qt::ClickFocus);
+
+    layout_->setSpacing(0);
+    setLayout(layout_);
 }
 
-void GlyphWidget::setupFontLayout(uint8_t width, uint8_t height)
+void GlyphWidget::loadGlyph(const Font::Glyph &glyph)
 {
-    m_layout->setSpacing(0);
+    updateLayout(glyph.size().width, glyph.size().height);
 
-    for (auto x = 0; x < width; x++) {
-        for (auto y = 0; y < height; y++) {
-            auto pixel = new PixelWidget();
-            pixel->setPreferredSize(m_pixelDimension, m_pixelDimension);
-            m_layout->addItem(pixel, y, x, 1, 1);
-        }
+    for (std::vector<bool>::size_type i = 0; i < glyph.pixels.size(); ++i) {
+        setItemState(layout_->itemAt(i), glyph.pixels[i]);
+    }
+}
+
+void GlyphWidget::updateLayout(uint8_t width, uint8_t height)
+{
+    if (layout_->rowCount() == height && layout_->columnCount() == width) {
+        return;
     }
 
-    setLayout(m_layout);
+    for (auto y = 0; y < height; y++) {
+        for (auto x = 0; x < width; x++) {
+            auto pixel = new PixelWidget();
+            pixel->setPreferredSize(pixel_size_, pixel_size_);
+            layout_->addItem(pixel, y, x, 1, 1);
+        }
+    }
 }
 
 bool GlyphWidget::sceneEvent(QEvent *event)
@@ -49,11 +56,11 @@ bool GlyphWidget::sceneEvent(QEvent *event)
         if (auto mouseEvent = dynamic_cast<QGraphicsSceneMouseEvent *>(event)) {
             qreal leftMargin;
             qreal topMargin;
-            m_layout->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
-            int row = static_cast<int>((mouseEvent->pos().y() - topMargin) / m_pixelDimension);
-            int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / m_pixelDimension);
+            layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
+            int row = static_cast<int>((mouseEvent->pos().y() - topMargin) / pixel_size_);
+            int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / pixel_size_);
             qDebug() << mouseEvent << row << col;
-            auto item = m_layout->itemAt(row, col);
+            auto item = layout_->itemAt(row, col);
             setFocusForItem(item, true);
             toggleItemSet(item);
         }
@@ -65,17 +72,17 @@ bool GlyphWidget::sceneEvent(QEvent *event)
 }
 
 void GlyphWidget::handleKeyPress(QKeyEvent *event) {
-    if (m_focusedItem == nullptr) {
+    if (focused_item_ == nullptr) {
         return;
     }
 
-    const auto pos = m_focusedItem->geometry().topLeft();
+    const auto pos = focused_item_->geometry().topLeft();
     qreal leftMargin;
     qreal topMargin;
-    m_layout->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
+    layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
 
-    const QPoint current(static_cast<int>((pos.x() - leftMargin) / m_pixelDimension),
-                         static_cast<int>((pos.y() - topMargin) / m_pixelDimension));
+    const QPoint current(static_cast<int>((pos.x() - leftMargin) / pixel_size_),
+                         static_cast<int>((pos.y() - topMargin) / pixel_size_));
     QPoint updated(current);
 
     switch (event->key()) {
@@ -86,7 +93,7 @@ void GlyphWidget::handleKeyPress(QKeyEvent *event) {
         break;
     case Qt::Key_Right:
     case Qt::Key_L:
-        updated.setX(qMin(current.x() + 1, m_width - 1));
+        updated.setX(qMin(current.x() + 1, width_ - 1));
         moveFocus(current, updated);
         break;
     case Qt::Key_Up:
@@ -96,11 +103,11 @@ void GlyphWidget::handleKeyPress(QKeyEvent *event) {
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        updated.setY(qMin(current.y() + 1, m_height - 1));
+        updated.setY(qMin(current.y() + 1, height_ - 1));
         moveFocus(current, updated);
         break;
     case Qt::Key_Space:
-        toggleItemSet(m_focusedItem);
+        toggleItemSet(focused_item_);
         break;
     }
 }
@@ -109,8 +116,8 @@ void GlyphWidget::moveFocus(const QPoint& from, const QPoint& to)
 {
     if (to != from) {
         qDebug() << from << to;
-        auto fromItem = m_layout->itemAt(from.y(), from.x());
-        auto toItem = m_layout->itemAt(to.y(), to.x());
+        auto fromItem = layout_->itemAt(from.y(), from.x());
+        auto toItem = layout_->itemAt(to.y(), to.x());
         setFocusForItem(fromItem, false);
         setFocusForItem(toItem, true);
     }
@@ -118,12 +125,19 @@ void GlyphWidget::moveFocus(const QPoint& from, const QPoint& to)
 
 void GlyphWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
 {
-    if (m_focusWidget == nullptr) {
-        m_focusWidget = new FocusWidget(this);
+    if (focus_widget_ == nullptr) {
+        focus_widget_ = new FocusWidget(this);
     }
 
-    m_focusWidget->setFocus(item, isFocused);
-    m_focusedItem = isFocused ? item : nullptr;
+    focus_widget_->setFocus(item, isFocused);
+    focused_item_ = isFocused ? item : nullptr;
+}
+
+void GlyphWidget::setItemState(QGraphicsLayoutItem *item, bool isSelected)
+{
+    if (auto pixel = dynamic_cast<PixelWidget *>(item)) {
+        pixel->setSet(isSelected);
+    }
 }
 
 void GlyphWidget::toggleItemSet(QGraphicsLayoutItem *item)

@@ -11,13 +11,13 @@ bool Font::operator==(const Point &lhs, const Point &rhs) noexcept {
 }
 
 Glyph::Glyph(Size sz) :
-    size_ { sz },
-    pixels_ { std::vector<bool>(sz.width * sz.height, false) }
+    pixels { std::vector<bool>(sz.width * sz.height, false) },
+    size_ { sz }
 {}
 
 Glyph::Glyph(Size sz, std::vector<bool> pixels) :
-    size_ { sz },
-    pixels_ { std::move(pixels) }
+    pixels { std::move(pixels) },
+    size_ { sz }
 {}
 
 Face::Face(const RawFaceData &data) :

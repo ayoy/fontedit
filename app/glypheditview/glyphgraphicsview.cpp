@@ -5,15 +5,28 @@
 #include <cmath>
 #include "glyphwidget.h"
 
-static const auto max_zoom_level = 2.0;
-static const auto min_zoom_level = 0.1;
-static const auto zoom_factor = 1.01;
+static constexpr auto max_zoom_level = 2.0;
+static constexpr auto min_zoom_level = 0.1;
+static constexpr auto zoom_factor = 1.01;
+static constexpr auto pixel_size = 30.0;
 
 GlyphGraphicsView::GlyphGraphicsView(QWidget *parent) :
     QGraphicsView(parent),
     scene_ { std::make_unique<QGraphicsScene>() }
 {
+    scene_->setBackgroundBrush(QBrush(Qt::lightGray));
     setScene(scene_.get());
+}
+
+void GlyphGraphicsView::displayGlyph(const Font::Glyph &glyph)
+{
+    if (glyphWidget_ == nullptr) {
+        glyphWidget_ = new GlyphWidget(pixel_size);
+        scene()->addItem(glyphWidget_);
+    }
+
+    glyphWidget_->loadGlyph(glyph);
+    glyph_ = glyph;
 }
 
 void GlyphGraphicsView::resizeEvent(QResizeEvent *event)
@@ -57,12 +70,4 @@ void GlyphGraphicsView::setScale(qreal factor)
     }
 
     setTransform(targetTransform);
-}
-
-void GlyphGraphicsView::setupFontLayout(uint8_t width, uint8_t height, qreal size)
-{
-    auto glyphWidget = new GlyphWidget(width, height, size);
-
-    scene()->setBackgroundBrush(QBrush(Qt::lightGray));
-    scene()->addItem(glyphWidget);
 }

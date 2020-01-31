@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "glyphwidget.h"
-#include "pixelwidget.h"
+#include "f2b.h"
 #include <iostream>
 #include <QGraphicsGridLayout>
 #include <QGraphicsWidget>
@@ -14,7 +13,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui {new Ui::MainWindow}
 {
     ui->setupUi(this);
-    ui->glyphGraphicsView->setupFontLayout(11, 16, 30);
+
+    Font::Glyph g { Font::Size { 4, 4 } };
+    g.pixels[2] = true;
+    g.pixels[4] = true;
+    ui->glyphGraphicsView->displayGlyph(g);
 
     connect(ui->actionNew, &QAction::triggered, [=] () {
         qDebug() << "new";

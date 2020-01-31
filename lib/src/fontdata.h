@@ -27,17 +27,15 @@ class Glyph
 {
 public:
     explicit Glyph(Size sz);
-    Glyph(Size sz, std::vector<bool> pixels);
+    explicit Glyph(Size sz, std::vector<bool> pixels);
 
     Size size() const { return size_; }
+    bool is_pixel_set(Point p) const { return pixels[p.offset(size_)]; }
 
-    bool is_pixel_set(Point p) const {
-        return pixels_[p.offset(size_)];
-    }
+    std::vector<bool> pixels;
 
 private:
     Size size_;
-    std::vector<bool> pixels_;
 };
 
 
