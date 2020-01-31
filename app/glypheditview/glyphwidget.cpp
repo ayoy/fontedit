@@ -4,6 +4,7 @@
 #include <QGraphicsGridLayout>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include "f2b_qt_compat.h"
 
 GlyphWidget::GlyphWidget(qreal pixel_size, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
@@ -21,21 +22,28 @@ GlyphWidget::GlyphWidget(qreal pixel_size, QGraphicsItem *parent) :
 
 void GlyphWidget::loadGlyph(const Font::Glyph &glyph)
 {
-    updateLayout(glyph.size().width, glyph.size().height);
+    width_ = glyph.size().width;
+    height_ = glyph.size().height;
+    updateLayout();
 
     for (std::vector<bool>::size_type i = 0; i < glyph.pixels.size(); ++i) {
         setItemState(layout_->itemAt(i), glyph.pixels[i]);
     }
 }
 
-void GlyphWidget::updateLayout(uint8_t width, uint8_t height)
+void GlyphWidget::updateLayout()
 {
-    if (layout_->rowCount() == height && layout_->columnCount() == width) {
+    if (static_cast<std::size_t>(layout_->rowCount()) == height_ &&
+            static_cast<std::size_t>(layout_->columnCount()) == width_)
+    {
         return;
     }
 
-    for (auto y = 0; y < height; y++) {
-        for (auto x = 0; x < width; x++) {
+    // TODO: Handle changing glyph size (adding and/or removing items)
+    // Currently it only works for populating empty layout
+
+    for (auto y = 0u; y < height_; y++) {
+        for (auto x = 0u; x < width_; x++) {
             auto pixel = new PixelWidget();
             pixel->setPreferredSize(pixel_size_, pixel_size_);
             layout_->addItem(pixel, y, x, 1, 1);
@@ -62,7 +70,7 @@ bool GlyphWidget::sceneEvent(QEvent *event)
             qDebug() << mouseEvent << row << col;
             auto item = layout_->itemAt(row, col);
             setFocusForItem(item, true);
-            toggleItemSet(item);
+            toggleItemSet({ col, row });
         }
         break;
     default:
@@ -93,7 +101,7 @@ void GlyphWidget::handleKeyPress(QKeyEvent *event) {
         break;
     case Qt::Key_Right:
     case Qt::Key_L:
-        updated.setX(qMin(current.x() + 1, width_ - 1));
+        updated.setX(qMin(current.x() + 1, static_cast<int>(width_) - 1));
         moveFocus(current, updated);
         break;
     case Qt::Key_Up:
@@ -103,16 +111,16 @@ void GlyphWidget::handleKeyPress(QKeyEvent *event) {
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        updated.setY(qMin(current.y() + 1, height_ - 1));
+        updated.setY(qMin(current.y() + 1, static_cast<int>(height_) - 1));
         moveFocus(current, updated);
         break;
     case Qt::Key_Space:
-        toggleItemSet(focused_item_);
+        toggleItemSet(updated);
         break;
     }
 }
 
-void GlyphWidget::moveFocus(const QPoint& from, const QPoint& to)
+void GlyphWidget::moveFocus(const QPoint &from, const QPoint &to)
 {
     if (to != from) {
         qDebug() << from << to;
@@ -140,9 +148,15 @@ void GlyphWidget::setItemState(QGraphicsLayoutItem *item, bool isSelected)
     }
 }
 
-void GlyphWidget::toggleItemSet(QGraphicsLayoutItem *item)
+void GlyphWidget::toggleItemSet(const QPoint &pos)
 {
+    auto item = layout_->itemAt(pos.y(), pos.x());
     if (auto pixel = dynamic_cast<PixelWidget *>(item)) {
-        pixel->setSet(!pixel->isSet());
+        bool state = !pixel->isSet();
+        pixel->setSet(state);
+
+        auto glyphPos = Font::point_with_qpoint(pos);
+
+        emit pixelChanged(glyphPos, state);
     }
 }

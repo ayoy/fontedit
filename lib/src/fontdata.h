@@ -10,7 +10,12 @@ struct Size
     std::size_t width;
     std::size_t height;
 };
-bool operator==(const Size &lhs, const Size &rhs) noexcept;
+inline bool operator==(const Size &lhs, const Size &rhs) noexcept {
+    return lhs.width == rhs.width && lhs.height == rhs.height;
+}
+inline bool operator!=(const Size &lhs, const Size &rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 
 struct Point
@@ -20,8 +25,13 @@ struct Point
 
     std::size_t offset(Size sz) { return y * sz.width + x; }
 };
-bool operator==(const Point &lhs, const Point &rhs) noexcept;
+inline bool operator==(const Point &lhs, const Point &rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y;
+}
 
+inline bool operator!=(const Point &lhs, const Point &rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 class Glyph
 {

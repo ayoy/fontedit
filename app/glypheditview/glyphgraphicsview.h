@@ -19,6 +19,9 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
+private slots:
+    void updatePixel(Font::Point pos, bool isSelected);
+
 private:
     void setScale(qreal factor);
 

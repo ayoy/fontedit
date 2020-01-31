@@ -9,30 +9,35 @@ class FocusWidget;
 
 class GlyphWidget : public QGraphicsWidget
 {
+    Q_OBJECT
+
 public:
     explicit GlyphWidget(qreal pixel_size, QGraphicsItem *parent = nullptr);
     virtual ~GlyphWidget() = default;
 
     void loadGlyph(const Font::Glyph &glyph);
 
+signals:
+    void pixelChanged(Font::Point pos, bool isSelected);
+
 protected:
     bool sceneEvent(QEvent *event) override;
 
 private:
-    void updateLayout(uint8_t width, uint8_t height);
+    void updateLayout();
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
 
     void setItemState(QGraphicsLayoutItem *item, bool isSelected);
-    void toggleItemSet(QGraphicsLayoutItem *item);
+    void toggleItemSet(const QPoint &pos);
 
     void handleKeyPress(QKeyEvent *keyEvent);
-    void moveFocus(const QPoint& from, const QPoint& to);
+    void moveFocus(const QPoint &from, const QPoint &to);
 
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
     FocusWidget *focus_widget_ { nullptr };
     QGraphicsLayoutItem *focused_item_ { nullptr };
-    int width_ { 0 };
-    int height_ { 0 };
+    std::size_t width_ { 0 };
+    std::size_t height_ { 0 };
     const qreal pixel_size_;
 };
 

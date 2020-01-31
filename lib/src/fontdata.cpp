@@ -2,14 +2,6 @@
 
 using namespace Font;
 
-bool Font::operator==(const Size &lhs, const Size &rhs) noexcept {
-    return lhs.width == rhs.width && lhs.height == rhs.height;
-}
-
-bool Font::operator==(const Point &lhs, const Point &rhs) noexcept {
-    return lhs.x == rhs.x && lhs.y == rhs.y;
-}
-
 Glyph::Glyph(Size sz) :
     pixels { std::vector<bool>(sz.width * sz.height, false) },
     size_ { sz }

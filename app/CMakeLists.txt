@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
+add_subdirectory(common)
 add_subdirectory(glypheditview)
 add_subdirectory(facepreview)
 
@@ -31,6 +32,6 @@ else()
     add_executable(${PROJECT_NAME} ${SRC_FILES})
 endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE glypheditview facepreview)
+target_include_directories(${PROJECT_NAME} PRIVATE common glypheditview facepreview)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Core glypheditview facepreview font2bytes GSL)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Core common glypheditview facepreview font2bytes GSL)
