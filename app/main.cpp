@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 //    image.save(&buffer, "BMP");
 
 //    std::istringstream is(bytearray.toStdString());
-//    FontFace face(is);
+//    Face face(is);
 
 //    qDebug() << bytearray;
 

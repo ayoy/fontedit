@@ -1,5 +1,15 @@
 #include "fontdata.h"
 
+using namespace Font;
+
+bool Font::operator==(const Size &lhs, const Size &rhs) noexcept {
+    return lhs.width == rhs.width && lhs.height == rhs.height;
+}
+
+bool Font::operator==(const Point &lhs, const Point &rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
 Glyph::Glyph(Size sz) :
     size_ { sz },
     pixels_ { std::vector<bool>(sz.width * sz.height, false) }
@@ -10,12 +20,12 @@ Glyph::Glyph(Size sz, std::vector<bool> pixels) :
     pixels_ { std::move(pixels) }
 {}
 
-FontFace::FontFace(const RawFontFaceData &data) :
+Face::Face(const RawFaceData &data) :
     sz_ { data.font_size() },
     glyphs_ { read_glyphs(data) }
 {}
 
-std::vector<Glyph> FontFace::read_glyphs(const RawFontFaceData &data)
+std::vector<Glyph> Face::read_glyphs(const RawFaceData &data)
 {
     std::vector<Glyph> glyphs;
     glyphs.reserve(data.num_glyphs());

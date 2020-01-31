@@ -3,29 +3,36 @@
 
 #include <vector>
 
-struct Size {
+namespace Font {
+
+struct Size
+{
     std::size_t width;
     std::size_t height;
 };
+bool operator==(const Size &lhs, const Size &rhs) noexcept;
 
-struct Point {
+
+struct Point
+{
     std::size_t x;
     std::size_t y;
 
     std::size_t offset(Size sz) { return y * sz.width + x; }
 };
+bool operator==(const Point &lhs, const Point &rhs) noexcept;
 
-class Glyph {
 
+class Glyph
+{
 public:
     explicit Glyph(Size sz);
     Glyph(Size sz, std::vector<bool> pixels);
 
-    std::size_t width() const { return size_.width; }
-    std::size_t height() const { return size_.height; }
+    Size size() const { return size_; }
 
     bool is_pixel_set(Point p) const {
-        return bool(pixels_[p.offset(size_)]);
+        return pixels_[p.offset(size_)];
     }
 
 private:
@@ -34,21 +41,21 @@ private:
 };
 
 
-class RawFontFaceData
+class RawFaceData
 {
 public:
     virtual Size font_size() const = 0;
     virtual std::size_t num_glyphs() const = 0;
     virtual bool is_pixel_set(std::size_t glyph_id, Point p) const = 0;
 
-    virtual ~RawFontFaceData() = default;
+    virtual ~RawFaceData() = default;
 };
 
 
-class FontFace
+class Face
 {
 public:
-    FontFace(const RawFontFaceData &data);
+    Face(const RawFaceData &data);
 
     std::size_t num_glyphs() const { return glyphs_.size(); }
 
@@ -56,10 +63,13 @@ public:
     const Glyph& glyph_at(std::size_t index) const { return glyphs_.at(index); }
 
 private:
-    static std::vector<Glyph> read_glyphs(const RawFontFaceData &data);
+    static std::vector<Glyph> read_glyphs(const RawFaceData &data);
     Size sz_;
     std::vector<Glyph> glyphs_;
 };
+
+}
+
 
 
 #endif // FONTDATA_H
