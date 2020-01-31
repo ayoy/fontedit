@@ -14,8 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui {new Ui::MainWindow}
 {
     ui->setupUi(this);
-    setupGraphicsView();
-    setupFontLayout(11, 16, 30);
+    ui->glyphGraphicsView->setupFontLayout(11, 16, 30);
 
     connect(ui->actionNew, &QAction::triggered, [=] () {
         qDebug() << "new";
@@ -31,25 +30,4 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::setupGraphicsView()
-{
-    graphicsScene = std::make_unique<QGraphicsScene>();
-    ui->graphicsView->setScene(graphicsScene.get());
-}
-
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-    Q_UNUSED(event);
-    auto glyphView = graphicsScene->items().constLast();
-    ui->graphicsView->fitInView(glyphView, Qt::KeepAspectRatio);
-}
-
-void MainWindow::setupFontLayout(uint8_t width, uint8_t height, qreal size)
-{
-    auto glyphWidget = new GlyphWidget(width, height, size);
-
-    graphicsScene->setBackgroundBrush(QBrush(Qt::lightGray));
-    graphicsScene->addItem(glyphWidget);
 }
