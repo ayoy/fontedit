@@ -9,7 +9,6 @@
 static constexpr auto max_zoom_level = 2.0;
 static constexpr auto min_zoom_level = 0.1;
 static constexpr auto zoom_factor = 1.01;
-static constexpr auto pixel_size = 30.0;
 
 GlyphGraphicsView::GlyphGraphicsView(QWidget *parent) :
     QGraphicsView(parent),
@@ -17,29 +16,6 @@ GlyphGraphicsView::GlyphGraphicsView(QWidget *parent) :
 {
     scene_->setBackgroundBrush(QBrush(Qt::lightGray));
     setScene(scene_.get());
-}
-
-void GlyphGraphicsView::displayGlyph(const Font::Glyph &glyph)
-{
-    if (glyphWidget_ == nullptr) {
-        glyphWidget_ = new GlyphWidget(pixel_size);
-        scene()->addItem(glyphWidget_);
-
-        QObject::connect(glyphWidget_, SIGNAL(pixelChanged(Font::Point, bool)),
-                         this, SLOT(updatePixel(Font::Point, bool)));
-    }
-
-    glyphWidget_->loadGlyph(glyph);
-    glyph_ = glyph;
-}
-
-void GlyphGraphicsView::updatePixel(Font::Point pos, bool isSelected)
-{
-    glyph_->pixels[pos.offset(glyph_->size())] = isSelected;
-    for (auto b : glyph_->pixels) {
-        std::cout << b;
-    }
-    std::cout << std::endl;
 }
 
 void GlyphGraphicsView::resizeEvent(QResizeEvent *event)
