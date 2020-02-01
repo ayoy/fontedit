@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
+#include "fontfaceimporter.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,6 +21,7 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+    FontFaceImporter faceImporter;
 };
 
 #endif // MAINWINDOW_H

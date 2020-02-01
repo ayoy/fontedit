@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "f2b.h"
+#include "fontfaceimporter.h"
+
 #include <iostream>
 #include <QGraphicsGridLayout>
 #include <QGraphicsWidget>
@@ -14,10 +16,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    Font::Glyph g { Font::Size { 4, 4 } };
-    g.pixels[2] = true;
-    g.pixels[4] = true;
-    ui->glyphGraphicsView->displayGlyph(g);
+    QFont font("Monaco", 24, QFont::Bold);
+    font.setStyleStrategy(QFont::StyleStrategy::NoAntialias);
+
+    auto importer = FontFaceImporter();
+    auto face = importer.import_face(font);
+
+    ui->glyphGraphicsView->displayGlyph(face['}']);
 
     connect(ui->actionNew, &QAction::triggered, [=] () {
         qDebug() << "new";

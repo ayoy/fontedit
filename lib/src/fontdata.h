@@ -2,6 +2,7 @@
 #define FONTDATA_H
 
 #include <vector>
+#include <iostream>
 
 namespace Font {
 
@@ -19,6 +20,7 @@ struct Point
 
     std::size_t offset(Size sz) { return y * sz.width + x; }
 };
+
 
 class Glyph
 {
@@ -52,34 +54,62 @@ class Face
 public:
     explicit Face(const RawFaceData &data);
 
-    std::size_t num_glyphs() const { return glyphs_.size(); }
+    Size glyph_size() const noexcept { return sz_; }
+    std::size_t num_glyphs() const noexcept { return glyphs_.size(); }
 
     Glyph& glyph_at(std::size_t index) { return glyphs_.at(index); }
     const Glyph& glyph_at(std::size_t index) const { return glyphs_.at(index); }
 
+    Glyph& operator[](char ascii) {
+        if (ascii < ' ') {
+            throw std::out_of_range { "Glyphs for 0-31 ASCII range are not supported"};
+        }
+        return glyphs_[ascii-32];
+    }
+
+    const Glyph& operator[](char ascii) const {
+        if (ascii < ' ') {
+            throw std::out_of_range { "Glyphs for 0-31 ASCII range are not supported"};
+        }
+        return glyphs_[ascii-32];
+    }
+
 private:
+
     static std::vector<Glyph> read_glyphs(const RawFaceData &data);
     Size sz_;
     std::vector<Glyph> glyphs_;
 };
 
 
-inline bool operator==(const Size &lhs, const Size &rhs) noexcept {
+inline bool operator==(const Size& lhs, const Size& rhs) noexcept {
     return lhs.width == rhs.width && lhs.height == rhs.height;
 }
-inline bool operator!=(const Size &lhs, const Size &rhs) noexcept {
+inline bool operator!=(const Size& lhs, const Size& rhs) noexcept {
     return !(lhs == rhs);
 }
-inline bool operator==(const Point &lhs, const Point &rhs) noexcept {
+inline bool operator==(const Point& lhs, const Point& rhs) noexcept {
     return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-inline bool operator!=(const Point &lhs, const Point &rhs) noexcept {
+inline bool operator!=(const Point& lhs, const Point& rhs) noexcept {
     return !(lhs == rhs);
 }
 
 }
 
+inline std::ostream& operator<<(std::ostream& os, const Font::Glyph& g) {
+    for (std::size_t y = 0; y < g.size().height; y++) {
+        for (std::size_t x = 0; x < g.size().width; x++) {
+            Font::Point p { x, y };
+            os << g.is_pixel_set(p);
+        }
+        os << std::endl;
+    }
+    os << std::endl << std::flush;
+
+    return os;
+}
 
 
 #endif // FONTDATA_H
