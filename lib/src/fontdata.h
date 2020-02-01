@@ -10,12 +10,6 @@ struct Size
     std::size_t width;
     std::size_t height;
 };
-inline bool operator==(const Size &lhs, const Size &rhs) noexcept {
-    return lhs.width == rhs.width && lhs.height == rhs.height;
-}
-inline bool operator!=(const Size &lhs, const Size &rhs) noexcept {
-    return !(lhs == rhs);
-}
 
 
 struct Point
@@ -25,13 +19,6 @@ struct Point
 
     std::size_t offset(Size sz) { return y * sz.width + x; }
 };
-inline bool operator==(const Point &lhs, const Point &rhs) noexcept {
-    return lhs.x == rhs.x && lhs.y == rhs.y;
-}
-
-inline bool operator!=(const Point &lhs, const Point &rhs) noexcept {
-    return !(lhs == rhs);
-}
 
 class Glyph
 {
@@ -63,7 +50,7 @@ public:
 class Face
 {
 public:
-    Face(const RawFaceData &data);
+    explicit Face(const RawFaceData &data);
 
     std::size_t num_glyphs() const { return glyphs_.size(); }
 
@@ -75,6 +62,21 @@ private:
     Size sz_;
     std::vector<Glyph> glyphs_;
 };
+
+
+inline bool operator==(const Size &lhs, const Size &rhs) noexcept {
+    return lhs.width == rhs.width && lhs.height == rhs.height;
+}
+inline bool operator!=(const Size &lhs, const Size &rhs) noexcept {
+    return !(lhs == rhs);
+}
+inline bool operator==(const Point &lhs, const Point &rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+inline bool operator!=(const Point &lhs, const Point &rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 }
 

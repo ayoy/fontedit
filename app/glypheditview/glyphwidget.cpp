@@ -42,8 +42,8 @@ void GlyphWidget::updateLayout()
     // TODO: Handle changing glyph size (adding and/or removing items)
     // Currently it only works for populating empty layout
 
-    for (auto y = 0u; y < height_; y++) {
-        for (auto x = 0u; x < width_; x++) {
+    for (auto y = 0UL; y < height_; y++) {
+        for (auto x = 0UL; x < width_; x++) {
             auto pixel = new PixelWidget();
             pixel->setPreferredSize(pixel_size_, pixel_size_);
             layout_->addItem(pixel, y, x, 1, 1);

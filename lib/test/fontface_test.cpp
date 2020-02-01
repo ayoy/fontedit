@@ -4,16 +4,16 @@
 class TestFaceData : public Font::RawFaceData
 {
 public:
-    Font::Size font_size() const override { return Font::Size { 4, 3 }; }
+    Font::Size font_size() const override { return { 4, 3 }; }
     std::size_t num_glyphs() const override { return 5; }
 
     bool is_pixel_set(std::size_t glyph_id, Font::Point p) const override
     {
         auto glyph_offset = glyph_id * font_size().width * font_size().height;
-        return pixels_[glyph_offset + p.offset(font_size())];
+        return pixels[glyph_offset + p.offset(font_size())];
     }
 
-    std::vector<bool> pixels_
+    std::vector<bool> pixels
     {
         0, 0, 0, 0,
         0, 0, 0, 1,
@@ -57,7 +57,7 @@ TEST(FaceTest, Initialization)
 
                 Font::Point p { x, y };
                 auto offset = g_offset + p.offset(test_data.font_size());
-                EXPECT_EQ(bool(test_data.pixels_[offset]), g.is_pixel_set(p))
+                EXPECT_EQ(bool(test_data.pixels[offset]), g.is_pixel_set(p))
                         << "glyph: " << i << " x: " << x << " y: " << y;
             }
         }

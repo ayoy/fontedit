@@ -8,7 +8,7 @@ class QGraphicsLayoutItem;
 class FocusWidget : public QGraphicsWidget
 {
 public:
-    FocusWidget(QGraphicsItem *parent = nullptr);
+    explicit FocusWidget(QGraphicsItem *parent = nullptr);
     virtual ~FocusWidget() = default;
 
     void setFocus(QGraphicsLayoutItem *item, bool isFocused);

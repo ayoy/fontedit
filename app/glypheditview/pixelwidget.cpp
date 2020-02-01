@@ -3,9 +3,7 @@
 #include <iostream>
 #include <QDebug>
 
-PixelWidget::PixelWidget(QGraphicsItem *parent)
-    : QGraphicsWidget(parent)
-    , m_set { false }
+PixelWidget::PixelWidget(QGraphicsItem *parent) : QGraphicsWidget(parent)
 {
 }
 
