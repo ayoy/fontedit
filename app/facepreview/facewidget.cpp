@@ -24,7 +24,9 @@ void FaceWidget::load(const Font::Face &face)
 
     auto size = Font::qsize_with_size(face.glyph_size());
     size.rheight() += 6 + 50;
-    size = size.grownBy({ 6, 6, 6, 6 });
+    size.rwidth() += 12;
+    size.rheight() += 12;
+//    size = size.grownBy({ 6, 6, 6, 6 });
     size.rheight() = qMax(size.height(), 100);
     size.rwidth() = qMax(size.width(), 80);
 

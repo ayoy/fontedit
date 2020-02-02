@@ -41,7 +41,11 @@ inline QBitmap glyph_bitmap_preview(const Font::Glyph &g)
         }
     }
 
-    QBitmap b(image_size.grownBy({ 1, 1, 1, 1 }));
+    auto bitmapSize = image_size;
+    bitmapSize.rwidth() += 2;
+    bitmapSize.rheight() += 2;
+
+    QBitmap b(bitmapSize);
     QPainter p(&b);
     QPen pen(Qt::color1);
     pen.setWidth(2);

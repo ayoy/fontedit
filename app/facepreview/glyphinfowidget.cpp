@@ -32,7 +32,7 @@ void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     QFont f("Monaco");
     f.setStyleHint(QFont::TypeWriter);
-    f.setPointSize(12);
+    f.setPixelSize(12);
     QRectF textRect(rect());
     textRect.setTop(6);
     textRect.setLeft(6);
