@@ -19,7 +19,7 @@ GlyphWidget::GlyphWidget(qreal pixel_size, QGraphicsItem *parent) :
     setLayout(layout_);
 }
 
-void GlyphWidget::loadGlyph(const Font::Glyph &glyph)
+void GlyphWidget::load(const Font::Glyph &glyph)
 {
     width_ = glyph.size().width;
     height_ = glyph.size().height;

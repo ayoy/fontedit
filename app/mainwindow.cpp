@@ -52,27 +52,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::displayFace(const Font::Face &face)
+{
+    if (faceWidget_ == nullptr) {
+        faceWidget_ = std::make_unique<FaceWidget>();
+        ui->faceGraphicsView->scene()->addItem(faceWidget_.get());
+    }
+
+    faceWidget_->load(face);
+}
+
 void MainWindow::displayGlyph(const Font::Glyph &glyph)
 {
     if (glyphWidget_ == nullptr) {
-        glyphWidget_ = new GlyphWidget(pixel_size);
-        ui->glyphGraphicsView->scene()->addItem(glyphWidget_);
+        glyphWidget_ = std::make_unique<GlyphWidget>(pixel_size);
+        ui->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
-        connect(glyphWidget_, &GlyphWidget::pixelChanged,
+        connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
                 [&] (Font::Point p, bool is_selected) {
             viewModel_->active_glyph()->set_pixel_set(p, is_selected);
         });
     }
 
-    glyphWidget_->loadGlyph(glyph);
-    glyph_ = glyph;
-}
-
-void MainWindow::updateGlyphPixel(Font::Point pos, bool isSelected)
-{
-    glyph_->pixels[pos.offset(glyph_->size())] = isSelected;
-    for (auto b : glyph_->pixels) {
-        std::cout << b;
-    }
-    std::cout << std::endl;
+    glyphWidget_->load(glyph);
 }

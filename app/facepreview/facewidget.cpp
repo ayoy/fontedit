@@ -5,3 +5,7 @@ FaceWidget::FaceWidget(QGraphicsItem *parent) :
 {
 
 }
+
+void FaceWidget::load(const Font::Face &face)
+{
+}

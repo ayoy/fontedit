@@ -4,14 +4,14 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include "fontfaceviewmodel.h"
+#include "facewidget.h"
+#include "glyphwidget.h"
+
 #include <optional>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
-class GlyphWidget;
-class FaceWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -21,18 +21,15 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void updateGlyphPixel(Font::Point pos, bool isSelected);
-
 private:
+    void displayFace(const Font::Face &face);
     void displayGlyph(const Font::Glyph &glyph);
     void setupViewModel(FontFaceViewModel &&viewModel);
 
     Ui::MainWindow *ui;
 
-    GlyphWidget *glyphWidget_ { nullptr };
-    FaceWidget *faceWidget_ { nullptr };
-    std::optional<Font::Glyph> glyph_ { std::nullopt };
+    std::unique_ptr<GlyphWidget> glyphWidget_ { nullptr };
+    std::unique_ptr<FaceWidget> faceWidget_ { nullptr };
     std::optional<FontFaceViewModel> viewModel_ { std::nullopt };
 };
 

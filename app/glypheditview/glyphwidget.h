@@ -15,7 +15,7 @@ public:
     explicit GlyphWidget(qreal pixel_size, QGraphicsItem *parent = nullptr);
     virtual ~GlyphWidget() = default;
 
-    void loadGlyph(const Font::Glyph &glyph);
+    void load(const Font::Glyph &glyph);
 
 signals:
     void pixelChanged(Font::Point pos, bool isSelected);
