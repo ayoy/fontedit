@@ -11,4 +11,4 @@ add_library(facepreview
     glyphinfowidget.h
 )
 
-target_link_libraries(facepreview PRIVATE Qt5::Widgets Qt5::Core common font2bytes)
+target_link_libraries(facepreview PRIVATE Qt5::Widgets Qt5::Core common font2bytes glypheditview)

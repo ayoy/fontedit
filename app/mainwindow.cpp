@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::setupViewModel(FontFaceViewModel &&viewModel)
 {
     view_model_ = viewModel;
-    view_model_.value().set_active_glyph_index(8);
+//    view_model_.value().set_active_glyph_index(8);
 
     displayFace(view_model_.value().face());
 
@@ -63,6 +63,12 @@ void MainWindow::displayFace(const Font::Face &face)
     if (face_widget_ == nullptr) {
         face_widget_ = new FaceWidget();
         ui->faceGraphicsView->scene()->addItem(face_widget_);
+
+        connect(face_widget_, &FaceWidget::currentGlyphIndexChanged,
+                [&] (std::size_t index) {
+            view_model_->set_active_glyph_index(index);
+            displayGlyph(*view_model_.value().active_glyph());
+        });
     }
 
     face_widget_->load(face);

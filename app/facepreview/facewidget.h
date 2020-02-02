@@ -3,17 +3,33 @@
 
 #include <QGraphicsWidget>
 #include <QGraphicsGridLayout>
-#include "f2b.h"
+#include <f2b.h>
+#include "../glypheditview/focuswidget.h"
+
+#include <memory>
 
 class FaceWidget : public QGraphicsWidget
 {
+    Q_OBJECT
+
 public:
     explicit FaceWidget(QGraphicsItem *parent = nullptr);
 
     void load(const Font::Face &face);
+    void setCurrentGlyphIndex(std::size_t index);
+
+signals:
+    void currentGlyphIndexChanged(std::size_t index);
+
+protected:
+    bool sceneEvent(QEvent *event) override;
 
 private:
+    void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
+
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
+    std::unique_ptr<FocusWidget> focusWidget_ { nullptr };
+    QSize itemSize_;
 };
 
 #endif // FACEWIDGET_H

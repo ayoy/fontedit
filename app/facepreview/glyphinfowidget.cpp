@@ -16,7 +16,7 @@ GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, char asciiCode, QGrap
     stream << "dec: " << std::setw(3) << std::dec << static_cast<uint>(asciiCode) << std::endl;
     stream << "chr: '" << asciiCode << "'";
     description = QString::fromStdString(stream.str());
-    qDebug() << description;
+//    qDebug() << description;
 }
 
 void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -25,7 +25,9 @@ void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(widget);
 
     painter->fillRect(rect(), QBrush(Qt::white));
-    painter->setPen(QPen(QBrush(Qt::darkGray), 1));
+    QPen pen(QBrush(Qt::darkGray), 0); // 0px wide???
+    pen.setStyle(Qt::DashLine);
+    painter->setPen(pen);
     painter->drawRect(rect());
 
     QFont f("Monaco");

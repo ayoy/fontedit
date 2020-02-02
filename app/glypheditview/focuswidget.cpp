@@ -12,7 +12,7 @@ void FocusWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
-    painter->setPen(QPen(QBrush(Qt::red), 2));
+    painter->setPen(QPen(QBrush(color_), 2));
     painter->drawRect(rect());
 }
 

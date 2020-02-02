@@ -14,6 +14,12 @@ public:
     void setFocus(QGraphicsLayoutItem *item, bool isFocused);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
+    const QColor& color() const { return color_; }
+    void setColor(const QColor &color) { color_ = color; update(); }
+
+private:
+    QColor color_ { Qt::red };
 };
 
 #endif // FOCUSWIDGET_H
