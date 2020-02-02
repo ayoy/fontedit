@@ -21,8 +21,10 @@ GlyphGraphicsView::GlyphGraphicsView(QWidget *parent) :
 void GlyphGraphicsView::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
-    auto glyphView = scene()->items().constLast();
-    fitInView(glyphView, Qt::KeepAspectRatio);
+    if (!scene()->items().isEmpty()) {
+        auto glyphView = scene()->items().constLast();
+        fitInView(glyphView, Qt::KeepAspectRatio);
+    }
 }
 
 void GlyphGraphicsView::wheelEvent(QWheelEvent *event)

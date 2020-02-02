@@ -4,8 +4,8 @@
 #include <QGraphicsWidget>
 #include <QGraphicsGridLayout>
 #include "f2b.h"
-
-class FocusWidget;
+#include <memory>
+#include "focuswidget.h"
 
 class GlyphWidget : public QGraphicsWidget
 {
@@ -34,7 +34,7 @@ private:
     void moveFocus(const QPoint &from, const QPoint &to);
 
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
-    FocusWidget *focus_widget_ { nullptr };
+    std::unique_ptr<FocusWidget> focus_widget_ { nullptr };
     QGraphicsLayoutItem *focused_item_ { nullptr };
     std::size_t width_ { 0 };
     std::size_t height_ { 0 };

@@ -1,6 +1,5 @@
 #include "glyphwidget.h"
 #include "pixelwidget.h"
-#include "focuswidget.h"
 #include <QGraphicsGridLayout>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
@@ -40,7 +39,16 @@ void GlyphWidget::updateLayout()
     }
 
     // TODO: Handle changing glyph size (adding and/or removing items)
-    // Currently it only works for populating empty layout
+    // Currently it deletes all pixels every time
+    for (auto& item : childItems()) {
+        if (item->zValue() == 0) {
+            delete item;
+        }
+    }
+
+    if (focus_widget_ != nullptr) {
+        focus_widget_->hide();
+    }
 
     for (auto y = 0UL; y < height_; y++) {
         for (auto x = 0UL; x < width_; x++) {
@@ -48,6 +56,7 @@ void GlyphWidget::updateLayout()
             pixel->setPreferredSize(pixel_size_, pixel_size_);
             layout_->addItem(pixel, y, x, 1, 1);
         }
+        qDebug() << "line" << y << "finished";
     }
 }
 
@@ -134,7 +143,7 @@ void GlyphWidget::moveFocus(const QPoint &from, const QPoint &to)
 void GlyphWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
 {
     if (focus_widget_ == nullptr) {
-        focus_widget_ = new FocusWidget(this);
+        focus_widget_ = std::make_unique<FocusWidget>(this);
     }
 
     focus_widget_->setFocus(item, isFocused);

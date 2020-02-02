@@ -1,9 +1,11 @@
 #include "focuswidget.h"
 #include <QPainter>
+#include <QDebug>
 
 FocusWidget::FocusWidget(QGraphicsItem *parent)
     : QGraphicsWidget(parent)
 {
+    setZValue(1);
 }
 
 void FocusWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "fontdata.h"
 
-class TestFaceData : public Font::RawFaceData
+class TestFaceData : public Font::FaceReader
 {
 public:
     Font::Size font_size() const override { return { 4, 3 }; }

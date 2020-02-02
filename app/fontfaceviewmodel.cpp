@@ -1,4 +1,4 @@
-#include "fontfaceimporter.h"
+#include "fontfaceviewmodel.h"
 #include "f2b.h"
 #include "f2b_qt_compat.h"
 
@@ -26,11 +26,11 @@ static const QString template_text = []{
 }();
 
 
-class RawQFontAdapter : public Font::RawFaceData
+class QFontFaceReader : public Font::FaceReader
 {
 public:
-    RawQFontAdapter(const QFont &font);
-    virtual ~RawQFontAdapter() override = default;
+    explicit QFontFaceReader(const QFont &font);
+    virtual ~QFontFaceReader() override = default;
 
     virtual Font::Size font_size() const override { return sz_; }
     virtual std::size_t num_glyphs() const override { return ascii_glyphs.length(); }
@@ -44,21 +44,21 @@ private:
 };
 
 
-RawQFontAdapter::RawQFontAdapter(const QFont &font) :
-    Font::RawFaceData(),
-    font_image_ { read_font(font) }
+QFontFaceReader::QFontFaceReader(const QFont &font) :
+    Font::FaceReader()
 {
     QFontMetrics fm(font);
+    font_image_ = read_font(font);
     sz_ = { static_cast<std::size_t>(fm.maxWidth()), static_cast<std::size_t>(fm.lineSpacing()) };
 }
 
-bool RawQFontAdapter::is_pixel_set(std::size_t glyph_id, Font::Point p) const
+bool QFontFaceReader::is_pixel_set(std::size_t glyph_id, Font::Point p) const
 {
     p.y += glyph_id * sz_.height;
     return font_image_->pixelColor(Font::qpoint_with_point(p)) == Qt::color1;
 }
 
-std::unique_ptr<QImage> RawQFontAdapter::read_font(const QFont &font)
+std::unique_ptr<QImage> QFontFaceReader::read_font(const QFont &font)
 {
     QFontMetrics fm(font);
 //    qDebug() << font << fm.height() << fm.maxWidth() << fm.leading() << fm.lineSpacing();
@@ -101,13 +101,19 @@ std::unique_ptr<QImage> RawQFontAdapter::read_font(const QFont &font)
 }
 
 
-FontFaceImporter::FontFaceImporter()
+FontFaceViewModel::FontFaceViewModel(Font::Face face) :
+    face_ { face }
 {
 }
 
-Font::Face FontFaceImporter::import_face(const QFont &font)
+FontFaceViewModel::FontFaceViewModel(const QFont &font) :
+    FontFaceViewModel(import_face(font))
 {
-    RawQFontAdapter adapter(font);
+}
+
+Font::Face FontFaceViewModel::import_face(const QFont &font)
+{
+    QFontFaceReader adapter(font);
 
     return Font::Face(adapter);
 }

@@ -12,12 +12,12 @@ Glyph::Glyph(Size sz, std::vector<bool> pixels) :
     size_ { sz }
 {}
 
-Face::Face(const RawFaceData &data) :
+Face::Face(const FaceReader &data) :
     sz_ { data.font_size() },
     glyphs_ { read_glyphs(data) }
 {}
 
-std::vector<Glyph> Face::read_glyphs(const RawFaceData &data)
+std::vector<Glyph> Face::read_glyphs(const FaceReader &data)
 {
     std::vector<Glyph> glyphs;
     glyphs.reserve(data.num_glyphs());

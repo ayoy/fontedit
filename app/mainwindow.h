@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
-#include "fontfaceimporter.h"
+#include "fontfaceviewmodel.h"
 #include <optional>
 
 QT_BEGIN_NAMESPACE
@@ -21,19 +21,19 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-protected:
-
 private slots:
-    void updatePixel(Font::Point pos, bool isSelected);
+    void updateGlyphPixel(Font::Point pos, bool isSelected);
 
 private:
     void displayGlyph(const Font::Glyph &glyph);
+    void setupViewModel(FontFaceViewModel &&viewModel);
 
     Ui::MainWindow *ui;
 
     GlyphWidget *glyphWidget_ { nullptr };
     FaceWidget *faceWidget_ { nullptr };
     std::optional<Font::Glyph> glyph_ { std::nullopt };
+    std::optional<FontFaceViewModel> viewModel_ { std::nullopt };
 };
 
 #endif // MAINWINDOW_H
