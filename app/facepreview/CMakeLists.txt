@@ -7,6 +7,8 @@ find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 add_library(facepreview
     facewidget.cpp
     facewidget.h
+    glyphinfowidget.cpp
+    glyphinfowidget.h
 )
 
-target_link_libraries(facepreview PRIVATE Qt5::Widgets Qt5::Core font2bytes)
+target_link_libraries(facepreview PRIVATE Qt5::Widgets Qt5::Core common font2bytes)

@@ -28,9 +28,10 @@ private:
 
     Ui::MainWindow *ui;
 
-    std::unique_ptr<GlyphWidget> glyphWidget_ { nullptr };
-    std::unique_ptr<FaceWidget> faceWidget_ { nullptr };
-    std::optional<FontFaceViewModel> viewModel_ { std::nullopt };
+    std::unique_ptr<GlyphWidget> glyph_widget_ { nullptr };
+    FaceWidget *face_widget_ { nullptr };
+    std::optional<FontFaceViewModel> view_model_ { std::nullopt };
+    std::unique_ptr<QGraphicsScene> face_scene_ { std::make_unique<QGraphicsScene>() };
 };
 
 #endif // MAINWINDOW_H

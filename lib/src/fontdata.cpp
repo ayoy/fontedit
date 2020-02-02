@@ -3,13 +3,13 @@
 using namespace Font;
 
 Glyph::Glyph(Size sz) :
-    pixels { std::vector<bool>(sz.width * sz.height, false) },
-    size_ { sz }
+    size_ { sz },
+    pixels_ { std::vector<bool>(sz.width * sz.height, false) }
 {}
 
 Glyph::Glyph(Size sz, std::vector<bool> pixels) :
-    pixels { std::move(pixels) },
-    size_ { sz }
+    size_ { sz },
+    pixels_ { std::move(pixels) }
 {}
 
 Face::Face(const FaceReader &data) :

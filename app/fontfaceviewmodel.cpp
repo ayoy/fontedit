@@ -61,7 +61,7 @@ bool QFontFaceReader::is_pixel_set(std::size_t glyph_id, Font::Point p) const
 std::unique_ptr<QImage> QFontFaceReader::read_font(const QFont &font)
 {
     QFontMetrics fm(font);
-//    qDebug() << font << fm.height() << fm.maxWidth() << fm.leading() << fm.lineSpacing();
+    qDebug() << font << fm.height() << fm.maxWidth() << fm.leading() << fm.lineSpacing();
 
     auto img_size = QSize(fm.maxWidth(), fm.lineSpacing() * ascii_glyphs.length());
     auto image = std::make_unique<QImage>(img_size, QImage::Format::Format_Mono);

@@ -3,6 +3,10 @@
 
 #include "f2b.h"
 #include <QPoint>
+#include <QSize>
+#include <QBitmap>
+#include <QPainter>
+#include <QDebug>
 
 namespace Font {
 
@@ -15,6 +19,38 @@ inline Font::Point point_with_qpoint(const QPoint &p)
 inline QPoint qpoint_with_point(const Font::Point &p)
 {
     return QPoint { static_cast<int>(p.x), static_cast<int>(p.y) };
+}
+
+inline QSize qsize_with_size(const Font::Size &s)
+{
+    return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };
+}
+
+inline QBitmap glyph_bitmap_preview(const Font::Glyph &g)
+{
+    auto image_size = qsize_with_size(g.size());
+
+    QImage image(image_size, QImage::Format_Mono);
+    image.fill(Qt::color1);
+
+    for (std::vector<bool>::size_type y = 0; y < g.size().height; ++y) {
+        for (std::vector<bool>::size_type x = 0; x < g.size().width; ++x) {
+            if (g.is_pixel_set({x, y})) {
+                image.setPixel(x, y, Qt::color0);
+            }
+        }
+    }
+
+    QBitmap b(image_size.grownBy({ 1, 1, 1, 1 }));
+    QPainter p(&b);
+    QPen pen(Qt::color1);
+    pen.setWidth(2);
+    p.setPen(pen);
+    p.drawRect(b.rect());
+    p.drawImage(QPoint {1, 1}, image);
+    p.end();
+
+    return b;
 }
 
 }

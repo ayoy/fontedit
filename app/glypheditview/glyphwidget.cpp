@@ -25,8 +25,9 @@ void GlyphWidget::load(const Font::Glyph &glyph)
     height_ = glyph.size().height;
     updateLayout();
 
-    for (std::vector<bool>::size_type i = 0; i < glyph.pixels.size(); ++i) {
-        setItemState(layout_->itemAt(i), glyph.pixels[i]);
+    auto pixels = glyph.pixels();
+    for (std::vector<bool>::size_type i = 0; i < pixels.size(); ++i) {
+        setItemState(layout_->itemAt(i), pixels[i]);
     }
 }
 
@@ -56,7 +57,7 @@ void GlyphWidget::updateLayout()
             pixel->setPreferredSize(pixel_size_, pixel_size_);
             layout_->addItem(pixel, y, x, 1, 1);
         }
-        qDebug() << "line" << y << "finished";
+//        qDebug() << "line" << y << "layout complete";
     }
 }
 

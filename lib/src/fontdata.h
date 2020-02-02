@@ -29,13 +29,14 @@ public:
     explicit Glyph(Size sz, std::vector<bool> pixels);
 
     Size size() const { return size_; }
-    bool is_pixel_set(Point p) const { return pixels[p.offset(size_)]; }
-    void set_pixel_set(Point p, bool is_set) { pixels[p.offset(size_)] = is_set; }
+    bool is_pixel_set(Point p) const { return pixels_[p.offset(size_)]; }
+    void set_pixel_set(Point p, bool is_set) { pixels_[p.offset(size_)] = is_set; }
 
-    std::vector<bool> pixels;
+    std::vector<bool> pixels() const { return pixels_; }
 
 private:
     Size size_;
+    std::vector<bool> pixels_;
 };
 
 
@@ -60,6 +61,9 @@ public:
 
     Glyph& glyph_at(std::size_t index) { return glyphs_.at(index); }
     const Glyph& glyph_at(std::size_t index) const { return glyphs_.at(index); }
+
+    std::vector<Glyph> glyphs() const { return glyphs_; }
+    void set_glyph(Glyph g, std::size_t index) { glyphs_[index] = g; }
 
     Glyph& operator[](char ascii) {
         if (ascii < ' ') {

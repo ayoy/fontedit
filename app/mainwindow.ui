@@ -64,15 +64,18 @@
       <widget class="QGraphicsView" name="faceGraphicsView">
        <property name="minimumSize">
         <size>
-         <width>192</width>
+         <width>240</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>192</width>
+         <width>240</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
       </widget>
      </item>
