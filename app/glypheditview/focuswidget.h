@@ -11,7 +11,7 @@ public:
     explicit FocusWidget(QGraphicsItem *parent = nullptr);
     virtual ~FocusWidget() = default;
 
-    void setFocus(QGraphicsLayoutItem *item, bool isFocused);
+    void setFocus(QGraphicsLayoutItem *item, bool isFocused = true);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 

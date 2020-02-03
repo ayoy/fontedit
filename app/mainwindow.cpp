@@ -24,17 +24,15 @@ MainWindow::MainWindow(QWidget *parent)
     face_scene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui->faceGraphicsView->setScene(face_scene_.get());
 
-
-    QFont font("Monaco", 24, QFont::Bold);
-    font.setStyleStrategy(QFont::StyleStrategy::NoAntialias);
-
     connect(ui->actionNew, &QAction::triggered, [=] () {
         qDebug() << "new";
     });
 
     connect(ui->actionImport_Font, &QAction::triggered, [&] () {
         bool ok;
-        QFont f = QFontDialog::getFont(&ok, QFont(), this, tr("Select Font"), QFontDialog::MonospacedFonts);
+        QFont f("Monaco", 24);
+        f.setStyleHint(QFont::TypeWriter);
+        f = QFontDialog::getFont(&ok, f, this, tr("Select Font"), QFontDialog::MonospacedFonts | QFontDialog::DontUseNativeDialog);
         qDebug() << "selected font:" << f << "ok?" << ok;
         FontFaceViewModel viewModel { f };
         setupViewModel(std::move(viewModel));

@@ -25,5 +25,7 @@ void FocusWidget::setFocus(QGraphicsLayoutItem *item, bool isFocused)
         } else {
             setVisible(false);
         }
+    } else {
+        setVisible(false);
     }
 }

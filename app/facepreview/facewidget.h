@@ -26,10 +26,11 @@ protected:
 
 private:
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
+    void resetFocusWidget();
 
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
     std::unique_ptr<FocusWidget> focusWidget_ { nullptr };
-    QSize itemSize_;
+    QSizeF itemSize_;
 };
 
 #endif // FACEWIDGET_H

@@ -5,6 +5,10 @@
 #include <QGraphicsSceneEvent>
 
 static constexpr auto col_count = 3;
+static constexpr auto printable_ascii_offset = ' ';
+static constexpr auto cell_width = 80.0;
+static constexpr auto min_cell_height = 100.0;
+static constexpr auto max_image_width = cell_width - 2 * GlyphInfoWidget::cellMargin;
 
 FaceWidget::FaceWidget(QGraphicsItem *parent) :
     QGraphicsWidget(parent)
@@ -16,27 +20,43 @@ FaceWidget::FaceWidget(QGraphicsItem *parent) :
 
 void FaceWidget::load(const Font::Face &face)
 {
+    // TODO: Reuse items instead of deleting them all
     for (auto& item : childItems()) {
         if (item->zValue() == 0) {
             delete item;
         }
     }
 
-    auto size = Font::qsize_with_size(face.glyph_size());
-    size.rheight() += 6 + 50;
-    size.rwidth() += 12;
-    size.rheight() += 12;
-//    size = size.grownBy({ 6, 6, 6, 6 });
-    size.rheight() = qMax(size.height(), 100);
-    size.rwidth() = qMax(size.width(), 80);
+    resetFocusWidget();
+
+    qDebug() << childItems().count() << "child item(s)";
+
+    // height: 6 + desc.height + 6 + img.height + 6
+    // width: 6 + img.width + 6
+    // max image width: 80 - 2*6 = 68
+
+    QSizeF imageSize { Font::qsize_with_size(face.glyph_size()) };
+    if (imageSize.width() > max_image_width) {
+        imageSize.scale({ max_image_width, qInf() }, Qt::KeepAspectRatio);
+    }
+    auto size = imageSize;
+    size.rheight() += GlyphInfoWidget::cellMargin + GlyphInfoWidget::descriptionHeight;
+    size.rwidth() += 2 * GlyphInfoWidget::cellMargin;
+    size.rheight() += 2 * GlyphInfoWidget::cellMargin;
+    size.rheight() = qMax(size.height(), min_cell_height);
+    size.rwidth() = qMax(size.width(), cell_width);
 
     itemSize_ = size;
 
+    qDebug() << "NEW ITEM SIZE:" << itemSize_;
+
     auto index = 0;
     for (const auto& g : face.glyphs()) {
-        auto glyphWidget = new GlyphInfoWidget(g, ' ' + index);
+        auto glyphWidget = new GlyphInfoWidget(g, printable_ascii_offset + index, imageSize);
 
-        glyphWidget->setPreferredSize(size);
+        // TODO: reduce number of these calls
+        layout_->setRowFixedHeight(index / col_count, itemSize_.height());
+        layout_->setColumnFixedWidth(index % col_count, itemSize_.width());
 
         layout_->addItem(glyphWidget, index / col_count, index % col_count, 1, 1);
         index += 1;
@@ -59,7 +79,13 @@ void FaceWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
     }
 
     focusWidget_->setFocus(item, isFocused);
-//    focused_item_ = isFocused ? item : nullptr;
+}
+
+void FaceWidget::resetFocusWidget()
+{
+    if (focusWidget_ != nullptr) {
+        focusWidget_->setFocus(nullptr);
+    }
 }
 
 bool FaceWidget::sceneEvent(QEvent *event)
@@ -75,8 +101,12 @@ bool FaceWidget::sceneEvent(QEvent *event)
             int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / itemSize_.width());
             qDebug() << mouseEvent << row << col;
             auto item = layout_->itemAt(row, col);
-            setFocusForItem(item, true);
-            emit currentGlyphIndexChanged(row * 3 + col);
+            if (item != nullptr) {
+                setFocusForItem(item, true);
+                emit currentGlyphIndexChanged(row * 3 + col);
+            } else {
+                resetFocusWidget();
+            }
         }
         break;
     default:
