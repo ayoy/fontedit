@@ -17,6 +17,7 @@ GlyphWidget::GlyphWidget(qreal pixel_size, QGraphicsItem *parent) :
 
     layout_->setSpacing(0);
     setLayout(layout_);
+    layout_->getContentsMargins(&leftMargin_, &topMargin_, nullptr, nullptr);
 }
 
 void GlyphWidget::load(const Font::Glyph &glyph)
@@ -61,82 +62,119 @@ void GlyphWidget::updateLayout()
     }
 }
 
-bool GlyphWidget::sceneEvent(QEvent *event)
+void GlyphWidget::keyPressEvent(QKeyEvent *event)
 {
-    switch (event->type()) {
-    case QActionEvent::KeyPress:
-        if (auto keyEvent = dynamic_cast<QKeyEvent *>(event)) {
-            handleKeyPress(keyEvent);
-        }
-        break;
-    case QActionEvent::GraphicsSceneMousePress:
-    case QActionEvent::GraphicsSceneMouseDoubleClick:
-        if (auto mouseEvent = dynamic_cast<QGraphicsSceneMouseEvent *>(event)) {
-            qreal leftMargin;
-            qreal topMargin;
-            layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
-            int row = static_cast<int>((mouseEvent->pos().y() - topMargin) / pixel_size_);
-            int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / pixel_size_);
-            qDebug() << mouseEvent << row << col;
-            auto item = layout_->itemAt(row, col);
-            setFocusForItem(item, true);
-            toggleItemSet({ col, row });
-        }
-        break;
-    default:
-        break;
-    }
-    return QGraphicsWidget::sceneEvent(event);
-}
-
-void GlyphWidget::handleKeyPress(QKeyEvent *event) {
     if (focused_item_ == nullptr) {
         return;
     }
 
     const auto pos = focused_item_->geometry().topLeft();
-    qreal leftMargin;
-    qreal topMargin;
-    layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
-
-    const QPoint current(static_cast<int>((pos.x() - leftMargin) / pixel_size_),
-                         static_cast<int>((pos.y() - topMargin) / pixel_size_));
-    QPoint updated(current);
+    QPoint itemPos(static_cast<int>((pos.x() - leftMargin_) / pixel_size_),
+                   static_cast<int>((pos.y() - topMargin_) / pixel_size_));
 
     switch (event->key()) {
     case Qt::Key_Left:
     case Qt::Key_H:
-        updated.setX(qMax(current.x() - 1, 0));
-        moveFocus(current, updated);
+        itemPos.setX(qMax(itemPos.x() - 1, 0));
+        moveFocus(itemPos);
         break;
     case Qt::Key_Right:
     case Qt::Key_L:
-        updated.setX(qMin(current.x() + 1, static_cast<int>(width_) - 1));
-        moveFocus(current, updated);
+        itemPos.setX(qMin(itemPos.x() + 1, static_cast<int>(width_) - 1));
+        moveFocus(itemPos);
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        updated.setY(qMax(current.y() - 1, 0));
-        moveFocus(current, updated);
+        itemPos.setY(qMax(itemPos.y() - 1, 0));
+        moveFocus(itemPos);
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        updated.setY(qMin(current.y() + 1, static_cast<int>(height_) - 1));
-        moveFocus(current, updated);
+        itemPos.setY(qMin(itemPos.y() + 1, static_cast<int>(height_) - 1));
+        moveFocus(itemPos);
         break;
     case Qt::Key_Space:
-        toggleItemSet(updated);
+        toggleItemSet(itemPos);
+        break;
+    case Qt::Key_Alt:
+    case Qt::Key_AltGr:
+        itemState_ = false;
         break;
     }
 }
 
-void GlyphWidget::moveFocus(const QPoint &from, const QPoint &to)
+void GlyphWidget::keyReleaseEvent(QKeyEvent *event)
 {
-    if (to != from) {
-        qDebug() << from << to;
-        auto fromItem = layout_->itemAt(from.y(), from.x());
-        auto toItem = layout_->itemAt(to.y(), to.x());
-        setFocusForItem(fromItem, false);
+    if (!isDuringMouseMove_) {
+        return;
+    }
+
+    if (event->key() == Qt::Key_Alt || event->key() == Qt::Key_AltGr) {
+        itemState_ = true;
+    }
+}
+
+void GlyphWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    handleMousePress(event);
+}
+
+void GlyphWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    handleMousePress(event);
+}
+
+void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
+{
+    int row = static_cast<int>((event->pos().y() - topMargin_) / pixel_size_);
+    int col = static_cast<int>((event->pos().x() - leftMargin_) / pixel_size_);
+    qDebug() << event << row << col;
+    auto item = layout_->itemAt(row, col);
+
+    QPoint itemPos { col, row };
+
+    itemState_ = !event->modifiers().testFlag(Qt::AltModifier);
+    setFocusForItem(item, true);
+    setItemState(itemPos, itemState_);
+
+    affectedItems_.clear();
+    affectedItems_[itemPos] = itemState_;
+    isDuringMouseMove_ = true;
+}
+
+void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    int row = static_cast<int>((event->pos().y() - topMargin_) / pixel_size_);
+    int col = static_cast<int>((event->pos().x() - leftMargin_) / pixel_size_);
+
+    QPoint itemPos { col, row };
+
+    // If item not visited or visited with a different state
+    if (affectedItems_.find(itemPos) == affectedItems_.end() ||
+            affectedItems_[itemPos] != itemState_)
+    {
+        affectedItems_[itemPos] = itemState_;
+        qDebug() << "mouse move to new item" << row << col << itemState_;
+        setItemState(itemPos, itemState_);
+        moveFocus(itemPos);
+    }
+}
+
+void GlyphWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+
+    isDuringMouseMove_ = false;
+
+    QDebug d(QtDebugMsg);
+    for (const auto& i : affectedItems_) {
+        d << i.first;
+    }
+}
+
+void GlyphWidget::moveFocus(const QPoint &to)
+{
+    if (auto toItem = layout_->itemAt(to.y(), to.x())) {
         setFocusForItem(toItem, true);
     }
 }
@@ -155,6 +193,19 @@ void GlyphWidget::setItemState(QGraphicsLayoutItem *item, bool isSelected)
 {
     if (auto pixel = dynamic_cast<PixelWidget *>(item)) {
         pixel->setSet(isSelected);
+    }
+}
+
+void GlyphWidget::setItemState(const QPoint &pos, bool isSelected)
+{
+    auto item = layout_->itemAt(pos.y(), pos.x());
+    if (auto pixel = dynamic_cast<PixelWidget *>(item)) {
+        if (pixel->isSet() != isSelected) {
+
+            pixel->setSet(isSelected);
+            auto glyphPos = Font::point_with_qpoint(pos);
+            emit pixelChanged(glyphPos, isSelected);
+        }
     }
 }
 
