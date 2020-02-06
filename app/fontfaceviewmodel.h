@@ -4,6 +4,8 @@
 #include <QFont>
 #include "f2b.h"
 #include <optional>
+#include <vector>
+#include <exception>
 
 class FontFaceViewModel
 {
@@ -22,11 +24,11 @@ public:
         return active_glyph_index_;
     }
 
-    Font::Glyph* active_glyph() {
+    Font::Glyph& active_glyph() {
         if (!active_glyph_index_.has_value()) {
-             return nullptr;
+             throw std::logic_error("No active glyph. Call set_active_glyph_index() first");
         }
-        return &face_.glyph_at(active_glyph_index_.value());
+        return face_.glyph_at(active_glyph_index_.value());
     }
 
 private:

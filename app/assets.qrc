@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/toolbar">
+        <file>assets/code.svg</file>
+        <file>assets/copy.svg</file>
+        <file>assets/delete.svg</file>
+        <file>assets/new.svg</file>
+        <file>assets/paste.svg</file>
+        <file>assets/print.svg</file>
+        <file>assets/redo.svg</file>
+        <file>assets/reset.svg</file>
+        <file>assets/save.svg</file>
+        <file>assets/undo.svg</file>
+        <file>assets/font.svg</file>
+        <file>assets/clear.svg</file>
+        <file>assets/settings.svg</file>
+    </qresource>
+</RCC>

@@ -98,7 +98,7 @@ void GlyphWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Alt:
     case Qt::Key_AltGr:
-        itemState_ = false;
+        penState_ = false;
         break;
     }
 }
@@ -110,7 +110,7 @@ void GlyphWidget::keyReleaseEvent(QKeyEvent *event)
     }
 
     if (event->key() == Qt::Key_Alt || event->key() == Qt::Key_AltGr) {
-        itemState_ = true;
+        penState_ = true;
     }
 }
 
@@ -133,12 +133,12 @@ void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
 
     QPoint itemPos { col, row };
 
-    itemState_ = !event->modifiers().testFlag(Qt::AltModifier);
+    penState_ = !event->modifiers().testFlag(Qt::AltModifier);
     setFocusForItem(item, true);
-    setItemState(itemPos, itemState_);
+    setItemState(itemPos, penState_);
 
     affectedItems_.clear();
-    affectedItems_[itemPos] = itemState_;
+    affectedItems_[itemPos] = penState_;
     isDuringMouseMove_ = true;
 }
 
@@ -151,11 +151,11 @@ void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     // If item not visited or visited with a different state
     if (affectedItems_.find(itemPos) == affectedItems_.end() ||
-            affectedItems_[itemPos] != itemState_)
+            affectedItems_[itemPos] != penState_)
     {
-        affectedItems_[itemPos] = itemState_;
-        qDebug() << "mouse move to new item" << row << col << itemState_;
-        setItemState(itemPos, itemState_);
+        affectedItems_[itemPos] = penState_;
+        qDebug() << "mouse move to new item" << row << col << penState_;
+        setItemState(itemPos, penState_);
         moveFocus(itemPos);
     }
 }

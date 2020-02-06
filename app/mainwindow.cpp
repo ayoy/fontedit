@@ -21,8 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    face_scene_->setBackgroundBrush(QBrush(Qt::lightGray));
-    ui->faceGraphicsView->setScene(face_scene_.get());
+    faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
+    ui->faceGraphicsView->setScene(faceScene_.get());
 
     connect(ui->actionNew, &QAction::triggered, [=] () {
         qDebug() << "new";
@@ -41,14 +41,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::setupViewModel(FontFaceViewModel &&viewModel)
 {
-    view_model_ = viewModel;
-//    view_model_.value().set_active_glyph_index(8);
+    viewModel_ = viewModel;
+//    viewModel_.value().set_active_glyph_index(8);
 
-    displayFace(view_model_.value().face());
-
-    if (view_model_.value().active_glyph() != nullptr) {
-        displayGlyph(*view_model_.value().active_glyph());
-    }
+    displayFace(viewModel_.value().face());
 }
 
 MainWindow::~MainWindow()
@@ -58,32 +54,32 @@ MainWindow::~MainWindow()
 
 void MainWindow::displayFace(const Font::Face &face)
 {
-    if (face_widget_ == nullptr) {
-        face_widget_ = new FaceWidget();
-        ui->faceGraphicsView->scene()->addItem(face_widget_);
+    if (faceWidget_ == nullptr) {
+        faceWidget_ = new FaceWidget();
+        ui->faceGraphicsView->scene()->addItem(faceWidget_);
 
-        connect(face_widget_, &FaceWidget::currentGlyphIndexChanged,
+        connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 [&] (std::size_t index) {
-            view_model_->set_active_glyph_index(index);
-            displayGlyph(*view_model_.value().active_glyph());
+            viewModel_->set_active_glyph_index(index);
+            displayGlyph(viewModel_.value().active_glyph());
         });
     }
 
-    face_widget_->load(face);
+    faceWidget_->load(face);
 }
 
 void MainWindow::displayGlyph(const Font::Glyph &glyph)
 {
-    if (glyph_widget_ == nullptr) {
-        glyph_widget_ = std::make_unique<GlyphWidget>(pixel_size);
-        ui->glyphGraphicsView->scene()->addItem(glyph_widget_.get());
+    if (glyphWidget_ == nullptr) {
+        glyphWidget_ = std::make_unique<GlyphWidget>(pixel_size);
+        ui->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
-        connect(glyph_widget_.get(), &GlyphWidget::pixelChanged,
+        connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
                 [&] (Font::Point p, bool is_selected) {
-            view_model_->active_glyph()->set_pixel_set(p, is_selected);
+            viewModel_->active_glyph().set_pixel_set(p, is_selected);
         });
     }
 
-    glyph_widget_->load(glyph);
-    ui->glyphGraphicsView->fitInView(glyph_widget_->rect(), Qt::KeepAspectRatio);
+    glyphWidget_->load(glyph);
+    ui->glyphGraphicsView->fitInView(glyphWidget_->rect(), Qt::KeepAspectRatio);
 }

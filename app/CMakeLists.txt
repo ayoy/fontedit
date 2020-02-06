@@ -18,6 +18,7 @@ add_subdirectory(glypheditview)
 add_subdirectory(facepreview)
 
 set(SRC_FILES
+    assets.qrc
     fontfaceviewmodel.cpp
     fontfaceviewmodel.h
     main.cpp

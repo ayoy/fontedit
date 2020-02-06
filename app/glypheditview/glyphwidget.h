@@ -59,7 +59,7 @@ private:
 
     bool isDuringMouseMove_ { false };
     std::unordered_map<QPoint,bool,QPointHash> affectedItems_;
-    bool itemState_ { false };
+    bool penState_ { false };
 };
 
 #endif // GLYPHWIDGET_H
