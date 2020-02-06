@@ -21,15 +21,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QToolButton" name="newButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/font.svg</normalon>
-         </iconset>
-        </property>
+       <widget class="QToolButton" name="importFontButton">
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -39,15 +31,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="addButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/new.svg</normalon>
-         </iconset>
-        </property>
+       <widget class="QToolButton" name="addGlyphButton">
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -58,14 +42,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="saveButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/save.svg</normalon>
-         </iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -92,14 +68,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="copyButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/copy.svg</normalon>
-         </iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -110,14 +78,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="pasteButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/paste.svg</normalon>
-         </iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -141,14 +101,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="undoButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/undo.svg</normalon>
-         </iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -159,14 +111,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="redoButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/redo.svg</normalon>
-         </iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -176,15 +120,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="resetButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/reset.svg</normalon>
-         </iconset>
-        </property>
+       <widget class="QToolButton" name="resetGlyphButton">
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -194,15 +130,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="clearButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/delete.svg</normalon>
-         </iconset>
-        </property>
+       <widget class="QToolButton" name="resetFontButton">
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -226,14 +154,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="printButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/print.svg</normalon>
-         </iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -244,14 +164,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="exportButton">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normalon>:/toolbar/assets/code.svg</normalon>
-         </iconset>
-        </property>
         <property name="iconSize">
          <size>
           <width>24</width>
@@ -305,6 +217,8 @@
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionPrint"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -314,8 +228,10 @@
     <addaction name="separator"/>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
+    <addaction name="actionCopy_Glyph"/>
+    <addaction name="actionPaste_Glyph"/>
     <addaction name="separator"/>
-    <addaction name="actionReset"/>
+    <addaction name="actionReset_Glyph"/>
     <addaction name="actionReset_Font"/>
    </widget>
    <addaction name="menuFile"/>
@@ -370,6 +286,10 @@
    </property>
   </action>
   <action name="actionImport_Font">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/font.svg</normaloff>:/toolbar/assets/font.svg</iconset>
+   </property>
    <property name="text">
     <string>Import Font</string>
    </property>
@@ -378,6 +298,10 @@
    </property>
   </action>
   <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/undo.svg</normaloff>:/toolbar/assets/undo.svg</iconset>
+   </property>
    <property name="text">
     <string>Undo</string>
    </property>
@@ -386,6 +310,10 @@
    </property>
   </action>
   <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/redo.svg</normaloff>:/toolbar/assets/redo.svg</iconset>
+   </property>
    <property name="text">
     <string>Redo</string>
    </property>
@@ -393,17 +321,29 @@
     <string>Ctrl+Shift+Z</string>
    </property>
   </action>
-  <action name="actionReset">
+  <action name="actionReset_Glyph">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/reset.svg</normaloff>:/toolbar/assets/reset.svg</iconset>
+   </property>
    <property name="text">
     <string>Reset Glyph</string>
    </property>
   </action>
   <action name="actionExport">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/code.svg</normaloff>:/toolbar/assets/code.svg</iconset>
+   </property>
    <property name="text">
     <string>Export...</string>
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/save.svg</normaloff>:/toolbar/assets/save.svg</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -412,11 +352,19 @@
    </property>
   </action>
   <action name="actionReset_Font">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/clear.svg</normaloff>:/toolbar/assets/clear.svg</iconset>
+   </property>
    <property name="text">
     <string>Reset Font</string>
    </property>
   </action>
   <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/print.svg</normaloff>:/toolbar/assets/print.svg</iconset>
+   </property>
    <property name="text">
     <string>Print...</string>
    </property>
@@ -433,11 +381,41 @@
    </property>
   </action>
   <action name="actionAdd_Glyph">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/new.svg</normaloff>:/toolbar/assets/new.svg</iconset>
+   </property>
    <property name="text">
     <string>Add Glyph</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionCopy_Glyph">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/copy.svg</normaloff>:/toolbar/assets/copy.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Copy Glyph</string>
+   </property>
+  </action>
+  <action name="actionPaste_Glyph">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/paste.svg</normaloff>:/toolbar/assets/paste.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Paste Glyph</string>
    </property>
   </action>
  </widget>
@@ -448,6 +426,8 @@
    <header>glyphgraphicsview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="assets.qrc"/>
+ </resources>
  <connections/>
 </ui>

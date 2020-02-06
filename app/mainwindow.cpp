@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui {new Ui::MainWindow}
 {
     ui->setupUi(this);
+    setupActions();
 
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui->faceGraphicsView->setScene(faceScene_.get());
@@ -37,6 +38,32 @@ MainWindow::MainWindow(QWidget *parent)
         FontFaceViewModel viewModel { f };
         setupViewModel(std::move(viewModel));
     });
+}
+
+void MainWindow::setupActions()
+{
+    ui->importFontButton->setDefaultAction(ui->actionImport_Font);
+    ui->addGlyphButton->setDefaultAction(ui->actionAdd_Glyph);
+    ui->saveButton->setDefaultAction(ui->actionSave);
+    ui->copyButton->setDefaultAction(ui->actionCopy_Glyph);
+    ui->pasteButton->setDefaultAction(ui->actionPaste_Glyph);
+    ui->undoButton->setDefaultAction(ui->actionUndo);
+    ui->redoButton->setDefaultAction(ui->actionRedo);
+    ui->resetGlyphButton->setDefaultAction(ui->actionReset_Glyph);
+    ui->resetFontButton->setDefaultAction(ui->actionReset_Font);
+    ui->exportButton->setDefaultAction(ui->actionExport);
+    ui->printButton->setDefaultAction(ui->actionPrint);
+
+    ui->actionUndo->setEnabled(false);
+    ui->actionRedo->setEnabled(false);
+    ui->actionCopy_Glyph->setEnabled(false);
+    ui->actionPaste_Glyph->setEnabled(false);
+    ui->actionExport->setEnabled(false);
+    ui->actionPrint->setEnabled(false);
+    ui->actionReset_Font->setEnabled(false);
+    ui->actionReset_Glyph->setEnabled(false);
+    ui->actionSave->setEnabled(false);
+    ui->actionSave_As->setEnabled(false);
 }
 
 void MainWindow::setupViewModel(FontFaceViewModel &&viewModel)

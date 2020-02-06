@@ -22,6 +22,8 @@ public:
     ~MainWindow();
 
 private:
+    void setupActions();
+
     void displayFace(const Font::Face &face);
     void displayGlyph(const Font::Glyph &glyph);
     void setupViewModel(FontFaceViewModel &&viewModel);
