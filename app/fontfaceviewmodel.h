@@ -10,17 +10,17 @@
 class FontFaceViewModel
 {
 public:
-    explicit FontFaceViewModel(Font::Face face);
+    explicit FontFaceViewModel(Font::Face face) noexcept;
     explicit FontFaceViewModel(const QFont &font);
 
-    const Font::Face& face() const { return face_; }
-    Font::Face& face() { return face_; }
+    const Font::Face& face() const noexcept { return face_; }
+    Font::Face& face() noexcept { return face_; }
 
-    void set_active_glyph_index(std::size_t idx) {
+    void set_active_glyph_index(std::size_t idx) noexcept {
         active_glyph_index_ = idx;
     }
 
-    std::optional<std::size_t> active_glyph_index() const {
+    std::optional<std::size_t> active_glyph_index() const noexcept {
         return active_glyph_index_;
     }
 

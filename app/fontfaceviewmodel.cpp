@@ -101,7 +101,7 @@ std::unique_ptr<QImage> QFontFaceReader::read_font(const QFont &font)
 }
 
 
-FontFaceViewModel::FontFaceViewModel(Font::Face face) :
+FontFaceViewModel::FontFaceViewModel(Font::Face face) noexcept :
     face_ { face }
 {
 }

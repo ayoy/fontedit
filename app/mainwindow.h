@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
-#include "fontfaceviewmodel.h"
+#include "mainwindowmodel.h"
 #include "facewidget.h"
 #include "glyphwidget.h"
 
@@ -26,13 +26,12 @@ private:
 
     void displayFace(const Font::Face &face);
     void displayGlyph(const Font::Glyph &glyph);
-    void setupViewModel(FontFaceViewModel &&viewModel);
 
     Ui::MainWindow *ui;
 
-    std::unique_ptr<GlyphWidget> glyphWidget_ { nullptr };
+    std::unique_ptr<GlyphWidget> glyphWidget_ {};
     FaceWidget *faceWidget_ { nullptr };
-    std::optional<FontFaceViewModel> viewModel_ { std::nullopt };
+    std::unique_ptr<MainWindowModel> viewModel_ { std::make_unique<MainWindowModel>() };
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
 };
 

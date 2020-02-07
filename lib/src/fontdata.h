@@ -32,7 +32,7 @@ public:
     bool is_pixel_set(Point p) const { return pixels_[p.offset(size_)]; }
     void set_pixel_set(Point p, bool is_set) { pixels_[p.offset(size_)] = is_set; }
 
-    std::vector<bool> pixels() const { return pixels_; }
+    const std::vector<bool>& pixels() const { return pixels_; }
 
 private:
     Size size_;

@@ -35,8 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
         f.setStyleHint(QFont::TypeWriter);
         f = QFontDialog::getFont(&ok, f, this, tr("Select Font"), QFontDialog::MonospacedFonts | QFontDialog::DontUseNativeDialog);
         qDebug() << "selected font:" << f << "ok?" << ok;
-        FontFaceViewModel viewModel { f };
-        setupViewModel(std::move(viewModel));
+
+        viewModel_->setFont(f);
+        displayFace(viewModel_->faceModel()->face());
     });
 }
 
@@ -66,13 +67,13 @@ void MainWindow::setupActions()
     ui->actionSave_As->setEnabled(false);
 }
 
-void MainWindow::setupViewModel(FontFaceViewModel &&viewModel)
-{
-    viewModel_ = viewModel;
-//    viewModel_.value().set_active_glyph_index(8);
+//void MainWindow::setupViewModel(FontFaceViewModel &&viewModel)
+//{
+//    viewModel_ = viewModel;
+////    viewModel_.value().set_active_glyph_index(8);
 
-    displayFace(viewModel_.value().face());
-}
+//    displayFace(viewModel_.value().face());
+//}
 
 MainWindow::~MainWindow()
 {
@@ -87,8 +88,8 @@ void MainWindow::displayFace(const Font::Face &face)
 
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 [&] (std::size_t index) {
-            viewModel_->set_active_glyph_index(index);
-            displayGlyph(viewModel_.value().active_glyph());
+            viewModel_->faceModel()->set_active_glyph_index(index);
+            displayGlyph(viewModel_->faceModel()->active_glyph());
         });
     }
 
@@ -97,13 +98,13 @@ void MainWindow::displayFace(const Font::Face &face)
 
 void MainWindow::displayGlyph(const Font::Glyph &glyph)
 {
-    if (glyphWidget_ == nullptr) {
+    if (!glyphWidget_.get()) {
         glyphWidget_ = std::make_unique<GlyphWidget>(pixel_size);
         ui->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
         connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
                 [&] (Font::Point p, bool is_selected) {
-            viewModel_->active_glyph().set_pixel_set(p, is_selected);
+            viewModel_->faceModel()->active_glyph().set_pixel_set(p, is_selected);
         });
     }
 

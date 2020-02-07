@@ -25,6 +25,8 @@ set(SRC_FILES
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    mainwindowmodel.cpp
+    mainwindowmodel.h
     )
 
 if (APPLE AND (NOT CMAKE_BUILD_TYPE STREQUAL "Debug"))
