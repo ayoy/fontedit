@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QStyle>
 #include <QFontDialog>
+#include <QScrollBar>
 
 #include <iostream>
 
@@ -18,10 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     ui_->setupUi(this);
+    setupUI();
     setupActions();
 
-    faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
-    ui_->faceGraphicsView->setScene(faceScene_.get());
 
     connect(viewModel_.get(), &MainWindowModel::actionsChanged, this, &MainWindow::updateUI);
     updateUI(viewModel_->uiState());
@@ -42,6 +42,17 @@ MainWindow::MainWindow(QWidget *parent)
         viewModel_->loadFont(f);
         displayFace(viewModel_->faceModel()->face());
     });
+}
+
+void MainWindow::setupUI()
+{
+    faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
+    ui_->faceGraphicsView->setScene(faceScene_.get());
+
+    auto scrollBarWidth = ui_->faceGraphicsView->verticalScrollBar()->sizeHint().width();
+    auto faceViewWidth = static_cast<int>(FaceWidget::cell_width) * 3 + scrollBarWidth;
+    ui_->faceGraphicsView->setMinimumSize({ faceViewWidth,
+                                            ui_->faceGraphicsView->minimumSize().height() });
 }
 
 void MainWindow::setupActions()

@@ -18,6 +18,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 private:
+    void setupUI();
     void setupActions();
 
     void displayFace(const Font::Face &face);

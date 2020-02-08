@@ -13,6 +13,8 @@ class FaceWidget : public QGraphicsWidget
     Q_OBJECT
 
 public:
+    static constexpr auto cell_width = 80.0;
+
     explicit FaceWidget(QGraphicsItem *parent = nullptr);
 
     void load(const Font::Face &face);

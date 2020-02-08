@@ -6,9 +6,8 @@
 
 static constexpr auto col_count = 3;
 static constexpr auto printable_ascii_offset = ' ';
-static constexpr auto cell_width = 80.0;
 static constexpr auto min_cell_height = 100.0;
-static constexpr auto max_image_width = cell_width - 2 * GlyphInfoWidget::cellMargin;
+static constexpr auto max_image_width = FaceWidget::cell_width - 2 * GlyphInfoWidget::cellMargin;
 
 FaceWidget::FaceWidget(QGraphicsItem *parent) :
     QGraphicsWidget(parent)
