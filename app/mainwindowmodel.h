@@ -7,45 +7,40 @@
 #include <functional>
 #include <optional>
 #include <bitset>
-
-
-enum MainWindowAction {
-    ActionImportFont = 0,
-    ActionAddGlyph,
-    ActionSave,
-    ActionCopy,
-    ActionPaste,
-    ActionUndo,
-    ActionRedo,
-    ActionResetGlyph,
-    ActionResetFont,
-    ActionPrint,
-    ActionExport,
-    ActionCount,
-    ActionFirst = ActionImportFont
-};
+#include <variant>
 
 class MainWindowModel: public QObject
 {
     Q_OBJECT
 
 public:
-    using ActionsState = std::bitset<MainWindowAction::ActionCount>;
-
-    enum StateFlag {
-        Empty             = 1<<ActionImportFont,
-        CanCopy           = 1<<ActionCopy,
-        CanPaste          = 1<<ActionPaste,
-        CanUndo           = 1<<ActionUndo,
-        CanRedo           = 1<<ActionRedo,
-        CanReset          = 1<<ActionResetFont | 1<<ActionResetGlyph,
-        WithFace          = 1<<ActionImportFont | 1<<ActionAddGlyph | 1<<ActionSave | 1<<ActionPrint | 1<<ActionExport,
-        WithGlyph         = WithFace | CanCopy,
-        WithEditedGlyph   = WithGlyph | CanReset
+    enum ButtonAction {
+        ActionImportFont = 0,
+        ActionAddGlyph,
+        ActionSave,
+        ActionCopy,
+        ActionPaste,
+        ActionUndo,
+        ActionRedo,
+        ActionResetGlyph,
+        ActionResetFont,
+        ActionPrint,
+        ActionExport,
+        ActionCount,
+        ActionFirst = ActionImportFont
     };
-    Q_DECLARE_FLAGS(State, StateFlag)
 
-    MainWindowModel(QObject *parent = nullptr);
+    enum UserAction {
+        UserIdle = 0,
+        UserLoadedFace,
+        UserLoadedGlyph,
+        UserEditedGlyph
+    };
+
+    using ActionsState = std::bitset<ActionCount>;
+    using InputEvent = std::variant<ButtonAction,UserAction>;
+
+    explicit MainWindowModel(QObject *parent = nullptr);
 
     void loadFont(const QFont& font);
 
@@ -54,20 +49,17 @@ public:
     }
 
     const ActionsState& menuActions() const { return actionsState_; }
-    State state() const { return state_; }
-    void setState(State s);
+
+    void registerInputEvent(InputEvent e);
 
 signals:
     void actionsChanged(ActionsState state);
 
 private:
-    void setEnabledActions(std::vector<MainWindowAction> actions);
 
-    State state_ { Empty };
     ActionsState actionsState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_ {};
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(MainWindowModel::State)
 
 #endif // MAINWINDOWMODEL_H

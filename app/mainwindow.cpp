@@ -61,17 +61,17 @@ void MainWindow::setupActions()
 
 void MainWindow::updateActions(MainWindowModel::ActionsState actionsState)
 {
-    ui_->actionImport_Font->setEnabled(actionsState[MainWindowAction::ActionImportFont]);
-    ui_->actionAdd_Glyph->setEnabled(actionsState[MainWindowAction::ActionAddGlyph]);
-    ui_->actionSave->setEnabled(actionsState[MainWindowAction::ActionSave]);
-    ui_->actionCopy_Glyph->setEnabled(actionsState[MainWindowAction::ActionCopy]);
-    ui_->actionPaste_Glyph->setEnabled(actionsState[MainWindowAction::ActionPaste]);
-    ui_->actionUndo->setEnabled(actionsState[MainWindowAction::ActionUndo]);
-    ui_->actionRedo->setEnabled(actionsState[MainWindowAction::ActionRedo]);
-    ui_->actionReset_Glyph->setEnabled(actionsState[MainWindowAction::ActionResetGlyph]);
-    ui_->actionReset_Font->setEnabled(actionsState[MainWindowAction::ActionResetFont]);
-    ui_->actionExport->setEnabled(actionsState[MainWindowAction::ActionExport]);
-    ui_->actionPrint->setEnabled(actionsState[MainWindowAction::ActionPrint]);
+    ui_->actionImport_Font->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionImportFont]);
+    ui_->actionAdd_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionAddGlyph]);
+    ui_->actionSave->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionSave]);
+    ui_->actionCopy_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionCopy]);
+    ui_->actionPaste_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionPaste]);
+    ui_->actionUndo->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionUndo]);
+    ui_->actionRedo->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionRedo]);
+    ui_->actionReset_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionResetGlyph]);
+    ui_->actionReset_Font->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionResetFont]);
+    ui_->actionExport->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionExport]);
+    ui_->actionPrint->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionPrint]);
 }
 
 void MainWindow::displayFace(const Font::Face &face)
@@ -83,7 +83,7 @@ void MainWindow::displayFace(const Font::Face &face)
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 [&] (std::size_t index) {
             viewModel_->faceModel()->set_active_glyph_index(index);
-            viewModel_->setState(MainWindowModel::WithGlyph);
+            viewModel_->registerInputEvent(MainWindowModel::UserLoadedGlyph);
             displayGlyph(viewModel_->faceModel()->active_glyph());
         });
     }
@@ -100,7 +100,7 @@ void MainWindow::displayGlyph(const Font::Glyph &glyph)
         connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
                 [&] (Font::Point p, bool is_selected) {
             viewModel_->faceModel()->active_glyph().set_pixel_set(p, is_selected);
-            viewModel_->setState(MainWindowModel::WithEditedGlyph);
+            viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
         });
     }
 
