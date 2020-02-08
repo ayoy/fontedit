@@ -14,7 +14,7 @@ class MainWindowModel: public QObject
     Q_OBJECT
 
 public:
-    enum ButtonAction {
+    enum InterfaceAction {
         ActionImportFont = 0,
         ActionAddGlyph,
         ActionSave,
@@ -26,6 +26,7 @@ public:
         ActionResetFont,
         ActionPrint,
         ActionExport,
+        ActionTabCode,
         ActionCount,
         ActionFirst = ActionImportFont
     };
@@ -37,8 +38,8 @@ public:
         UserEditedGlyph
     };
 
-    using ActionsState = std::bitset<ActionCount>;
-    using InputEvent = std::variant<ButtonAction,UserAction>;
+    using UIState = std::bitset<ActionCount>;
+    using InputEvent = std::variant<InterfaceAction,UserAction>;
 
     explicit MainWindowModel(QObject *parent = nullptr);
 
@@ -48,16 +49,16 @@ public:
         return fontFaceViewModel_.get();
     }
 
-    const ActionsState& menuActions() const { return actionsState_; }
+    const UIState& uiState() const { return uiState_; }
 
     void registerInputEvent(InputEvent e);
 
 signals:
-    void actionsChanged(ActionsState state);
+    void actionsChanged(UIState state);
 
 private:
 
-    ActionsState actionsState_ { 1<<ActionImportFont };
+    UIState uiState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_ {};
 };
 

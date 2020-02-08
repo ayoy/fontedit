@@ -23,8 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
-    connect(viewModel_.get(), &MainWindowModel::actionsChanged, this, &MainWindow::updateActions);
-    updateActions(viewModel_->menuActions());
+    connect(viewModel_.get(), &MainWindowModel::actionsChanged, this, &MainWindow::updateUI);
+    updateUI(viewModel_->uiState());
 
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
 
@@ -55,23 +55,22 @@ void MainWindow::setupActions()
     ui_->redoButton->setDefaultAction(ui_->actionRedo);
     ui_->resetGlyphButton->setDefaultAction(ui_->actionReset_Glyph);
     ui_->resetFontButton->setDefaultAction(ui_->actionReset_Font);
-    ui_->exportButton->setDefaultAction(ui_->actionExport);
-    ui_->printButton->setDefaultAction(ui_->actionPrint);
 }
 
-void MainWindow::updateActions(MainWindowModel::ActionsState actionsState)
+void MainWindow::updateUI(MainWindowModel::UIState uiState)
 {
-    ui_->actionImport_Font->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionImportFont]);
-    ui_->actionAdd_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionAddGlyph]);
-    ui_->actionSave->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionSave]);
-    ui_->actionCopy_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionCopy]);
-    ui_->actionPaste_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionPaste]);
-    ui_->actionUndo->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionUndo]);
-    ui_->actionRedo->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionRedo]);
-    ui_->actionReset_Glyph->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionResetGlyph]);
-    ui_->actionReset_Font->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionResetFont]);
-    ui_->actionExport->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionExport]);
-    ui_->actionPrint->setEnabled(actionsState[MainWindowModel::ButtonAction::ActionPrint]);
+    ui_->tabWidget->setTabEnabled(1, uiState[MainWindowModel::InterfaceAction::ActionTabCode]);
+    ui_->actionImport_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionImportFont]);
+    ui_->actionAdd_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionAddGlyph]);
+    ui_->actionSave->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
+    ui_->actionCopy_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionCopy]);
+    ui_->actionPaste_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPaste]);
+    ui_->actionUndo->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionUndo]);
+    ui_->actionRedo->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionRedo]);
+    ui_->actionReset_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetGlyph]);
+    ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
+    ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
+    ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
 }
 
 void MainWindow::displayFace(const Font::Face &face)

@@ -14,9 +14,9 @@ void MainWindowModel::loadFont(const QFont &font)
 
 void MainWindowModel::registerInputEvent(InputEvent e)
 {
-    auto state { actionsState_ };
-    if (std::holds_alternative<ButtonAction>(e)) {
-        auto action = std::get<ButtonAction>(e);
+    auto state { uiState_ };
+    if (std::holds_alternative<InterfaceAction>(e)) {
+        auto action = std::get<InterfaceAction>(e);
         switch (action) {
         case ActionImportFont:
         case ActionAddGlyph:
@@ -30,6 +30,7 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         case ActionResetFont:
         case ActionPrint:
         case ActionExport:
+        case ActionTabCode:
         default:
             break;
         }
@@ -47,6 +48,7 @@ void MainWindowModel::registerInputEvent(InputEvent e)
             state.set(ActionSave);
             state.set(ActionPrint);
             state.set(ActionExport);
+            state.set(ActionTabCode);
             break;
         case UserLoadedGlyph:
             state.set(ActionCopy);
@@ -58,8 +60,8 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         }
     }
 
-    if (state != actionsState_) {
-        actionsState_ = state;
-        emit actionsChanged(actionsState_);
+    if (state != uiState_) {
+        uiState_ = state;
+        emit actionsChanged(uiState_);
     }
 }

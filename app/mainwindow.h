@@ -22,7 +22,7 @@ private:
 
     void displayFace(const Font::Face &face);
     void displayGlyph(const Font::Glyph &glyph);
-    void updateActions(MainWindowModel::ActionsState actionsState);
+    void updateUI(MainWindowModel::UIState uiState);
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 
