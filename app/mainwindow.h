@@ -3,15 +3,12 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
+#include "./ui_mainwindow.h"
 #include "mainwindowmodel.h"
 #include "facewidget.h"
 #include "glyphwidget.h"
 
-#include <optional>
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include <memory>
 
 class MainWindow : public QMainWindow
 {
@@ -19,7 +16,6 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
 
 private:
     void setupActions();
@@ -28,7 +24,7 @@ private:
     void displayGlyph(const Font::Glyph &glyph);
     void updateActions(MainWindowModel::ActionsState actionsState);
 
-    Ui::MainWindow *ui;
+    std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 
     std::unique_ptr<GlyphWidget> glyphWidget_ {};
     FaceWidget *faceWidget_ { nullptr };
