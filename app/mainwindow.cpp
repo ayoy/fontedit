@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(viewModel_.get(), &MainWindowModel::actionsChanged, this, &MainWindow::updateActions);
     updateActions(viewModel_->menuActions());
 
+    connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
+
     connect(ui_->actionNew, &QAction::triggered, [=] () {
         qDebug() << "new";
     });

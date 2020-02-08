@@ -29,8 +29,8 @@ set(SRC_FILES
     mainwindowmodel.h
     )
 
-if (APPLE AND (NOT CMAKE_BUILD_TYPE STREQUAL "Debug"))
-    message(STATUS "Using MacOS X Bundle (release)")
+if (APPLE)
+    message(STATUS "Building MacOS X Bundle")
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SRC_FILES})
     set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/macos/Info.plist)
 else()
