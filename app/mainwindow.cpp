@@ -25,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui->faceGraphicsView->setScene(faceScene_.get());
 
+    connect(viewModel_.get(), &MainWindowModel::actionsChanged, this, &MainWindow::updateActions);
+    updateActions(viewModel_->menuActions());
+
     connect(ui->actionNew, &QAction::triggered, [=] () {
         qDebug() << "new";
     });
@@ -36,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
         f = QFontDialog::getFont(&ok, f, this, tr("Select Font"), QFontDialog::MonospacedFonts | QFontDialog::DontUseNativeDialog);
         qDebug() << "selected font:" << f << "ok?" << ok;
 
-        viewModel_->setFont(f);
+        viewModel_->loadFont(f);
         displayFace(viewModel_->faceModel()->face());
     });
 }
@@ -54,26 +57,22 @@ void MainWindow::setupActions()
     ui->resetFontButton->setDefaultAction(ui->actionReset_Font);
     ui->exportButton->setDefaultAction(ui->actionExport);
     ui->printButton->setDefaultAction(ui->actionPrint);
-
-    ui->actionUndo->setEnabled(false);
-    ui->actionRedo->setEnabled(false);
-    ui->actionCopy_Glyph->setEnabled(false);
-    ui->actionPaste_Glyph->setEnabled(false);
-    ui->actionExport->setEnabled(false);
-    ui->actionPrint->setEnabled(false);
-    ui->actionReset_Font->setEnabled(false);
-    ui->actionReset_Glyph->setEnabled(false);
-    ui->actionSave->setEnabled(false);
-    ui->actionSave_As->setEnabled(false);
 }
 
-//void MainWindow::setupViewModel(FontFaceViewModel &&viewModel)
-//{
-//    viewModel_ = viewModel;
-////    viewModel_.value().set_active_glyph_index(8);
-
-//    displayFace(viewModel_.value().face());
-//}
+void MainWindow::updateActions(MainWindowModel::ActionsState actionsState)
+{
+    ui->actionImport_Font->setEnabled(actionsState[MainWindowAction::ActionImportFont]);
+    ui->actionAdd_Glyph->setEnabled(actionsState[MainWindowAction::ActionAddGlyph]);
+    ui->actionSave->setEnabled(actionsState[MainWindowAction::ActionSave]);
+    ui->actionCopy_Glyph->setEnabled(actionsState[MainWindowAction::ActionCopy]);
+    ui->actionPaste_Glyph->setEnabled(actionsState[MainWindowAction::ActionPaste]);
+    ui->actionUndo->setEnabled(actionsState[MainWindowAction::ActionUndo]);
+    ui->actionRedo->setEnabled(actionsState[MainWindowAction::ActionRedo]);
+    ui->actionReset_Glyph->setEnabled(actionsState[MainWindowAction::ActionResetGlyph]);
+    ui->actionReset_Font->setEnabled(actionsState[MainWindowAction::ActionResetFont]);
+    ui->actionExport->setEnabled(actionsState[MainWindowAction::ActionExport]);
+    ui->actionPrint->setEnabled(actionsState[MainWindowAction::ActionPrint]);
+}
 
 MainWindow::~MainWindow()
 {
@@ -89,6 +88,7 @@ void MainWindow::displayFace(const Font::Face &face)
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 [&] (std::size_t index) {
             viewModel_->faceModel()->set_active_glyph_index(index);
+            viewModel_->setState(MainWindowModel::WithGlyph);
             displayGlyph(viewModel_->faceModel()->active_glyph());
         });
     }
@@ -105,6 +105,7 @@ void MainWindow::displayGlyph(const Font::Glyph &glyph)
         connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
                 [&] (Font::Point p, bool is_selected) {
             viewModel_->faceModel()->active_glyph().set_pixel_set(p, is_selected);
+            viewModel_->setState(MainWindowModel::WithEditedGlyph);
         });
     }
 

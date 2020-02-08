@@ -26,6 +26,7 @@ private:
 
     void displayFace(const Font::Face &face);
     void displayGlyph(const Font::Glyph &glyph);
+    void updateActions(MainWindowModel::ActionsState actionsState);
 
     Ui::MainWindow *ui;
 
