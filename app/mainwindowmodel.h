@@ -43,7 +43,7 @@ public:
 
     explicit MainWindowModel(QObject *parent = nullptr);
 
-    void loadFont(const QFont& font);
+    void importFont(const QFont& font);
 
     FontFaceViewModel* faceModel() const {
         return fontFaceViewModel_.get();
@@ -54,13 +54,12 @@ public:
     void registerInputEvent(InputEvent e);
 
 signals:
-    void actionsChanged(UIState state);
+    void uiStateChanged(UIState state);
+    void faceLoaded(const Font::Face &face);
 
 private:
-
     UIState uiState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_ {};
 };
-
 
 #endif // MAINWINDOWMODEL_H

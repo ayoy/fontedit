@@ -22,26 +22,13 @@ MainWindow::MainWindow(QWidget *parent)
     setupUI();
     setupActions();
 
-
-    connect(viewModel_.get(), &MainWindowModel::actionsChanged, this, &MainWindow::updateUI);
     updateUI(viewModel_->uiState());
 
+    connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
+    connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
+
+    connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
-
-    connect(ui_->actionNew, &QAction::triggered, [=] () {
-        qDebug() << "new";
-    });
-
-    connect(ui_->actionImport_Font, &QAction::triggered, [&] () {
-        bool ok;
-        QFont f("Monaco", 24);
-        f.setStyleHint(QFont::TypeWriter);
-        f = QFontDialog::getFont(&ok, f, this, tr("Select Font"), QFontDialog::MonospacedFonts | QFontDialog::DontUseNativeDialog);
-        qDebug() << "selected font:" << f << "ok?" << ok;
-
-        viewModel_->loadFont(f);
-        displayFace(viewModel_->faceModel()->face());
-    });
 }
 
 void MainWindow::setupUI()
@@ -82,6 +69,18 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
     ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
     ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
     ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
+}
+
+void MainWindow::showFontDialog()
+{
+    bool ok;
+    QFont f("Monaco", 24);
+    f.setStyleHint(QFont::TypeWriter);
+    f = QFontDialog::getFont(&ok, f, this, tr("Select Font"), QFontDialog::MonospacedFonts | QFontDialog::DontUseNativeDialog);
+    qDebug() << "selected font:" << f << "ok?" << ok;
+
+//    viewModel_->registerInputEvent(MainWindowModel::ActionImportFont);
+    viewModel_->importFont(f);
 }
 
 void MainWindow::displayFace(const Font::Face &face)

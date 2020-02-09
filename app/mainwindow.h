@@ -17,11 +17,14 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
+private slots:
+    void showFontDialog();
+    void displayFace(const Font::Face &face);
+
 private:
     void setupUI();
     void setupActions();
 
-    void displayFace(const Font::Face &face);
     void displayGlyph(const Font::Glyph &glyph);
     void updateUI(MainWindowModel::UIState uiState);
 

@@ -3,13 +3,14 @@
 MainWindowModel::MainWindowModel(QObject *parent) :
     QObject(parent)
 {
-
+    registerInputEvent(UserIdle);
 }
 
-void MainWindowModel::loadFont(const QFont &font)
+void MainWindowModel::importFont(const QFont &font)
 {
     fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
     registerInputEvent(UserLoadedFace);
+    emit faceLoaded(fontFaceViewModel_->face());
 }
 
 void MainWindowModel::registerInputEvent(InputEvent e)
@@ -62,6 +63,6 @@ void MainWindowModel::registerInputEvent(InputEvent e)
 
     if (state != uiState_) {
         uiState_ = state;
-        emit actionsChanged(uiState_);
+        emit uiStateChanged(uiState_);
     }
 }
