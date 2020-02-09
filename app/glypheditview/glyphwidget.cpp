@@ -22,6 +22,7 @@ GlyphWidget::GlyphWidget(qreal pixel_size, QGraphicsItem *parent) :
 
 void GlyphWidget::load(const Font::Glyph &glyph)
 {
+    setVisible(true);
     width_ = glyph.size().width;
     height_ = glyph.size().height;
     updateLayout();
@@ -30,6 +31,11 @@ void GlyphWidget::load(const Font::Glyph &glyph)
     for (std::vector<bool>::size_type i = 0; i < pixels.size(); ++i) {
         setItemState(layout_->itemAt(i), pixels[i]);
     }
+}
+
+void GlyphWidget::clear()
+{
+    setVisible(false);
 }
 
 void GlyphWidget::updateLayout()

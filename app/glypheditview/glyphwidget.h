@@ -24,6 +24,7 @@ public:
     virtual ~GlyphWidget() = default;
 
     void load(const Font::Glyph &glyph);
+    void clear();
 
 signals:
     void pixelChanged(Font::Point pos, bool isSelected);

@@ -95,6 +95,10 @@ void MainWindow::displayFace(const Font::Face &face)
     }
 
     faceWidget_->load(face);
+
+    if (glyphWidget_.get()) {
+        glyphWidget_->clear();
+    }
 }
 
 void MainWindow::displayGlyph(const Font::Glyph &glyph)
