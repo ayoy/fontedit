@@ -14,6 +14,7 @@
 #include <iostream>
 
 static constexpr auto pixel_size = 30;
+static constexpr auto codeTabIndex = 1;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -30,6 +31,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
+    connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
+        if (index == codeTabIndex) {
+            viewModel_->prepareSourceCodeTab();
+        }
+    });
 }
 
 void MainWindow::setupUI()

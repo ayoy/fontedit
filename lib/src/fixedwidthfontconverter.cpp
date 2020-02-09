@@ -37,13 +37,13 @@ std::string FixedWidthFontConverter::convert(const InputImage &image, ConverterE
     }
 
     m_generator->begin();
-    m_generator->beginArray("font");
+    m_generator->begin_array("font");
 
     auto characterCount = 0;
 
     for (uint8_t y = 0; y < image.height()/m_height; y++) {
         for (uint8_t x = 0; x < image.width()/m_width; x++) {
-            m_generator->beginArrayRow();
+            m_generator->begin_array_row();
             for (uint8_t row = 0; row < m_height; row++) {
                 uint8_t remainingBits { m_width };
 
@@ -71,7 +71,7 @@ std::string FixedWidthFontConverter::convert(const InputImage &image, ConverterE
                         mask >>= 1;
                         remainingBits -= 1;
                     }
-                    m_generator->writeByte(byte);
+                    m_generator->write_byte(byte);
                     byteIndex += 1;
                 }
             }
@@ -79,17 +79,17 @@ std::string FixedWidthFontConverter::convert(const InputImage &image, ConverterE
             auto size = std::snprintf(nullptr, 0, format, characterCount, characterCount);
             std::string byteString(static_cast<unsigned long>(size), '\0');
             std::sprintf(&byteString[0], format, characterCount, characterCount);
-            m_generator->addComment(byteString);
-            m_generator->addLineBreak();
+            m_generator->add_comment(byteString);
+            m_generator->add_line_break();
             characterCount += 1;
         }
     }
-    m_generator->endArray();
+    m_generator->end_array();
     m_generator->end();
 
     if (error) {
         *error = ConverterError::NoError;
     }
 
-    return m_generator->sourceCode();
+    return m_generator->source_code();
 }

@@ -123,6 +123,7 @@ public:
     std::string beginArrayRow() const override;
     std::string byte(uint8_t byte) const override;
     std::string comment(const std::string &comment) const override;
+    std::string lineBreak() const override;
     std::string endArray() const override;
 };
 

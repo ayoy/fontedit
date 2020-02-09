@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.9)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -5,7 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(UNIT_TEST_LIST
     fontface
-    glyph)
+    glyph
+    sourcecode)
 
 foreach(NAME IN LISTS UNIT_TEST_LIST)
     list(APPEND UNIT_TEST_SOURCE_LIST ${NAME}_test.cpp)

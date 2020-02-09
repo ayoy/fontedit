@@ -10,28 +10,21 @@ struct SourceCodeOptions
 {
     enum BitNumbering { LSB, MSB };
 
-
-    SourceCodeOptions() {}
-    SourceCodeOptions(BitNumbering bitNumbering, bool shouldInvertBits) :
-        bitNumbering(bitNumbering),
-        shouldInvertBits(shouldInvertBits)
-    {}
-
-    BitNumbering bitNumbering { LSB };
-    bool shouldInvertBits { false };
+    BitNumbering bit_numbering { LSB };
+    bool invert_bits { false };
 };
 
 class SourceCodeGeneratorInterface {
 public:
     virtual void begin() = 0;
-    virtual void beginArray(const std::string &name) = 0;
-    virtual void beginArrayRow() = 0;
-    virtual void writeByte(uint8_t byte) = 0;
-    virtual void addComment(const std::string &comment) = 0;
-    virtual void addLineBreak() = 0;
-    virtual void endArray() = 0;
+    virtual void begin_array(const std::string &name) = 0;
+    virtual void begin_array_row() = 0;
+    virtual void write_byte(uint8_t byte) = 0;
+    virtual void add_comment(const std::string &comment) = 0;
+    virtual void add_line_break() = 0;
+    virtual void end_array() = 0;
     virtual void end() = 0;
-    virtual std::string sourceCode() = 0;
+    virtual std::string source_code() = 0;
     virtual ~SourceCodeGeneratorInterface() = default;
 };
 
@@ -45,38 +38,36 @@ public:
 
     virtual ~SourceCodeGenerator() = default;
 
-    inline std::string sourceCode() override { return m_stream->str(); }
+    std::string source_code() override { return stream_.str(); }
 
     void begin() override;
-    void beginArray(const std::string &name) override;
-    void beginArrayRow() override;
-    void writeByte(uint8_t byte) override;
-    void addComment(const std::string &comment) override;
-    void addLineBreak() override;
-    void endArray() override;
+    void begin_array(const std::string &name) override;
+    void begin_array_row() override;
+    void write_byte(uint8_t byte) override;
+    void add_comment(const std::string &comment) override;
+    void add_line_break() override;
+    void end_array() override;
     void end() override;
 
 protected:
-    inline std::ostringstream &stream() { return *(m_stream.get()); }
+    std::ostringstream& stream() { return stream_; }
     const SourceCodeOptions options;
 
-    std::string getCurrentTimestamp() const;
-    uint8_t formatByte(uint8_t byte) const;
+    std::string get_current_timestamp() const;
+    uint8_t format_byte(uint8_t byte) const;
 
 private:
-    std::unique_ptr<T> m_bytewriter;
-    std::unique_ptr<std::ostringstream> m_stream;
+    std::unique_ptr<T> bytewriter_ { std::make_unique<T>() };
+    std::ostringstream stream_ {};
 };
 
 template<typename T>
 SourceCodeGenerator<T>::SourceCodeGenerator(SourceCodeOptions options):
-        options(std::move(options)),
-        m_bytewriter(std::make_unique<T>()),
-        m_stream(std::make_unique<std::ostringstream>())
+        options(std::move(options))
 {}
 
 template<typename T>
-std::string SourceCodeGenerator<T>::getCurrentTimestamp() const
+std::string SourceCodeGenerator<T>::get_current_timestamp() const
 {
     time_t     now = time(nullptr);
     struct tm  tstruct;
@@ -88,9 +79,9 @@ std::string SourceCodeGenerator<T>::getCurrentTimestamp() const
 }
 
 template<typename T>
-uint8_t SourceCodeGenerator<T>::formatByte(uint8_t byte) const
+uint8_t SourceCodeGenerator<T>::format_byte(uint8_t byte) const
 {
-    if (options.bitNumbering == SourceCodeOptions::MSB) {
+    if (options.bit_numbering == SourceCodeOptions::MSB) {
         uint8_t reversedByte = 0;
         for (uint8_t i = 0; i < 8; i++) {
             if ((byte & (1<<i)) != 0) {
@@ -100,7 +91,7 @@ uint8_t SourceCodeGenerator<T>::formatByte(uint8_t byte) const
         }
         byte = reversedByte;
     }
-    if (options.shouldInvertBits) {
+    if (options.invert_bits) {
         byte = ~byte;
     }
     return byte;
@@ -109,50 +100,50 @@ uint8_t SourceCodeGenerator<T>::formatByte(uint8_t byte) const
 template<typename T>
 void SourceCodeGenerator<T>::begin()
 {
-    m_stream->flush();
-    *m_stream << m_bytewriter->begin(std::move(getCurrentTimestamp()));
+    stream_.flush();
+    stream_ << bytewriter_->begin(std::move(get_current_timestamp()));
 }
 
 template<typename T>
-void SourceCodeGenerator<T>::beginArray(const std::string &name)
+void SourceCodeGenerator<T>::begin_array(const std::string &name)
 {
-    *m_stream << m_bytewriter->beginArray(name);
+    stream_ << bytewriter_->begin_array(name);
 }
 
 template<typename T>
-void SourceCodeGenerator<T>::beginArrayRow()
+void SourceCodeGenerator<T>::begin_array_row()
 {
-    *m_stream << m_bytewriter->beginArrayRow();
+    stream_ << bytewriter_->begin_array_row();
 }
 
 template<typename T>
-void SourceCodeGenerator<T>::writeByte(uint8_t byte)
+void SourceCodeGenerator<T>::write_byte(uint8_t byte)
 {
-    *m_stream << m_bytewriter->byte(formatByte(byte));
+    stream_ << bytewriter_->byte(format_byte(byte));
 }
 
 template<typename T>
-void SourceCodeGenerator<T>::addComment(const std::string &comment)
+void SourceCodeGenerator<T>::add_comment(const std::string &comment)
 {
-    *m_stream << m_bytewriter->comment(comment);
+    stream_ << bytewriter_->comment(comment);
 }
 
 template<typename T>
-void SourceCodeGenerator<T>::addLineBreak()
+void SourceCodeGenerator<T>::add_line_break()
 {
-    *m_stream << m_bytewriter->lineBreak();
+    stream_ << bytewriter_->lineBreak();
 }
 
 template<typename T>
-void SourceCodeGenerator<T>::endArray()
+void SourceCodeGenerator<T>::end_array()
 {
-    *m_stream << m_bytewriter->endArray();
+    stream_ << bytewriter_->end_array();
 }
 
 template<typename T>
 void SourceCodeGenerator<T>::end()
 {
-    *m_stream << m_bytewriter->end();
+    stream_ << bytewriter_->end();
 }
 
 #endif // SOURCECODEGENERATOR_H

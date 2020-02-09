@@ -79,3 +79,12 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
         std::cerr << "ERROR: " << e.what() << std::endl;
     }
 }
+
+void MainWindowModel::prepareSourceCodeTab()
+{
+    auto selectedFormatIdentifier = "C/C++";
+    if (selectedFormatIdentifier == Format::C::identifier) {
+        FontSourceCodeGenerator<Format::C> generator(1, 1, 1, Format::C());
+        std::cout << generator.generate(faceModel()->face()) << std::endl;
+    }
+}

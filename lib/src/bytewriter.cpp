@@ -151,7 +151,12 @@ std::string PythonBytesCodeGenerator::byte(uint8_t byte) const
 std::string PythonBytesCodeGenerator::comment(const std::string &comment) const
 {
     (void)comment;
-    return "' \\";
+    return {};
+}
+
+std::string PythonBytesCodeGenerator::lineBreak() const
+{
+    return "' \\\n";
 }
 
 std::string PythonBytesCodeGenerator::endArray() const

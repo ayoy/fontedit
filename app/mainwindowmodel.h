@@ -54,6 +54,7 @@ public:
 public slots:
     void importFont(const QFont& font);
     void setActiveGlyphIndex(std::size_t index);
+    void prepareSourceCodeTab();
 
 signals:
     void uiStateChanged(UIState state);

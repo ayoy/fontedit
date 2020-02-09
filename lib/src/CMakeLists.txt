@@ -11,7 +11,10 @@ set(HEADERS
     f2b.h
     fixedwidthfontconverter.h
     fontdata.h
+    fontsourcecodegenerator.h
+    format.h
     inputimage.h
+    sourcecode.h
     sourcecodegenerator.h
     )
 
@@ -22,6 +25,7 @@ add_library(${PROJECT_NAME}
     convertererror.cpp
     fixedwidthfontconverter.cpp
     fontdata.cpp
+    fontsourcecodegenerator.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} GSL)
