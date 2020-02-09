@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
+    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
 
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
@@ -90,11 +91,7 @@ void MainWindow::displayFace(const Font::Face &face)
         ui_->faceGraphicsView->scene()->addItem(faceWidget_);
 
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
-                [&] (std::size_t index) {
-            viewModel_->faceModel()->set_active_glyph_index(index);
-            viewModel_->registerInputEvent(MainWindowModel::UserLoadedGlyph);
-            displayGlyph(viewModel_->faceModel()->active_glyph());
-        });
+                viewModel_.get(), &MainWindowModel::setActiveGlyphIndex);
     }
 
     faceWidget_->load(face);

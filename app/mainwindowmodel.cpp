@@ -1,16 +1,11 @@
 #include "mainwindowmodel.h"
 
+#include <iostream>
+
 MainWindowModel::MainWindowModel(QObject *parent) :
     QObject(parent)
 {
     registerInputEvent(UserIdle);
-}
-
-void MainWindowModel::importFont(const QFont &font)
-{
-    fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
-    registerInputEvent(UserLoadedFace);
-    emit faceLoaded(fontFaceViewModel_->face());
 }
 
 void MainWindowModel::registerInputEvent(InputEvent e)
@@ -64,5 +59,23 @@ void MainWindowModel::registerInputEvent(InputEvent e)
     if (state != uiState_) {
         uiState_ = state;
         emit uiStateChanged(uiState_);
+    }
+}
+
+void MainWindowModel::importFont(const QFont &font)
+{
+    fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
+    registerInputEvent(UserLoadedFace);
+    emit faceLoaded(fontFaceViewModel_->face());
+}
+
+void MainWindowModel::setActiveGlyphIndex(std::size_t index)
+{
+    try {
+        fontFaceViewModel_->set_active_glyph_index(index);
+        registerInputEvent(UserLoadedGlyph);
+        emit activeGlyphChanged(fontFaceViewModel_->active_glyph());
+    } catch (const std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << std::endl;
     }
 }

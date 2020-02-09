@@ -16,7 +16,10 @@ public:
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
 
-    void set_active_glyph_index(std::size_t idx) noexcept {
+    void set_active_glyph_index(std::size_t idx) {
+        if (idx >= face_.num_glyphs()) {
+            throw std::out_of_range("Active glyph index higher than number of glyphs.");
+        }
         active_glyph_index_ = idx;
     }
 

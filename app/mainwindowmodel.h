@@ -43,8 +43,6 @@ public:
 
     explicit MainWindowModel(QObject *parent = nullptr);
 
-    void importFont(const QFont& font);
-
     FontFaceViewModel* faceModel() const {
         return fontFaceViewModel_.get();
     }
@@ -53,9 +51,14 @@ public:
 
     void registerInputEvent(InputEvent e);
 
+public slots:
+    void importFont(const QFont& font);
+    void setActiveGlyphIndex(std::size_t index);
+
 signals:
     void uiStateChanged(UIState state);
     void faceLoaded(const Font::Face &face);
+    void activeGlyphChanged(const Font::Glyph &glyph);
 
 private:
     UIState uiState_ { 1<<ActionImportFont };
