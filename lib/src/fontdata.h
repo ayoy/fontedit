@@ -104,14 +104,16 @@ inline bool operator!=(const Point& lhs, const Point& rhs) noexcept {
 }
 
 inline std::ostream& operator<<(std::ostream& os, const Font::Glyph& g) {
-    for (std::size_t y = 0; y < g.size().height; y++) {
-        for (std::size_t x = 0; x < g.size().width; x++) {
-            Font::Point p { x, y };
-            os << g.is_pixel_set(p);
+
+    std::size_t col = 0;
+    for (const auto& p : g.pixels()) {
+        os << p;
+        if (++col >= g.size().width) {
+            col = 0;
+            os << std::endl;
         }
-        os << std::endl;
     }
-    os << std::endl << std::flush;
+    os << std::flush;
 
     return os;
 }
