@@ -21,6 +21,7 @@ set(SRC_FILES
     assets.qrc
     fontfaceviewmodel.cpp
     fontfaceviewmodel.h
+    global.h
     main.cpp
     mainwindow.cpp
     mainwindow.h

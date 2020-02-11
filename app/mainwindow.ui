@@ -231,7 +231,7 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
-              <widget class="QComboBox" name="comboBox"/>
+              <widget class="QComboBox" name="formatComboBox"/>
              </item>
             </layout>
            </widget>
@@ -249,14 +249,14 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <widget class="QCheckBox" name="checkBox_2">
+              <widget class="QCheckBox" name="invertBitsCheckBox">
                <property name="text">
                 <string>Invert Bits</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBox">
+              <widget class="QCheckBox" name="bitNumberingCheckBox">
                <property name="text">
                 <string>Reverse Bits (MSB)</string>
                </property>
@@ -279,14 +279,14 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="printButton">
             <property name="text">
              <string>Print</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="exportButton">
             <property name="text">
              <string>Export</string>
             </property>

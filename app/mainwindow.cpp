@@ -36,6 +36,12 @@ MainWindow::MainWindow(QWidget *parent)
             viewModel_->prepareSourceCodeTab();
         }
     });
+    connect(ui_->invertBitsCheckBox, &QCheckBox::stateChanged, [&](int state) {
+        viewModel_->setInvertBits(state == Qt::Checked);
+    });
+    connect(ui_->bitNumberingCheckBox, &QCheckBox::stateChanged, [&](int state) {
+        viewModel_->setMSBEnabled(state == Qt::Checked);
+    });
 }
 
 void MainWindow::setupUI()
@@ -76,6 +82,9 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
     ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
     ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
     ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
+
+    ui_->invertBitsCheckBox->setCheckState(viewModel_->invertBits());
+    ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
 }
 
 void MainWindow::showFontDialog()

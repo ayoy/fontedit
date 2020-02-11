@@ -49,12 +49,23 @@ public:
 
     const UIState& uiState() const { return uiState_; }
 
+    Qt::CheckState invertBits() const {
+        return sourceCodeOptions_.invert_bits ? Qt::Checked : Qt::Unchecked;
+    }
+
+    Qt::CheckState msbEnabled() const {
+        return sourceCodeOptions_.bit_numbering == SourceCodeOptions::MSB
+                ? Qt::Checked : Qt::Unchecked;
+    }
+
     void registerInputEvent(InputEvent e);
 
 public slots:
     void importFont(const QFont& font);
     void setActiveGlyphIndex(std::size_t index);
     void prepareSourceCodeTab();
+    void setInvertBits(bool enabled);
+    void setMSBEnabled(bool enabled);
 
 signals:
     void uiStateChanged(UIState state);
@@ -64,6 +75,7 @@ signals:
 private:
     UIState uiState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_ {};
+    SourceCodeOptions sourceCodeOptions_;
 };
 
 #endif // MAINWINDOWMODEL_H

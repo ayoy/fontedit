@@ -1,10 +1,27 @@
 #include "mainwindowmodel.h"
+#include <f2b.h>
+
+#include <QSettings>
 
 #include <iostream>
+
+Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
+
+namespace SettingsKey {
+static const QString bitNumbering = "source_code_options/bit_numbering";
+static const QString invertBits = "source_code_options/invert_bits";
+}
 
 MainWindowModel::MainWindowModel(QObject *parent) :
     QObject(parent)
 {
+    QSettings s;
+    sourceCodeOptions_.bit_numbering =
+            qvariant_cast<SourceCodeOptions::BitNumbering>(
+                s.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
+                );
+    sourceCodeOptions_.invert_bits = s.value(SettingsKey::invertBits, false).toBool();
+
     registerInputEvent(UserIdle);
 }
 
@@ -87,4 +104,19 @@ void MainWindowModel::prepareSourceCodeTab()
         FontSourceCodeGenerator<Format::Arduino> generator(1, 1, 1);
         std::cout << generator.generate(faceModel()->face()) << std::endl;
     }
+}
+
+void MainWindowModel::setInvertBits(bool enabled)
+{
+    sourceCodeOptions_.invert_bits = enabled;
+    QSettings s;
+    s.setValue(SettingsKey::invertBits, enabled);
+}
+
+void MainWindowModel::setMSBEnabled(bool enabled)
+{
+    auto bitNumbering = enabled ? SourceCodeOptions::MSB : SourceCodeOptions::LSB;
+    sourceCodeOptions_.bit_numbering = bitNumbering;
+    QSettings s;
+    s.setValue(SettingsKey::bitNumbering, bitNumbering);
 }
