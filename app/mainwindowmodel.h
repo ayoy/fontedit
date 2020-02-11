@@ -61,8 +61,12 @@ public:
                 ? Qt::Checked : Qt::Unchecked;
     }
 
-    QStringList outputFormats() const {
-        return formats_.keys();
+    const QMap<QString,QString>& outputFormats() const {
+        return formats_;
+    }
+
+    QString outputFormat() const {
+        return formats_.value(currentFormat_, formats_.first());
     }
 
     void registerInputEvent(InputEvent e);
@@ -73,7 +77,7 @@ public slots:
     void prepareSourceCodeTab();
     void setInvertBits(bool enabled);
     void setMSBEnabled(bool enabled);
-    void setOutputFormat(const QString &format);
+    void setOutputFormat(const QString &format); // human-readable
 
 signals:
     void uiStateChanged(UIState state);
@@ -88,8 +92,8 @@ private:
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_ {};
     SourceCodeOptions sourceCodeOptions_;
 
-    QMap<QString, QString> formats_;
-    QString currentFormat_;
+    QMap<QString, QString> formats_; // identifier <-> human-readable
+    QString currentFormat_; // identifier
     QSettings settings_;
 };
 

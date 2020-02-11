@@ -61,7 +61,10 @@ void MainWindow::setupUI()
     ui_->invertBitsCheckBox->setCheckState(viewModel_->invertBits());
     ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
 
-    ui_->formatComboBox->addItems(viewModel_->outputFormats());
+    for (const auto &pair : viewModel_->outputFormats().toStdMap()) {
+        ui_->formatComboBox->addItem(pair.second, pair.first);
+    }
+    ui_->formatComboBox->setCurrentText(viewModel_->outputFormat());
 
     QFont f("Monaco", 13);
     f.setStyleHint(QFont::TypeWriter);

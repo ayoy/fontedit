@@ -22,13 +22,14 @@ MainWindowModel::MainWindowModel(QObject *parent) :
                 );
     sourceCodeOptions_.invert_bits = settings_.value(SettingsKey::invertBits, false).toBool();
 
-    formats_.insert("C/C++", QString::fromStdString(std::string(Format::C::identifier)));
-    formats_.insert("Arduino", QString::fromStdString(std::string(Format::Arduino::identifier)));
-    formats_.insert("Python List", QString::fromStdString(std::string(Format::PythonList::identifier)));
-    formats_.insert("Python Bytes", QString::fromStdString(std::string(Format::PythonBytes::identifier)));
+    formats_.insert(QString::fromStdString(std::string(Format::C::identifier)), "C/C++");
+    formats_.insert(QString::fromStdString(std::string(Format::Arduino::identifier)), "Arduino");
+    formats_.insert(QString::fromStdString(std::string(Format::PythonList::identifier)), "Python List");
+    formats_.insert(QString::fromStdString(std::string(Format::PythonBytes::identifier)), "Python Bytes");
 
-    currentFormat_ = settings_.value(SettingsKey::format, formats_.first()).toString();
+    currentFormat_ = settings_.value(SettingsKey::format, formats_.firstKey()).toString();
 
+    qDebug() << "output format:" << currentFormat_;
     registerInputEvent(UserIdle);
 }
 
@@ -126,18 +127,36 @@ void MainWindowModel::setMSBEnabled(bool enabled)
 
 void MainWindowModel::setOutputFormat(const QString &format)
 {
-    currentFormat_ = formats_.value(format, formats_.first());
+    currentFormat_ = formats_.key(format, formats_.first());
     settings_.setValue(SettingsKey::format, currentFormat_);
     reloadSourceCode();
 }
 
 void MainWindowModel::reloadSourceCode()
 {
-    auto selectedFormatIdentifier = "arduino";
-    if (selectedFormatIdentifier == Format::Arduino::identifier) {
+    std::string_view current { currentFormat_.toStdString() };
+
+    /// WIP :)
+
+    QString output;
+
+    if (current == Format::Arduino::identifier) {
         FontSourceCodeGenerator<Format::Arduino> generator(1, 1, 1);
-        auto output = QString::fromStdString(generator.generate(faceModel()->face()));
-        qDebug() << output;
-        emit sourceCodeChanged(output);
+        output = QString::fromStdString(generator.generate(faceModel()->face()));
+
+    } else if (current == Format::C::identifier) {
+        FontSourceCodeGenerator<Format::C> generator(1, 1, 1);
+        output = QString::fromStdString(generator.generate(faceModel()->face()));
+
+    } else if (current == Format::PythonList::identifier) {
+        FontSourceCodeGenerator<Format::PythonList> generator(1, 1, 1);
+        output = QString::fromStdString(generator.generate(faceModel()->face()));
+
+    } else if (current == Format::PythonBytes::identifier) {
+        FontSourceCodeGenerator<Format::PythonBytes> generator(1, 1, 1);
+        output = QString::fromStdString(generator.generate(faceModel()->face()));
     }
+
+//    qDebug() << output;
+    emit sourceCodeChanged(output);
 }
