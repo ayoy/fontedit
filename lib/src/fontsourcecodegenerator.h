@@ -48,17 +48,18 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
     using namespace SourceCode;
 
     std::ostringstream s;
-    s << format_.output(Elem<IdiomBegin> { get_current_timestamp() });
-    s << format_.output(Elem<IdiomBeginArray> { "font" });
+    format_.append(s, Elem<IdiomBegin> { get_current_timestamp() });
+    format_.append(s, Elem<IdiomBegin> { get_current_timestamp() });
+    format_.append(s, Elem<IdiomBeginArray> { "font" });
 
     for (const auto& glyph : face.glyphs()) {
-        s << format_.output(Elem<IdiomBeginArrayRow> {});
-        s << format_.output(Elem<IdiomByte> { 0xc7 });
-        s << format_.output(Elem<IdiomComment> { "pozdrawiam" });
-        s << format_.output(Elem<IdiomLineBreak> {});
+        format_.append(s, Elem<IdiomBeginArrayRow> {});
+        format_.append(s, Elem<IdiomByte> { 0xc7 });
+        format_.append(s, Elem<IdiomComment> { "pozdrawiam" });
+        format_.append(s, Elem<IdiomLineBreak> {});
     }
-    s << format_.output(Elem<IdiomEndArray> {});
-    s << format_.output(Elem<IdiomEnd> {});
+    format_.append(s, Elem<IdiomEndArray> {});
+    format_.append(s, Elem<IdiomEnd> {});
 
     return s.str();
 }
