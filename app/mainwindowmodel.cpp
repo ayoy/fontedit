@@ -24,6 +24,8 @@ MainWindowModel::MainWindowModel(QObject *parent) :
 
     formats_.insert("C/C++", QString::fromStdString(std::string(Format::C::identifier)));
     formats_.insert("Arduino", QString::fromStdString(std::string(Format::Arduino::identifier)));
+    formats_.insert("Python List", QString::fromStdString(std::string(Format::PythonList::identifier)));
+    formats_.insert("Python Bytes", QString::fromStdString(std::string(Format::PythonBytes::identifier)));
 
     currentFormat_ = settings_.value(SettingsKey::format, formats_.first()).toString();
 

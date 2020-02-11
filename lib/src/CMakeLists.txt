@@ -7,9 +7,7 @@ project(font2bytes)
 
 set(HEADERS
     bytewriter.h
-    convertererror.h
     f2b.h
-    fixedwidthfontconverter.h
     fontdata.h
     fontsourcecodegenerator.h
     format.h
@@ -22,8 +20,6 @@ add_library(${PROJECT_NAME}
     SHARED
     ${HEADERS}
     bytewriter.cpp
-    convertererror.cpp
-    fixedwidthfontconverter.cpp
     fontdata.cpp
     fontsourcecodegenerator.cpp
     )
