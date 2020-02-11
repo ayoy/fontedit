@@ -1,7 +1,7 @@
 #include "mainwindowmodel.h"
 #include <f2b.h>
 
-#include <QSettings>
+#include <QDebug>
 
 #include <iostream>
 
@@ -10,17 +10,22 @@ Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
 namespace SettingsKey {
 static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
+static const QString format = "source_code_options/format";
 }
 
 MainWindowModel::MainWindowModel(QObject *parent) :
     QObject(parent)
 {
-    QSettings s;
     sourceCodeOptions_.bit_numbering =
             qvariant_cast<SourceCodeOptions::BitNumbering>(
-                s.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
+                settings_.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
                 );
-    sourceCodeOptions_.invert_bits = s.value(SettingsKey::invertBits, false).toBool();
+    sourceCodeOptions_.invert_bits = settings_.value(SettingsKey::invertBits, false).toBool();
+
+    formats_.insert("C/C++", QString::fromStdString(std::string(Format::C::identifier)));
+    formats_.insert("Arduino", QString::fromStdString(std::string(Format::Arduino::identifier)));
+
+    currentFormat_ = settings_.value(SettingsKey::format, formats_.first()).toString();
 
     registerInputEvent(UserIdle);
 }
@@ -99,24 +104,38 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
 
 void MainWindowModel::prepareSourceCodeTab()
 {
-    auto selectedFormatIdentifier = "arduino";
-    if (selectedFormatIdentifier == Format::Arduino::identifier) {
-        FontSourceCodeGenerator<Format::Arduino> generator(1, 1, 1);
-        std::cout << generator.generate(faceModel()->face()) << std::endl;
-    }
+    reloadSourceCode();
 }
 
 void MainWindowModel::setInvertBits(bool enabled)
 {
     sourceCodeOptions_.invert_bits = enabled;
-    QSettings s;
-    s.setValue(SettingsKey::invertBits, enabled);
+    settings_.setValue(SettingsKey::invertBits, enabled);
+    reloadSourceCode();
 }
 
 void MainWindowModel::setMSBEnabled(bool enabled)
 {
     auto bitNumbering = enabled ? SourceCodeOptions::MSB : SourceCodeOptions::LSB;
     sourceCodeOptions_.bit_numbering = bitNumbering;
-    QSettings s;
-    s.setValue(SettingsKey::bitNumbering, bitNumbering);
+    settings_.setValue(SettingsKey::bitNumbering, bitNumbering);
+    reloadSourceCode();
+}
+
+void MainWindowModel::setOutputFormat(const QString &format)
+{
+    currentFormat_ = formats_.value(format, formats_.first());
+    settings_.setValue(SettingsKey::format, currentFormat_);
+    reloadSourceCode();
+}
+
+void MainWindowModel::reloadSourceCode()
+{
+    auto selectedFormatIdentifier = "arduino";
+    if (selectedFormatIdentifier == Format::Arduino::identifier) {
+        FontSourceCodeGenerator<Format::Arduino> generator(1, 1, 1);
+        auto output = QString::fromStdString(generator.generate(faceModel()->face()));
+        qDebug() << output;
+        emit sourceCodeChanged(output);
+    }
 }

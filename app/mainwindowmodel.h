@@ -9,6 +9,9 @@
 #include <bitset>
 #include <variant>
 
+#include <QMap>
+#include <QSettings>
+
 class MainWindowModel: public QObject
 {
     Q_OBJECT
@@ -58,6 +61,10 @@ public:
                 ? Qt::Checked : Qt::Unchecked;
     }
 
+    QStringList outputFormats() const {
+        return formats_.keys();
+    }
+
     void registerInputEvent(InputEvent e);
 
 public slots:
@@ -66,16 +73,24 @@ public slots:
     void prepareSourceCodeTab();
     void setInvertBits(bool enabled);
     void setMSBEnabled(bool enabled);
+    void setOutputFormat(const QString &format);
 
 signals:
     void uiStateChanged(UIState state);
     void faceLoaded(const Font::Face &face);
     void activeGlyphChanged(const Font::Glyph &glyph);
+    void sourceCodeChanged(const QString &sourceCode);
 
 private:
+    void reloadSourceCode();
+
     UIState uiState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_ {};
     SourceCodeOptions sourceCodeOptions_;
+
+    QMap<QString, QString> formats_;
+    QString currentFormat_;
+    QSettings settings_;
 };
 
 #endif // MAINWINDOWMODEL_H

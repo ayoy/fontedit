@@ -25,10 +25,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     updateUI(viewModel_->uiState());
 
-    connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
-    connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
-    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
-
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
     connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
@@ -42,6 +38,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui_->bitNumberingCheckBox, &QCheckBox::stateChanged, [&](int state) {
         viewModel_->setMSBEnabled(state == Qt::Checked);
     });
+    connect(ui_->formatComboBox, &QComboBox::currentTextChanged,
+            viewModel_.get(), &MainWindowModel::setOutputFormat);
+
+
+    connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
+    connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
+    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
+    connect(viewModel_.get(), &MainWindowModel::sourceCodeChanged, ui_->sourceCodeTextBrowser, &QTextBrowser::setText);
 }
 
 void MainWindow::setupUI()
@@ -53,6 +57,15 @@ void MainWindow::setupUI()
     auto faceViewWidth = static_cast<int>(FaceWidget::cell_width) * 3 + scrollBarWidth;
     ui_->faceGraphicsView->setMinimumSize({ faceViewWidth,
                                             ui_->faceGraphicsView->minimumSize().height() });
+
+    ui_->invertBitsCheckBox->setCheckState(viewModel_->invertBits());
+    ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
+
+    ui_->formatComboBox->addItems(viewModel_->outputFormats());
+
+    QFont f("Monaco", 13);
+    f.setStyleHint(QFont::TypeWriter);
+    ui_->sourceCodeTextBrowser->setFont(f);
 }
 
 void MainWindow::setupActions()
@@ -82,9 +95,6 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
     ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
     ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
     ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
-
-    ui_->invertBitsCheckBox->setCheckState(viewModel_->invertBits());
-    ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
 }
 
 void MainWindow::showFontDialog()

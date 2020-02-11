@@ -6,6 +6,7 @@
 #include <iomanip>
 #include "sourcecode.h"
 
+
 namespace Format
 {
 
@@ -104,6 +105,8 @@ struct Arduino
         return o;
     }
 };
+
+constexpr auto available_formats = { C::identifier, Arduino::identifier };
 
 }
 

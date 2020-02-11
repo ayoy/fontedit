@@ -220,7 +220,7 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QTextBrowser" name="textBrowser"/>
+         <widget class="QTextBrowser" name="sourceCodeTextBrowser"/>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_4">
