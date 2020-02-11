@@ -12,11 +12,11 @@ class FontSourceCodeGenerator
 {
 public:
 
-    FontSourceCodeGenerator(std::size_t width, std::size_t height, std::size_t num_glyphs, T format):
+    FontSourceCodeGenerator(std::size_t width, std::size_t height, std::size_t num_glyphs):
         width_ { width },
         height_ { height },
         num_glyphs_ { num_glyphs },
-        format_ { format }
+        format_ { T {} }
     {}
 
     std::string generate(const Font::Face &face);
@@ -48,7 +48,6 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
     using namespace SourceCode;
 
     std::ostringstream s;
-    format_.append(s, Elem<IdiomBegin> { get_current_timestamp() });
     format_.append(s, Elem<IdiomBegin> { get_current_timestamp() });
     format_.append(s, Elem<IdiomBeginArray> { "font" });
 

@@ -82,9 +82,9 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
 
 void MainWindowModel::prepareSourceCodeTab()
 {
-    auto selectedFormatIdentifier = "C/C++";
-    if (selectedFormatIdentifier == Format::C::identifier) {
-        FontSourceCodeGenerator<Format::C> generator(1, 1, 1, Format::C());
+    auto selectedFormatIdentifier = "arduino";
+    if (selectedFormatIdentifier == Format::Arduino::identifier) {
+        FontSourceCodeGenerator<Format::Arduino> generator(1, 1, 1);
         std::cout << generator.generate(faceModel()->face()) << std::endl;
     }
 }
