@@ -6,6 +6,9 @@
 
 #include <string>
 #include <sstream>
+#include <bitset>
+
+static constexpr auto byte_size = 8;
 
 /**
  * @brief A simple converter which converts fixed-width fonts.
@@ -106,9 +109,34 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
     format_.append(s, Elem<IdiomBegin> { get_current_timestamp() });
     format_.append(s, Elem<IdiomBeginArray> { "font" });
 
+    std::bitset<byte_size> bits;
+    int bit_pos { 0 };
+    int col { 0 };
+
+    const auto width = face.glyph_size().width;
+
     for (const auto& glyph : face.glyphs()) {
         format_.append(s, Elem<IdiomBeginArrayRow> {});
-        format_.append(s, Elem<IdiomByte> { 0xc7 });
+
+        for (const auto &pixel : glyph.pixels()) {
+            bits[bit_pos] = pixel;
+            ++bit_pos;
+            ++col;
+            if (bit_pos >= byte_size) {
+                auto byte = static_cast<uint8_t>(bits.to_ulong());
+                format_.append(s, Elem<IdiomByte> { byte });
+                bits.reset();
+                bit_pos = 0;
+            }
+            if (col >= width) {
+                auto byte = static_cast<uint8_t>(bits.to_ulong());
+                format_.append(s, Elem<IdiomByte> { byte });
+                bits.reset();
+                bit_pos = 0;
+                col = 0;
+            }
+        }
+
         format_.append(s, Elem<IdiomComment> { "pozdrawiam" });
         format_.append(s, Elem<IdiomLineBreak> {});
     }

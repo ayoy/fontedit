@@ -62,7 +62,7 @@ public:
     Glyph& glyph_at(std::size_t index) { return glyphs_.at(index); }
     const Glyph& glyph_at(std::size_t index) const { return glyphs_.at(index); }
 
-    std::vector<Glyph> glyphs() const { return glyphs_; }
+    const std::vector<Glyph>& glyphs() const { return glyphs_; }
     void set_glyph(Glyph g, std::size_t index) { glyphs_[index] = g; }
 
     Glyph& operator[](char ascii) {

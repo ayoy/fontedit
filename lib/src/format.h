@@ -167,7 +167,7 @@ struct PythonBytes
     {
         switch (I) {
         case IdiomBeginArrayRow:
-            o << "\t'";
+            o << "\tb'";
             break;
         case IdiomLineBreak:
             o << "' \\\n";
