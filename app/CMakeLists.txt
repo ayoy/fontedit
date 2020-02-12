@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
 
-project(FontEdit LANGUAGES CXX)
+if (UNIX AND NOT APPLE)
+    project(fontedit LANGUAGES CXX)
+else()
+    project(FontEdit LANGUAGES CXX)
+endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

@@ -1,7 +1,6 @@
 #ifndef F2B_PRIVATE_H
 #define F2B_PRIVATE_H
 
-#include "inputimage.h"
 #include "fontdata.h"
 #include "fontsourcecodegenerator.h"
 #include "format.h"

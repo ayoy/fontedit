@@ -6,19 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(font2bytes)
 
 set(HEADERS
-    bytewriter.h
     f2b.h
     fontdata.h
     fontsourcecodegenerator.h
     format.h
-    inputimage.h
     sourcecode.h
     )
 
 add_library(${PROJECT_NAME}
     SHARED
     ${HEADERS}
-    bytewriter.cpp
     fontdata.cpp
     fontsourcecodegenerator.cpp
     )
