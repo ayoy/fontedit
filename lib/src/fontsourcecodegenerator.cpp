@@ -3,13 +3,11 @@
 
 std::string current_timestamp()
 {
-    time_t     now = time(nullptr);
-    struct tm  tstruct;
-    char       buf[23];
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%d/%m/%Y at %H:%M:%S", &tstruct);
-
-    return buf;
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::ostringstream s;
+    s << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
+    return s.str();
 }
 
 std::string comment_for_glyph(std::size_t index)
