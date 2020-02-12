@@ -141,19 +141,19 @@ void MainWindowModel::reloadSourceCode()
     QString output;
 
     if (current == Format::Arduino::identifier) {
-        FontSourceCodeGenerator<Format::Arduino> generator(1, 1, 1);
+        FontSourceCodeGenerator<Format::Arduino> generator(sourceCodeOptions_);
         output = QString::fromStdString(generator.generate(faceModel()->face()));
 
     } else if (current == Format::C::identifier) {
-        FontSourceCodeGenerator<Format::C> generator(1, 1, 1);
+        FontSourceCodeGenerator<Format::C> generator(sourceCodeOptions_);
         output = QString::fromStdString(generator.generate(faceModel()->face()));
 
     } else if (current == Format::PythonList::identifier) {
-        FontSourceCodeGenerator<Format::PythonList> generator(1, 1, 1);
+        FontSourceCodeGenerator<Format::PythonList> generator(sourceCodeOptions_);
         output = QString::fromStdString(generator.generate(faceModel()->face()));
 
     } else if (current == Format::PythonBytes::identifier) {
-        FontSourceCodeGenerator<Format::PythonBytes> generator(1, 1, 1);
+        FontSourceCodeGenerator<Format::PythonBytes> generator(sourceCodeOptions_);
         output = QString::fromStdString(generator.generate(faceModel()->face()));
     }
 

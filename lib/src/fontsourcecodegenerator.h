@@ -10,6 +10,17 @@
 
 static constexpr auto byte_size = 8;
 
+struct SourceCodeOptions
+{
+    enum BitNumbering { LSB, MSB };
+
+    BitNumbering bit_numbering { LSB };
+    bool invert_bits { false };
+};
+
+std::string current_timestamp();
+std::string comment_for_glyph(std::size_t index);
+
 /**
  * @brief A simple converter which converts fixed-width fonts.
  *
@@ -70,35 +81,15 @@ class FontSourceCodeGenerator
 {
 public:
 
-    FontSourceCodeGenerator(std::size_t width, std::size_t height, std::size_t num_glyphs):
-        width_ { width },
-        height_ { height },
-        num_glyphs_ { num_glyphs },
-        format_ { T {} }
+    FontSourceCodeGenerator(SourceCodeOptions options):
+        options_ { options }
     {}
 
     std::string generate(const Font::Face &face);
 
 private:
-    std::string get_current_timestamp() const;
-
-    std::size_t width_;
-    std::size_t height_;
-    std::size_t num_glyphs_;
-    T format_;
+    SourceCodeOptions options_;
 };
-
-template<typename T>
-std::string FontSourceCodeGenerator<T>::get_current_timestamp() const
-{
-    time_t     now = time(nullptr);
-    struct tm  tstruct;
-    char       buf[23];
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%d/%m/%Y at %H:%M:%S", &tstruct);
-
-    return buf;
-}
 
 template<typename T>
 std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
@@ -106,103 +97,63 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
     using namespace SourceCode;
 
     std::ostringstream s;
-    format_.append(s, Elem<IdiomBegin> { get_current_timestamp() });
-    format_.append(s, Elem<IdiomBeginArray> { "font" });
+    T::append(s, Elem<IdiomBegin> { current_timestamp() });
+    T::append(s, Elem<IdiomBeginArray> { "font" });
 
     std::bitset<byte_size> bits;
-    int bit_pos { 0 };
-    int col { 0 };
+    std::size_t bit_pos { 0 };
+    std::size_t col { 0 };
+    std::size_t glyph_id { 0 };
 
     const auto width = face.glyph_size().width;
 
+    auto append_byte = [&](std::bitset<byte_size> &bits) {
+        if (options_.invert_bits) {
+            bits.flip();
+        }
+        auto byte = static_cast<uint8_t>(bits.to_ulong());
+        T::append(s, Elem<IdiomByte> { byte });
+        bits.reset();
+    };
+
     for (const auto& glyph : face.glyphs()) {
-        format_.append(s, Elem<IdiomBeginArrayRow> {});
+        T::append(s, Elem<IdiomBeginArrayRow> {});
 
         for (const auto &pixel : glyph.pixels()) {
-            bits[bit_pos] = pixel;
+
+            switch (options_.bit_numbering) {
+            case SourceCodeOptions::LSB:
+                bits[bit_pos] = pixel;
+                break;
+            case SourceCodeOptions::MSB:
+                bits[byte_size-1-bit_pos] = pixel;
+                break;
+            }
+
             ++bit_pos;
             ++col;
-            if (bit_pos >= byte_size) {
-                auto byte = static_cast<uint8_t>(bits.to_ulong());
-                format_.append(s, Elem<IdiomByte> { byte });
-                bits.reset();
-                bit_pos = 0;
-            }
+
             if (col >= width) {
-                auto byte = static_cast<uint8_t>(bits.to_ulong());
-                format_.append(s, Elem<IdiomByte> { byte });
-                bits.reset();
+                append_byte(bits);
                 bit_pos = 0;
                 col = 0;
+            } else if (bit_pos >= byte_size) {
+                append_byte(bits);
+                bit_pos = 0;
             }
         }
 
-        format_.append(s, Elem<IdiomComment> { "pozdrawiam" });
-        format_.append(s, Elem<IdiomLineBreak> {});
+        T::append(s, Elem<IdiomComment> { comment_for_glyph(glyph_id) });
+        T::append(s, Elem<IdiomLineBreak> {});
+
+        ++glyph_id;
     }
-    format_.append(s, Elem<IdiomEndArray> {});
-    format_.append(s, Elem<IdiomEnd> {});
+
+    T::append(s, Elem<IdiomEndArray> {});
+    T::append(s, Elem<IdiomEnd> {});
 
     return s.str();
 }
-
-//    m_generator->begin();
-//    m_generator->begin_array("font");
-
-//    auto characterCount = 0;
-
-//    for (uint8_t y = 0; y < image.height()/m_height; y++) {
-//        for (uint8_t x = 0; x < image.width()/m_width; x++) {
-//            m_generator->begin_array_row();
-//            for (uint8_t row = 0; row < m_height; row++) {
-//                uint8_t remainingBits { m_width };
-
-//                // for width > 8, each line will be represented by more than one byte;
-//                // let's track bytes count per line here
-//                uint8_t byteIndex {0};
-
-//                while (remainingBits > 0) {
-//                    uint8_t byte { 0 };
-//                    uint8_t bitCount { std::min(remainingBits, static_cast<uint8_t>(8)) };
-//                    uint8_t mask { 1<<7 };
-//                    for (uint8_t bit = 0; bit < bitCount; bit++) {
-//                        switch (m_readingMode) {
-//                        case TopToBottom:
-//                            if (image.isPixelSet(x*m_width+bit+8*byteIndex, y*m_height+row)) {
-//                                byte |= mask;
-//                            }
-//                            break;
-//                        case LeftToRight:
-//                            if (image.isPixelSet(x*m_height+row, y*m_width+bit+8*byteIndex)) {
-//                                byte |= mask;
-//                            }
-//                            break;
-//                        }
-//                        mask >>= 1;
-//                        remainingBits -= 1;
-//                    }
-//                    m_generator->write_byte(byte);
-//                    byteIndex += 1;
-//                }
-//            }
-//            const auto format { "Character 0x%02X (%d)" };
-//            auto size = std::snprintf(nullptr, 0, format, characterCount, characterCount);
-//            std::string byteString(static_cast<unsigned long>(size), '\0');
-//            std::sprintf(&byteString[0], format, characterCount, characterCount);
-//            m_generator->add_comment(byteString);
-//            m_generator->add_line_break();
-//            characterCount += 1;
-//        }
-//    }
-//    m_generator->end_array();
-//    m_generator->end();
-
-//    if (error) {
-//        *error = ConverterError::NoError;
-//    }
-
-//    return m_generator->source_code();
-//}
 
 
 #endif // FONTSOURCECODEGENERATOR_H

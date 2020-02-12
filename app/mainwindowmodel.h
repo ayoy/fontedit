@@ -57,7 +57,7 @@ public:
     }
 
     Qt::CheckState msbEnabled() const {
-        return sourceCodeOptions_.bit_numbering == SourceCodeOptions::MSB
+        return sourceCodeOptions_.bit_numbering == SourceCodeOptions::BitNumbering::MSB
                 ? Qt::Checked : Qt::Unchecked;
     }
 

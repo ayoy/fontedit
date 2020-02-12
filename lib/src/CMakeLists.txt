@@ -13,7 +13,6 @@ set(HEADERS
     format.h
     inputimage.h
     sourcecode.h
-    sourcecodegenerator.h
     )
 
 add_library(${PROJECT_NAME}
