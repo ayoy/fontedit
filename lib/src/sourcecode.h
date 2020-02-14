@@ -6,7 +6,7 @@
 namespace SourceCode
 {
 
-enum Idiom {
+enum class Idiom {
     IdiomBegin,
     IdiomBeginArray,
     IdiomBeginArrayRow,
@@ -20,13 +20,13 @@ enum Idiom {
 template<Idiom I, typename = void>
 struct needs_byte_arg : std::false_type {};
 template<Idiom I>
-struct needs_byte_arg<I, std::enable_if_t<(I == IdiomByte)>> : std::true_type {};
+struct needs_byte_arg<I, std::enable_if_t<(I == Idiom::IdiomByte)>> : std::true_type {};
 
 template<Idiom I, typename = void>
 struct needs_string_arg : std::false_type {};
 template<Idiom I>
 struct needs_string_arg<I, std::enable_if_t<(
-        I == IdiomBegin || I == IdiomBeginArray || I == IdiomComment
+        I == Idiom::IdiomBegin || I == Idiom::IdiomBeginArray || I == Idiom::IdiomComment
         )>> : std::true_type {};
 
 

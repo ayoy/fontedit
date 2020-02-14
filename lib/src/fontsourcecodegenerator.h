@@ -97,8 +97,8 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
     using namespace SourceCode;
 
     std::ostringstream s;
-    T::append(s, Elem<IdiomBegin> { current_timestamp() });
-    T::append(s, Elem<IdiomBeginArray> { "font" });
+    T::append(s, Elem<Idiom::IdiomBegin> { current_timestamp() });
+    T::append(s, Elem<Idiom::IdiomBeginArray> { "font" });
 
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };
@@ -112,12 +112,12 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
             bits.flip();
         }
         auto byte = static_cast<uint8_t>(bits.to_ulong());
-        T::append(s, Elem<IdiomByte> { byte });
+        T::append(s, Elem<Idiom::IdiomByte> { byte });
         bits.reset();
     };
 
     for (const auto& glyph : face.glyphs()) {
-        T::append(s, Elem<IdiomBeginArrayRow> {});
+        T::append(s, Elem<Idiom::IdiomBeginArrayRow> {});
 
         for (const auto &pixel : glyph.pixels()) {
 
@@ -143,14 +143,14 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
             }
         }
 
-        T::append(s, Elem<IdiomComment> { comment_for_glyph(glyph_id) });
-        T::append(s, Elem<IdiomLineBreak> {});
+        T::append(s, Elem<Idiom::IdiomComment> { comment_for_glyph(glyph_id) });
+        T::append(s, Elem<Idiom::IdiomLineBreak> {});
 
         ++glyph_id;
     }
 
-    T::append(s, Elem<IdiomEndArray> {});
-    T::append(s, Elem<IdiomEnd> {});
+    T::append(s, Elem<Idiom::IdiomEndArray> {});
+    T::append(s, Elem<Idiom::IdiomEnd> {});
 
     return s.str();
 }

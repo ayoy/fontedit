@@ -20,16 +20,16 @@ struct C
     static std::ostream& append(std::ostream& o, const Element::Bare<I>&)
     {
         switch (I) {
-        case IdiomBeginArrayRow:
+        case Idiom::IdiomBeginArrayRow:
             o << "\t";
             break;
-        case IdiomLineBreak:
+        case Idiom::IdiomLineBreak:
             o << "\n";
             break;
-        case IdiomEndArray:
+        case Idiom::IdiomEndArray:
             o << "};\n";
             break;
-        case IdiomEnd:
+        case Idiom::IdiomEnd:
             o << "\n\n";
             break;
         default:
@@ -43,13 +43,13 @@ struct C
     static std::ostream& append(std::ostream& o, const Element::String<I>& e)
     {
         switch (I) {
-        case IdiomBegin:
+        case Idiom::IdiomBegin:
             o << "//\n// Font Data\n// Created: " << e.arg << "\n//\n";
             break;
-        case IdiomBeginArray:
+        case Idiom::IdiomBeginArray:
             o << "\n\nconst unsigned char " << e.arg << "[] = {\n";
             break;
-        case IdiomComment:
+        case Idiom::IdiomComment:
             o << " // " << e.arg;
             break;
         default:
@@ -94,11 +94,11 @@ struct Arduino
     static std::ostream& append(std::ostream& o, const Element::String<I>& e)
     {
         switch (I) {
-        case IdiomBegin:
+        case Idiom::IdiomBegin:
             C::append(o, e);
             o << "\n#include <Arduino.h>\n";
             break;
-        case IdiomBeginArray:
+        case Idiom::IdiomBeginArray:
             o << "\n\nconst uint8_t " << e.arg << "[] PROGMEM = {\n";
             break;
         default:
@@ -119,7 +119,7 @@ struct PythonList
     static std::ostream& append(std::ostream& o, const Element::Bare<I>& e)
     {
         switch (I) {
-        case IdiomEndArray:
+        case Idiom::IdiomEndArray:
             o << "\n]\n";
             break;
         default:
@@ -134,13 +134,13 @@ struct PythonList
     static std::ostream& append(std::ostream& o, const Element::String<I>& e)
     {
         switch (I) {
-        case IdiomBegin:
+        case Idiom::IdiomBegin:
             o << "#\n# Font Data\n# Created: " << e.arg << "\n#\n";
             break;
-        case IdiomBeginArray:
+        case Idiom::IdiomBeginArray:
             o << "\n\n" << e.arg << " = [\n";
             break;
-        case IdiomComment:
+        case Idiom::IdiomComment:
             o << " # " << e.arg;
             break;
         default:
@@ -166,15 +166,15 @@ struct PythonBytes
     static std::ostream& append(std::ostream& o, const Element::Bare<I>&)
     {
         switch (I) {
-        case IdiomBeginArrayRow:
+        case Idiom::IdiomBeginArrayRow:
             o << "\tb'";
             break;
-        case IdiomLineBreak:
+        case Idiom::IdiomLineBreak:
             o << "' \\\n";
             break;
-        case IdiomEndArray:
+        case Idiom::IdiomEndArray:
             break;
-        case IdiomEnd:
+        case Idiom::IdiomEnd:
             o << "\n\n";
             break;
         default:
@@ -188,13 +188,13 @@ struct PythonBytes
     static std::ostream& append(std::ostream& o, const Element::String<I>& e)
     {
         switch (I) {
-        case IdiomBegin:
+        case Idiom::IdiomBegin:
             o << "#\n# Font Data\n# Created: " << e.arg << "\n#\n";
             break;
-        case IdiomBeginArray:
+        case Idiom::IdiomBeginArray:
             o << "\n\n" << e.arg << " = b'' \\\n";
             break;
-        case IdiomComment:
+        case Idiom::IdiomComment:
             break;
         default:
             break;
