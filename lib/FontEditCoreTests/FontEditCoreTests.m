@@ -8,8 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "FECFontData.h"
-
-@import FontEditCore;
+#import "FECTestFaceData.h"
 
 @interface FontEditCoreTests : XCTestCase
 
@@ -18,16 +17,19 @@
 @implementation FontEditCoreTests
 
 - (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
 - (void)testSize {
-//    XCTAssertEqual([[FECSize alloc] init], 5);
-//    XCTAssertEqual([[FECSize alloc] initWithWidth:5 height:10].width, 5);
+    FECTestFaceData *testData = [FECTestFaceData new];
+    FECFace *face = [[FECFace alloc] initWithFaceReader:testData];
+    XCTAssertEqual(face.numberOfGlyphs, 5);
+    
+    FECGlyph *glyph = [face glyphAtIndex:2];
+    XCTAssertEqual(glyph.size.height, testData.fontSize.height);
+    XCTAssertEqual(glyph.size.width, testData.fontSize.width);
 }
 
 @end

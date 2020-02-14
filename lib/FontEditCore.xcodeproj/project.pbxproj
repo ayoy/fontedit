@@ -16,8 +16,9 @@
 		37E8FFDD23F5DF4200F709A4 /* format.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8FFD323F5DF4200F709A4 /* format.h */; };
 		37E8FFDF23F5DF4200F709A4 /* fontdata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFD523F5DF4200F709A4 /* fontdata.cpp */; };
 		37E8FFE023F5DF4200F709A4 /* fontdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8FFD623F5DF4200F709A4 /* fontdata.h */; };
-		37E8FFE723F5E1F400F709A4 /* FECFontData.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8FFE523F5E1F400F709A4 /* FECFontData.h */; };
+		37E8FFE723F5E1F400F709A4 /* FECFontData.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8FFE523F5E1F400F709A4 /* FECFontData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		37E8FFE823F5E1F400F709A4 /* FECFontData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFE623F5E1F400F709A4 /* FECFontData.mm */; };
+		37E8FFEC23F66BCB00F709A4 /* FECTestFaceData.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFEB23F66BCB00F709A4 /* FECTestFaceData.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +46,8 @@
 		37E8FFD623F5DF4200F709A4 /* fontdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fontdata.h; sourceTree = "<group>"; };
 		37E8FFE523F5E1F400F709A4 /* FECFontData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FECFontData.h; sourceTree = "<group>"; };
 		37E8FFE623F5E1F400F709A4 /* FECFontData.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FECFontData.mm; sourceTree = "<group>"; };
+		37E8FFEA23F66BCB00F709A4 /* FECTestFaceData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FECTestFaceData.h; sourceTree = "<group>"; };
+		37E8FFEB23F66BCB00F709A4 /* FECTestFaceData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FECTestFaceData.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +104,8 @@
 			children = (
 				37E8FFBF23F5DEFA00F709A4 /* FontEditCoreTests.m */,
 				37E8FFC123F5DEFA00F709A4 /* Info.plist */,
+				37E8FFEA23F66BCB00F709A4 /* FECTestFaceData.h */,
+				37E8FFEB23F66BCB00F709A4 /* FECTestFaceData.m */,
 			);
 			path = FontEditCoreTests;
 			sourceTree = "<group>";
@@ -243,6 +248,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				37E8FFC023F5DEFA00F709A4 /* FontEditCoreTests.m in Sources */,
+				37E8FFEC23F66BCB00F709A4 /* FECTestFaceData.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
