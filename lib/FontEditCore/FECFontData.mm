@@ -1,5 +1,5 @@
 //
-//  FECSize.m
+//  FECSize.mm
 //  FontEditCore
 //
 //  Created by Dominik Kapusta on 13/02/2020.

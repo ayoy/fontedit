@@ -6,7 +6,7 @@
 //  Copyright © 2020 The Fat Cat. All rights reserved.
 //
 
-import Cocoa
+import Foundation
 
 public protocol FaceReader {
     func isPixelSetAt(point: Point, forGlyphWithID glyphID: UInt) -> Bool
