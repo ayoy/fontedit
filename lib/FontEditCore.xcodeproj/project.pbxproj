@@ -12,6 +12,8 @@
 		37E8000623F6C22000F709A4 /* Format.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E8000523F6C22000F709A4 /* Format.swift */; };
 		37E8000D23F6C64C00F709A4 /* FECFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8000B23F6C64C00F709A4 /* FECFormat.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		37E8000E23F6C64C00F709A4 /* FECFormat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 37E8000C23F6C64C00F709A4 /* FECFormat.mm */; };
+		37E8001123F702DC00F709A4 /* FECSourceCodeGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8000F23F702DC00F709A4 /* FECSourceCodeGenerator.h */; };
+		37E8001223F702DC00F709A4 /* FECSourceCodeGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 37E8001023F702DC00F709A4 /* FECSourceCodeGenerator.mm */; };
 		37E8FFBB23F5DEFA00F709A4 /* FontEditCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E8FFB123F5DEFA00F709A4 /* FontEditCore.framework */; };
 		37E8FFC023F5DEFA00F709A4 /* FontEditCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFBF23F5DEFA00F709A4 /* FontEditCoreTests.m */; };
 		37E8FFC223F5DEFA00F709A4 /* FontEditCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8FFB423F5DEFA00F709A4 /* FontEditCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -44,6 +46,9 @@
 		37E8000523F6C22000F709A4 /* Format.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Format.swift; sourceTree = "<group>"; };
 		37E8000B23F6C64C00F709A4 /* FECFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FECFormat.h; sourceTree = "<group>"; };
 		37E8000C23F6C64C00F709A4 /* FECFormat.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FECFormat.mm; sourceTree = "<group>"; };
+		37E8000F23F702DC00F709A4 /* FECSourceCodeGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FECSourceCodeGenerator.h; sourceTree = "<group>"; };
+		37E8001023F702DC00F709A4 /* FECSourceCodeGenerator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FECSourceCodeGenerator.mm; sourceTree = "<group>"; };
+		37E8001323F71D2500F709A4 /* FECFontData_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FECFontData_Private.h; sourceTree = "<group>"; };
 		37E8FFB123F5DEFA00F709A4 /* FontEditCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FontEditCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E8FFB423F5DEFA00F709A4 /* FontEditCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FontEditCore.h; sourceTree = "<group>"; };
 		37E8FFB523F5DEFA00F709A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -108,9 +113,12 @@
 				37E8FFB423F5DEFA00F709A4 /* FontEditCore.h */,
 				37E8FFB523F5DEFA00F709A4 /* Info.plist */,
 				37E8FFE523F5E1F400F709A4 /* FECFontData.h */,
+				37E8001323F71D2500F709A4 /* FECFontData_Private.h */,
 				37E8FFE623F5E1F400F709A4 /* FECFontData.mm */,
 				37E8000B23F6C64C00F709A4 /* FECFormat.h */,
 				37E8000C23F6C64C00F709A4 /* FECFormat.mm */,
+				37E8000F23F702DC00F709A4 /* FECSourceCodeGenerator.h */,
+				37E8001023F702DC00F709A4 /* FECSourceCodeGenerator.mm */,
 			);
 			path = FontEditCore;
 			sourceTree = "<group>";
@@ -165,6 +173,7 @@
 				37E8000D23F6C64C00F709A4 /* FECFormat.h in Headers */,
 				37E8FFD823F5DF4200F709A4 /* sourcecode.h in Headers */,
 				37E8FFC223F5DEFA00F709A4 /* FontEditCore.h in Headers */,
+				37E8001123F702DC00F709A4 /* FECSourceCodeGenerator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,6 +281,7 @@
 				37E8000E23F6C64C00F709A4 /* FECFormat.mm in Sources */,
 				37E8FFD723F5DF4200F709A4 /* fontsourcecodegenerator.cpp in Sources */,
 				37E8000623F6C22000F709A4 /* Format.swift in Sources */,
+				37E8001223F702DC00F709A4 /* FECSourceCodeGenerator.mm in Sources */,
 				37E8000423F6B12800F709A4 /* Face.swift in Sources */,
 				37E8FFFE23F6AA9D00F709A4 /* Glyph.swift in Sources */,
 				37E8FFDF23F5DF4200F709A4 /* fontdata.cpp in Sources */,

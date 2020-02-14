@@ -163,4 +163,9 @@ private:
     return _object->num_glyphs();
 }
 
+- (Font::Face *)__face
+{
+    return _object.get();
+}
+
 @end
