@@ -76,7 +76,6 @@ std::string comment_for_glyph(std::size_t index);
  * This char will result in the byte sequence: 0x3c, 0x66, 0x66, ...
  *
  */
-template<typename T>
 class FontSourceCodeGenerator
 {
 public:
@@ -85,6 +84,7 @@ public:
         options_ { options }
     {}
 
+    template<typename T>
     std::string generate(const Font::Face &face);
 
 private:
@@ -92,7 +92,7 @@ private:
 };
 
 template<typename T>
-std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
+std::string FontSourceCodeGenerator::generate(const Font::Face &face)
 {
     using namespace SourceCode;
 
