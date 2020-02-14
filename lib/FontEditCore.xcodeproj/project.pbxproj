@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		37E8000223F6AEDF00F709A4 /* FECSwiftTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E8000123F6AEDF00F709A4 /* FECSwiftTest.swift */; };
+		37E8000423F6B12800F709A4 /* Face.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E8000323F6B12800F709A4 /* Face.swift */; };
 		37E8FFBB23F5DEFA00F709A4 /* FontEditCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E8FFB123F5DEFA00F709A4 /* FontEditCore.framework */; };
 		37E8FFC023F5DEFA00F709A4 /* FontEditCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFBF23F5DEFA00F709A4 /* FontEditCoreTests.m */; };
 		37E8FFC223F5DEFA00F709A4 /* FontEditCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8FFB423F5DEFA00F709A4 /* FontEditCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -19,6 +21,7 @@
 		37E8FFE723F5E1F400F709A4 /* FECFontData.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E8FFE523F5E1F400F709A4 /* FECFontData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		37E8FFE823F5E1F400F709A4 /* FECFontData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFE623F5E1F400F709A4 /* FECFontData.mm */; };
 		37E8FFEC23F66BCB00F709A4 /* FECTestFaceData.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFEB23F66BCB00F709A4 /* FECTestFaceData.m */; };
+		37E8FFFE23F6AA9D00F709A4 /* Glyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E8FFFD23F6AA9D00F709A4 /* Glyph.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +35,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		37E8000023F6AEDF00F709A4 /* FontEditCoreTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FontEditCoreTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		37E8000123F6AEDF00F709A4 /* FECSwiftTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FECSwiftTest.swift; sourceTree = "<group>"; };
+		37E8000323F6B12800F709A4 /* Face.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Face.swift; sourceTree = "<group>"; };
 		37E8FFB123F5DEFA00F709A4 /* FontEditCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FontEditCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E8FFB423F5DEFA00F709A4 /* FontEditCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FontEditCore.h; sourceTree = "<group>"; };
 		37E8FFB523F5DEFA00F709A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -48,6 +54,7 @@
 		37E8FFE623F5E1F400F709A4 /* FECFontData.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FECFontData.mm; sourceTree = "<group>"; };
 		37E8FFEA23F66BCB00F709A4 /* FECTestFaceData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FECTestFaceData.h; sourceTree = "<group>"; };
 		37E8FFEB23F66BCB00F709A4 /* FECTestFaceData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FECTestFaceData.m; sourceTree = "<group>"; };
+		37E8FFFD23F6AA9D00F709A4 /* Glyph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Glyph.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +98,7 @@
 		37E8FFB323F5DEFA00F709A4 /* FontEditCore */ = {
 			isa = PBXGroup;
 			children = (
+				37E8FFFC23F6AA7800F709A4 /* FontEditCoreSwift */,
 				37E8FFB423F5DEFA00F709A4 /* FontEditCore.h */,
 				37E8FFB523F5DEFA00F709A4 /* Info.plist */,
 				37E8FFE523F5E1F400F709A4 /* FECFontData.h */,
@@ -106,6 +114,8 @@
 				37E8FFC123F5DEFA00F709A4 /* Info.plist */,
 				37E8FFEA23F66BCB00F709A4 /* FECTestFaceData.h */,
 				37E8FFEB23F66BCB00F709A4 /* FECTestFaceData.m */,
+				37E8000123F6AEDF00F709A4 /* FECSwiftTest.swift */,
+				37E8000023F6AEDF00F709A4 /* FontEditCoreTests-Bridging-Header.h */,
 			);
 			path = FontEditCoreTests;
 			sourceTree = "<group>";
@@ -121,6 +131,15 @@
 				37E8FFD623F5DF4200F709A4 /* fontdata.h */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		37E8FFFC23F6AA7800F709A4 /* FontEditCoreSwift */ = {
+			isa = PBXGroup;
+			children = (
+				37E8FFFD23F6AA9D00F709A4 /* Glyph.swift */,
+				37E8000323F6B12800F709A4 /* Face.swift */,
+			);
+			path = FontEditCoreSwift;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -190,9 +209,11 @@
 				TargetAttributes = {
 					37E8FFB023F5DEFA00F709A4 = {
 						CreatedOnToolsVersion = 11.3.1;
+						LastSwiftMigration = 1130;
 					};
 					37E8FFB923F5DEFA00F709A4 = {
 						CreatedOnToolsVersion = 11.3.1;
+						LastSwiftMigration = 1130;
 					};
 				};
 			};
@@ -239,6 +260,8 @@
 			files = (
 				37E8FFE823F5E1F400F709A4 /* FECFontData.mm in Sources */,
 				37E8FFD723F5DF4200F709A4 /* fontsourcecodegenerator.cpp in Sources */,
+				37E8000423F6B12800F709A4 /* Face.swift in Sources */,
+				37E8FFFE23F6AA9D00F709A4 /* Glyph.swift in Sources */,
 				37E8FFDF23F5DF4200F709A4 /* fontdata.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,6 +271,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				37E8FFC023F5DEFA00F709A4 /* FontEditCoreTests.m in Sources */,
+				37E8000223F6AEDF00F709A4 /* FECSwiftTest.swift in Sources */,
 				37E8FFEC23F66BCB00F709A4 /* FECTestFaceData.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -381,7 +405,9 @@
 		37E8FFC623F5DEFA00F709A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
@@ -400,13 +426,17 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pl.thefatcat.FontEditCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		37E8FFC723F5DEFA00F709A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
@@ -425,12 +455,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pl.thefatcat.FontEditCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
 		37E8FFC923F5DEFA00F709A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = P375LGX89G;
@@ -442,12 +475,17 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = pl.thefatcat.FontEditCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "FontEditCoreTests/FontEditCoreTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		37E8FFCA23F5DEFA00F709A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = P375LGX89G;
@@ -459,6 +497,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = pl.thefatcat.FontEditCoreTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "FontEditCoreTests/FontEditCoreTests-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
