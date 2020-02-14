@@ -8,10 +8,10 @@
 
 import Foundation
 
-enum Format {
+public enum Format {
     case c, arduino, pythonList, pythonBytes
     
-    var identifier: String {
+    public var identifier: String {
         switch self {
         case .c:
             return FormatIdentifierC

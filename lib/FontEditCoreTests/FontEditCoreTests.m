@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "FECFontData.h"
+#import "FontEditCore.h"
 #import "FECTestFaceData.h"
 
 @interface FontEditCoreTests : XCTestCase

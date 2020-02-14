@@ -41,10 +41,10 @@ public class Face {
         return fecFace.glyphs.map(Glyph.init(fecGlyph:))
     }
 
-    private let fecFace: FECFace
+    let fecFace: FECFace
 }
 
-class FaceReaderWrapper: NSObject, FECFaceReader {
+private class FaceReaderWrapper: NSObject, FECFaceReader {
     init(faceReader: FaceReader) {
         self.faceReader = faceReader
     }

@@ -18,36 +18,12 @@ public struct Size: Hashable {
     }
 }
 
-extension Size {
-    var fecSize: FECSize {
-        return FECSizeMake(width, height)
-    }
-}
-
-extension FECSize {
-    var size: Size {
-        return Size(width: width, height: height)
-    }
-}
-
 public struct Point: Hashable {
     public var x: UInt
     public var y: UInt
     
     public func offsetInArray(forGlyphSize size: Size) -> UInt {
         return FECPointOffset(fecPoint, size.fecSize)
-    }
-}
-
-extension Point {
-    var fecPoint: FECPoint {
-        return FECPointMake(x, y)
-    }
-}
-
-extension FECPoint {
-    var point: Point {
-        return Point(x: x, y: y)
     }
 }
 
@@ -79,4 +55,28 @@ public class Glyph {
     }
 
     let fecGlyph: FECGlyph
+}
+
+extension Size {
+    var fecSize: FECSize {
+        return FECSizeMake(width, height)
+    }
+}
+
+extension FECSize {
+    var size: Size {
+        return Size(width: width, height: height)
+    }
+}
+
+extension Point {
+    var fecPoint: FECPoint {
+        return FECPointMake(x, y)
+    }
+}
+
+extension FECPoint {
+    var point: Point {
+        return Point(x: x, y: y)
+    }
 }

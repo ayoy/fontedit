@@ -18,3 +18,4 @@ FOUNDATION_EXPORT const unsigned char FontEditCoreVersionString[];
 
 #import <FontEditCore/FECFontData.h>
 #import <FontEditCore/FECFormat.h>
+#import <FontEditCore/FECSourceCodeGenerator.h>
