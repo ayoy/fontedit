@@ -106,7 +106,7 @@ inline bool operator!=(const Point& lhs, const Point& rhs) noexcept {
 inline std::ostream& operator<<(std::ostream& os, const Font::Glyph& g) {
 
     std::size_t col = 0;
-    for (const auto& p : g.pixels()) {
+    for (auto p : g.pixels()) {
         os << p;
         if (++col >= g.size().width) {
             col = 0;

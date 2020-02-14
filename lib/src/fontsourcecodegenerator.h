@@ -119,7 +119,7 @@ std::string FontSourceCodeGenerator<T>::generate(const Font::Face &face)
     for (const auto& glyph : face.glyphs()) {
         T::append(s, Elem<Idiom::IdiomBeginArrayRow> {});
 
-        for (const auto &pixel : glyph.pixels()) {
+        for (auto pixel : glyph.pixels()) {
 
             switch (options_.bit_numbering) {
             case SourceCodeOptions::LSB:
