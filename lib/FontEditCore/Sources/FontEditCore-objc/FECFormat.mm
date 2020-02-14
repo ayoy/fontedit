@@ -7,7 +7,7 @@
 //
 
 #import "FECFormat.h"
-#import "format.h"
+#import "f2b.h"
 
 NSString *FormatIdentifierC = [NSString stringWithUTF8String: std::string(Format::C::identifier).c_str()];
 

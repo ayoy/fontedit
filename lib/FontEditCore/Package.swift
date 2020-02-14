@@ -26,7 +26,8 @@ let package = Package(
             dependencies: ["FontEditCore-cpp"]),
         .target(
             name: "FontEditCore-cpp",
-            dependencies: []),
+            dependencies: [],
+            publicHeadersPath: "."),
         .testTarget(
             name: "FontEditCoreTests",
             dependencies: ["FontEditCore"]),
