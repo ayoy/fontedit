@@ -35,6 +35,18 @@ QRectF GlyphWidget::boundingRect() const
                   glyph_.size().height * gridSize + 0.25);
 }
 
+void GlyphWidget::togglePixel(Font::Point p)
+{
+    setPixel(p, !glyph_.is_pixel_set(p));
+}
+
+void GlyphWidget::setPixel(Font::Point p, bool value)
+{
+    glyph_.set_pixel_set(p, value);
+    emit pixelChanged(p, value);
+}
+
+
 void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
@@ -80,7 +92,45 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 void GlyphWidget::keyPressEvent(QKeyEvent *event)
 {
+    if (!focusedPixel_.has_value()) {
+        return;
+    }
 
+    auto previousPixel = focusedPixel_;
+    auto updateMode = UpdateMode::UpdateFocus;
+
+    switch (event->key()) {
+    case Qt::Key_Left:
+    case Qt::Key_H:
+        if (focusedPixel_->x > 0)
+            --focusedPixel_->x;
+        break;
+    case Qt::Key_Right:
+    case Qt::Key_L:
+        if (focusedPixel_->x < glyph_.size().width - 1)
+            ++focusedPixel_->x;
+        break;
+    case Qt::Key_Up:
+    case Qt::Key_K:
+        if (focusedPixel_->y > 0)
+            --focusedPixel_->y;
+        break;
+    case Qt::Key_Down:
+    case Qt::Key_J:
+        if (focusedPixel_->y < glyph_.size().height - 1)
+            ++focusedPixel_->y;
+        break;
+    case Qt::Key_Space:
+        togglePixel(focusedPixel_.value());
+        updateMode = UpdateMode::UpdateFocusAndPixels;
+        break;
+    case Qt::Key_Alt:
+    case Qt::Key_AltGr:
+        penState_ = false;
+        break;
+    }
+
+    updateIfNeeded(updateMode, previousPixel);
 }
 
 void GlyphWidget::keyReleaseEvent(QKeyEvent *event)
@@ -114,8 +164,7 @@ void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
     affectedItems_[currentPixel] = penState_;
     isDuringMouseMove_ = true;
 
-    glyph_.set_pixel_set(currentPixel, penState_);
-    emit pixelChanged(currentPixel, penState_);
+    setPixel(currentPixel, penState_);
 
     auto previousPixel = focusedPixel_;
     focusedPixel_ = currentPixel;
@@ -126,8 +175,6 @@ void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     Font::Point currentPixel = pointForEvent(event);
 
-    auto previousPixel = focusedPixel_;
-    focusedPixel_ = currentPixel;
     auto updateMode = UpdateMode::UpdateFocus;
 
     // If item not visited or visited with a different state
@@ -138,9 +185,11 @@ void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         updateMode = UpdateMode::UpdateFocusAndPixels;
         affectedItems_[currentPixel] = penState_;
 
-        glyph_.set_pixel_set(currentPixel, penState_);
-        emit pixelChanged(currentPixel, penState_);
+        setPixel(currentPixel, penState_);
     }
+
+    auto previousPixel = focusedPixel_;
+    focusedPixel_ = currentPixel;
     updateIfNeeded(updateMode, previousPixel);
 }
 

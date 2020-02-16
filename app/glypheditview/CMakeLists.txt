@@ -5,12 +5,10 @@ project(glypheditview LANGUAGES CXX)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
 add_library(glypheditview
-    focuswidget.h
-    focuswidget.cpp
-    glyphgraphicsview.h
     glyphgraphicsview.cpp
-    glyphwidget.h
+    glyphgraphicsview.h
     glyphwidget.cpp
+    glyphwidget.h
 )
 
 target_link_libraries(glypheditview PRIVATE Qt5::Widgets Qt5::Core common font2bytes)

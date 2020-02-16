@@ -4,7 +4,7 @@
 #include <QGraphicsWidget>
 #include <QGraphicsGridLayout>
 #include <f2b.h>
-#include "../glypheditview/focuswidget.h"
+#include "focuswidget.h"
 
 #include <memory>
 

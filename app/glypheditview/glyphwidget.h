@@ -46,6 +46,9 @@ private:
     void handleMousePress(QGraphicsSceneMouseEvent *event);
     void updateIfNeeded(UpdateMode updateMode, std::optional<Font::Point> previousFocusedPixel);
 
+    void togglePixel(Font::Point p);
+    void setPixel(Font::Point p, bool value);
+
     Font::Point pointForEvent(QGraphicsSceneMouseEvent *event) const;
 
     Font::Glyph glyph_;

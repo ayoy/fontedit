@@ -7,6 +7,8 @@ find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 add_library(facepreview
     facewidget.cpp
     facewidget.h
+    focuswidget.cpp
+    focuswidget.h
     glyphinfowidget.cpp
     glyphinfowidget.h
 )
