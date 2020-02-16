@@ -2,7 +2,6 @@
 #include "f2b.h"
 #include "facewidget.h"
 #include "fontfaceviewmodel.h"
-#include "glyphwidget.h"
 
 #include <QGraphicsGridLayout>
 #include <QGraphicsWidget>
@@ -13,7 +12,6 @@
 
 #include <iostream>
 
-static constexpr auto pixel_size = 30;
 static constexpr auto codeTabIndex = 1;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -125,23 +123,23 @@ void MainWindow::displayFace(const Font::Face &face)
     faceWidget_->load(face);
 
     if (glyphWidget_.get()) {
-        glyphWidget_->clear();
+        glyphWidget_.release();
     }
 }
 
 void MainWindow::displayGlyph(const Font::Glyph &glyph)
 {
     if (!glyphWidget_.get()) {
-        glyphWidget_ = std::make_unique<GlyphWidget>(pixel_size);
+        glyphWidget_ = std::make_unique<RawGlyphWidget>(glyph);
         ui_->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
-        connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
+        connect(glyphWidget_.get(), &RawGlyphWidget::pixelChanged,
                 [&] (Font::Point p, bool is_selected) {
             viewModel_->faceModel()->active_glyph().set_pixel_set(p, is_selected);
             viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
         });
+    } else {
+        glyphWidget_->load(glyph);
     }
-
-    glyphWidget_->load(glyph);
     ui_->glyphGraphicsView->fitInView(glyphWidget_->rect(), Qt::KeepAspectRatio);
 }
