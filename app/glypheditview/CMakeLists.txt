@@ -11,10 +11,6 @@ add_library(glypheditview
     glyphgraphicsview.cpp
     glyphwidget.h
     glyphwidget.cpp
-    pixelwidget.h
-    pixelwidget.cpp
-    rawglyphwidget.cpp
-    rawglyphwidget.h
 )
 
 target_link_libraries(glypheditview PRIVATE Qt5::Widgets Qt5::Core common font2bytes)

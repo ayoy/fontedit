@@ -6,7 +6,7 @@
 #include "./ui_mainwindow.h"
 #include "mainwindowmodel.h"
 #include "facewidget.h"
-#include "rawglyphwidget.h"
+#include "glyphwidget.h"
 
 #include <memory>
 
@@ -30,7 +30,7 @@ private:
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 
-    std::unique_ptr<RawGlyphWidget> glyphWidget_ {};
+    std::unique_ptr<GlyphWidget> glyphWidget_ {};
     FaceWidget *faceWidget_ { nullptr };
     std::unique_ptr<MainWindowModel> viewModel_ { std::make_unique<MainWindowModel>() };
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };

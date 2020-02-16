@@ -130,10 +130,10 @@ void MainWindow::displayFace(const Font::Face &face)
 void MainWindow::displayGlyph(const Font::Glyph &glyph)
 {
     if (!glyphWidget_.get()) {
-        glyphWidget_ = std::make_unique<RawGlyphWidget>(glyph);
+        glyphWidget_ = std::make_unique<GlyphWidget>(glyph);
         ui_->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
-        connect(glyphWidget_.get(), &RawGlyphWidget::pixelChanged,
+        connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
                 [&] (Font::Point p, bool is_selected) {
             viewModel_->faceModel()->active_glyph().set_pixel_set(p, is_selected);
             viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);

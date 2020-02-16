@@ -1,17 +1,15 @@
-#ifndef GLYPHWIDGET_H
-#define GLYPHWIDGET_H
+#ifndef RAWGLYPHWIDGET_H
+#define RAWGLYPHWIDGET_H
 
 #include <QGraphicsWidget>
-#include <QGraphicsGridLayout>
-#include "f2b.h"
-#include "focuswidget.h"
-
+#include <f2b.h>
 #include <memory>
 #include <unordered_map>
+#include <optional>
 
-struct QPointHash {
-    size_t operator()(const QPoint &p) const {
-        return std::hash<int>()(p.x()) ^ std::hash<int>()(p.y());
+struct PointHash {
+    size_t operator()(const Font::Point &p) const {
+        return std::hash<std::size_t>()(p.x) ^ std::hash<std::size_t>()(p.y);
     }
 };
 
@@ -19,12 +17,19 @@ class GlyphWidget : public QGraphicsWidget
 {
     Q_OBJECT
 
+    enum class UpdateMode {
+        UpdateFocus,
+        UpdateFocusAndPixels
+    };
+
 public:
-    explicit GlyphWidget(qreal pixel_size, QGraphicsItem *parent = nullptr);
+    explicit GlyphWidget(const Font::Glyph& glyph, QGraphicsItem* parent = nullptr);
     virtual ~GlyphWidget() = default;
 
-    void load(const Font::Glyph &glyph);
-    void clear();
+    void load(const Font::Glyph& glyph);
+    QRectF boundingRect() const override;
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 signals:
     void pixelChanged(Font::Point pos, bool isSelected);
@@ -39,28 +44,16 @@ protected:
 
 private:
     void handleMousePress(QGraphicsSceneMouseEvent *event);
-    void updateLayout();
-    void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
+    void updateIfNeeded(UpdateMode updateMode, std::optional<Font::Point> previousFocusedPixel);
 
-    void setItemState(QGraphicsLayoutItem *item, bool isSelected);
-    void setItemState(const QPoint &pos, bool isSelected);
-    void toggleItemSet(const QPoint &pos);
+    Font::Point pointForEvent(QGraphicsSceneMouseEvent *event) const;
 
-    void moveFocus(const QPoint &to);
-
-    QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
-    std::unique_ptr<FocusWidget> focus_widget_ { nullptr };
-    QGraphicsLayoutItem *focused_item_ { nullptr };
-    std::size_t width_ { 0 };
-    std::size_t height_ { 0 };
-    const qreal pixel_size_;
-    qreal topMargin_;
-    qreal leftMargin_;
-
+    Font::Glyph glyph_;
+    std::unordered_map<Font::Point,bool,PointHash> affectedItems_;
+    std::optional<Font::Point> focusedPixel_ {};
 
     bool isDuringMouseMove_ { false };
-    std::unordered_map<QPoint,bool,QPointHash> affectedItems_;
     bool penState_ { false };
 };
 
-#endif // GLYPHWIDGET_H
+#endif // RAWGLYPHWIDGET_H
