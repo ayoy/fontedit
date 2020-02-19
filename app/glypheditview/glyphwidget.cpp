@@ -10,6 +10,13 @@
 
 static constexpr qreal gridSize = 20;
 
+QRectF rectForPoint(const Font::Point& point)
+{
+    return QRectF(QPointF(point.x * gridSize, point.y * gridSize),
+                  QSizeF(gridSize, gridSize));
+}
+
+
 GlyphWidget::GlyphWidget(const Font::Glyph& glyph, QGraphicsItem* parent) :
     QGraphicsWidget(parent),
     glyph_ { glyph }
@@ -70,9 +77,9 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
     for (std::size_t row = 0; row < glyph_.size().height; ++row) {
         for (std::size_t col = 0; col < glyph_.size().width; ++col) {
-            if (glyph_.is_pixel_set({col, row})) {
-                painter->fillRect(QRectF(QPointF(col * gridSize, row * gridSize),
-                                         QSizeF(gridSize, gridSize)), Qt::black);
+            Font::Point p { col, row };
+            if (glyph_.is_pixel_set(p)) {
+                painter->fillRect(rectForPoint(p), Qt::black);
             }
         }
     }
@@ -85,8 +92,7 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     }
     if (focusedPixel_.has_value()) {
         painter->setPen(QPen(QBrush(Qt::red), 1));
-        painter->drawRect(QRectF(QPointF(focusedPixel_->x * gridSize, focusedPixel_->y * gridSize),
-                                 QSizeF(gridSize, gridSize)));
+        painter->drawRect(rectForPoint(focusedPixel_.value()));
     }
 
 //    qDebug() << __FUNCTION__ << option->exposedRect << boundingRect()
@@ -211,12 +217,10 @@ void GlyphWidget::updateIfNeeded(UpdateMode updateMode, std::optional<Font::Poin
     }
 
     if (focusedPixel_.has_value()) {
-        rect = QRectF(QPointF(focusedPixel_->x * gridSize, focusedPixel_->y * gridSize),
-                      QSizeF(gridSize + 1, gridSize + 1));
+        rect = rectForPoint(focusedPixel_.value());
     }
     if (previousFocusedPixel.has_value()) {
-        auto previousRect = QRectF(QPointF(previousFocusedPixel->x * gridSize, previousFocusedPixel->y * gridSize),
-                                   QSizeF(gridSize + 1, gridSize + 1));
+        auto previousRect = rectForPoint(previousFocusedPixel.value());
         if (rect.isValid()) {
             rect = rect.united(previousRect);
         } else {
