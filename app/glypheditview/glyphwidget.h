@@ -4,33 +4,10 @@
 #include <QGraphicsWidget>
 #include <f2b.h>
 #include <memory>
-#include <unordered_map>
 #include <optional>
 
-struct PointHash {
-    size_t operator()(const Font::Point &p) const {
-        return std::hash<std::size_t>()(p.x) ^ std::hash<std::size_t>()(p.y);
-    }
-};
+#include "glypheditcommand.h"
 
-struct BatchPixelChange {
-    std::unordered_map<Font::Point,bool,PointHash> changes;
-
-    void add(const Font::Point &pixel, bool value) {
-        auto i = changes.find(pixel);
-        if (i == changes.end()) {
-            changes.insert({ pixel, value });
-        } else if (i->second != value) {
-            changes.erase(pixel);
-        }
-    }
-
-    void apply(Font::Glyph& glyph) const {
-        for (const auto& i : changes) {
-            glyph.set_pixel_set(i.first, i.second);
-        }
-    }
-};
 
 class GlyphWidget : public QGraphicsWidget
 {
@@ -49,6 +26,7 @@ public:
     QRectF boundingRect() const override;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    void applyChange(const BatchPixelChange &change, bool reverse = false);
 
 signals:
     void pixelsChanged(const BatchPixelChange& changes);

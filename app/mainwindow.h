@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
+#include <QUndoStack>
 
 #include "./ui_mainwindow.h"
 #include "mainwindowmodel.h"
@@ -36,6 +37,7 @@ private:
     FaceWidget *faceWidget_ { nullptr };
     std::unique_ptr<MainWindowModel> viewModel_ { std::make_unique<MainWindowModel>() };
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
+    std::unique_ptr<QUndoStack> undoStack_ { std::make_unique<QUndoStack>() };
 };
 
 #endif // MAINWINDOW_H

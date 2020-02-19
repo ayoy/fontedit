@@ -334,8 +334,6 @@
     </property>
     <addaction name="actionAdd_Glyph"/>
     <addaction name="separator"/>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
     <addaction name="actionCopy_Glyph"/>
     <addaction name="actionPaste_Glyph"/>
     <addaction name="separator"/>
@@ -363,30 +361,6 @@
    </property>
    <property name="shortcut">
     <string>Meta+Ctrl+N</string>
-   </property>
-  </action>
-  <action name="actionUndo">
-   <property name="icon">
-    <iconset resource="assets.qrc">
-     <normaloff>:/toolbar/assets/undo.svg</normaloff>:/toolbar/assets/undo.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Undo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Z</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="icon">
-    <iconset resource="assets.qrc">
-     <normaloff>:/toolbar/assets/redo.svg</normaloff>:/toolbar/assets/redo.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Redo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+Z</string>
    </property>
   </action>
   <action name="actionReset_Glyph">

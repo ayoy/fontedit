@@ -49,12 +49,22 @@ void GlyphWidget::togglePixel(Font::Point p)
 
 void GlyphWidget::setPixel(Font::Point p, bool value)
 {
-    glyph_.set_pixel_set(p, value);
+    if (glyph_.is_pixel_set(p) != value) {
+        glyph_.set_pixel_set(p, value);
+        affectedPixels_.add(p, value);
 
-    if (!isDuringMouseMove_) {
-        emit pixelsChanged(affectedPixels_);
-        affectedPixels_.changes.clear();
+        if (!isDuringMouseMove_) {
+            emit pixelsChanged(affectedPixels_);
+            affectedPixels_.changes.clear();
+        }
     }
+}
+
+void GlyphWidget::applyChange(const BatchPixelChange &change, bool reverse)
+{
+    // TODO: skip on first call (the initial 'redo')
+    change.apply(glyph_, reverse);
+    update();
 }
 
 
@@ -171,7 +181,6 @@ void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
 
     penState_ = !event->modifiers().testFlag(Qt::AltModifier);
     affectedPixels_.changes.clear();
-    affectedPixels_.add(currentPixel, penState_);
     isDuringMouseMove_ = true;
 
     setPixel(currentPixel, penState_);
@@ -193,7 +202,6 @@ void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     {
 //        qDebug() << "mouse move to new item" << currentPixel.x << currentPixel.y << penState_;
         updateMode = UpdateMode::UpdateFocusAndPixels;
-        affectedPixels_.add(currentPixel, penState_);
 
         setPixel(currentPixel, penState_);
     }

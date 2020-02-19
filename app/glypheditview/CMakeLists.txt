@@ -5,6 +5,8 @@ project(glypheditview LANGUAGES CXX)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
 add_library(glypheditview
+    glypheditcommand.cpp
+    glypheditcommand.h
     glyphgraphicsview.cpp
     glyphgraphicsview.h
     glyphwidget.cpp

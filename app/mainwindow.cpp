@@ -73,13 +73,19 @@ void MainWindow::setupUI()
 
 void MainWindow::setupActions()
 {
+    auto undo = undoStack_->createUndoAction(this);
+    undo->setIcon(QIcon {":/toolbar/assets/undo.svg"});
+
+    auto redo = undoStack_->createRedoAction(this);
+    redo->setIcon(QIcon {":/toolbar/assets/redo.svg"});
+
     ui_->importFontButton->setDefaultAction(ui_->actionImport_Font);
     ui_->addGlyphButton->setDefaultAction(ui_->actionAdd_Glyph);
     ui_->saveButton->setDefaultAction(ui_->actionSave);
     ui_->copyButton->setDefaultAction(ui_->actionCopy_Glyph);
     ui_->pasteButton->setDefaultAction(ui_->actionPaste_Glyph);
-    ui_->undoButton->setDefaultAction(ui_->actionUndo);
-    ui_->redoButton->setDefaultAction(ui_->actionRedo);
+    ui_->undoButton->setDefaultAction(undo);
+    ui_->redoButton->setDefaultAction(redo);
     ui_->resetGlyphButton->setDefaultAction(ui_->actionReset_Glyph);
     ui_->resetFontButton->setDefaultAction(ui_->actionReset_Font);
 }
@@ -92,8 +98,8 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
     ui_->actionSave->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
     ui_->actionCopy_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionCopy]);
     ui_->actionPaste_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPaste]);
-    ui_->actionUndo->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionUndo]);
-    ui_->actionRedo->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionRedo]);
+//    ui_->undoButton->defaultAction()->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionUndo]);
+//    ui_->redoButton->defaultAction()->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionRedo]);
     ui_->actionReset_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetGlyph]);
     ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
     ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
@@ -136,8 +142,16 @@ void MainWindow::displayGlyph(const Font::Glyph& glyph)
         ui_->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
         connect(glyphWidget_.get(), &GlyphWidget::pixelsChanged,
-                [&] (const BatchPixelChange &change) {
-            change.apply(viewModel_->faceModel()->active_glyph());
+                [&] (const BatchPixelChange &change)
+        {
+            undoStack_->push(new GlyphEditCommand([&, change] {
+                change.apply(viewModel_->faceModel()->active_glyph(), true);
+                glyphWidget_->applyChange(change, true);
+            }, [&, change] {
+                change.apply(viewModel_->faceModel()->active_glyph());
+                glyphWidget_->applyChange(change);
+            }));
+
             viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
         });
     } else {
