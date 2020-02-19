@@ -13,6 +13,25 @@ struct PointHash {
     }
 };
 
+struct BatchPixelChange {
+    std::unordered_map<Font::Point,bool,PointHash> changes;
+
+    void add(const Font::Point &pixel, bool value) {
+        auto i = changes.find(pixel);
+        if (i == changes.end()) {
+            changes.insert({ pixel, value });
+        } else if (i->second != value) {
+            changes.erase(pixel);
+        }
+    }
+
+    void apply(Font::Glyph& glyph) const {
+        for (const auto& i : changes) {
+            glyph.set_pixel_set(i.first, i.second);
+        }
+    }
+};
+
 class GlyphWidget : public QGraphicsWidget
 {
     Q_OBJECT
@@ -32,7 +51,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 signals:
-    void pixelChanged(Font::Point pos, bool isSelected);
+    void pixelsChanged(const BatchPixelChange& changes);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -52,7 +71,7 @@ private:
     Font::Point pointForEvent(QGraphicsSceneMouseEvent *event) const;
 
     Font::Glyph glyph_;
-    std::unordered_map<Font::Point,bool,PointHash> affectedItems_;
+    BatchPixelChange affectedPixels_;
     std::optional<Font::Point> focusedPixel_ {};
 
     bool isDuringMouseMove_ { false };

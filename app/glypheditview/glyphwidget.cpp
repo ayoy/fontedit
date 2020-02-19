@@ -43,7 +43,11 @@ void GlyphWidget::togglePixel(Font::Point p)
 void GlyphWidget::setPixel(Font::Point p, bool value)
 {
     glyph_.set_pixel_set(p, value);
-    emit pixelChanged(p, value);
+
+    if (!isDuringMouseMove_) {
+        emit pixelsChanged(affectedPixels_);
+        affectedPixels_.changes.clear();
+    }
 }
 
 
@@ -52,8 +56,8 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QElapsedTimer timer;
-    timer.start();
+//    QElapsedTimer timer;
+//    timer.start();
 
     QRectF rect = QRectF(0, 0,
                          glyph_.size().width * gridSize,
@@ -85,9 +89,9 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
                                  QSizeF(gridSize, gridSize)));
     }
 
-    qDebug() << __FUNCTION__ << option->exposedRect << boundingRect()
-             << option->exposedRect.toRect().contains(boundingRect().toRect())
-             << QString("(%1ms)").arg(timer.elapsed());
+//    qDebug() << __FUNCTION__ << option->exposedRect << boundingRect()
+//             << option->exposedRect.toRect().contains(boundingRect().toRect())
+//             << QString("(%1ms)").arg(timer.elapsed());
 }
 
 void GlyphWidget::keyPressEvent(QKeyEvent *event)
@@ -160,8 +164,8 @@ void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
     qDebug() << event << currentPixel.x << currentPixel.y;
 
     penState_ = !event->modifiers().testFlag(Qt::AltModifier);
-    affectedItems_.clear();
-    affectedItems_[currentPixel] = penState_;
+    affectedPixels_.changes.clear();
+    affectedPixels_.add(currentPixel, penState_);
     isDuringMouseMove_ = true;
 
     setPixel(currentPixel, penState_);
@@ -178,12 +182,12 @@ void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     auto updateMode = UpdateMode::UpdateFocus;
 
     // If item not visited or visited with a different state
-    if (affectedItems_.find(currentPixel) == affectedItems_.end() ||
-            affectedItems_[currentPixel] != penState_)
+    if (affectedPixels_.changes.find(currentPixel) == affectedPixels_.changes.end() ||
+            affectedPixels_.changes[currentPixel] != penState_)
     {
-        qDebug() << "mouse move to new item" << currentPixel.x << currentPixel.y << penState_;
+//        qDebug() << "mouse move to new item" << currentPixel.x << currentPixel.y << penState_;
         updateMode = UpdateMode::UpdateFocusAndPixels;
-        affectedItems_[currentPixel] = penState_;
+        affectedPixels_.add(currentPixel, penState_);
 
         setPixel(currentPixel, penState_);
     }
@@ -207,11 +211,11 @@ void GlyphWidget::updateIfNeeded(UpdateMode updateMode, std::optional<Font::Poin
     }
 
     if (focusedPixel_.has_value()) {
-        rect = QRectF(QPointF(focusedPixel_->x * gridSize - 0.5, focusedPixel_->y * gridSize -0.5),
+        rect = QRectF(QPointF(focusedPixel_->x * gridSize, focusedPixel_->y * gridSize),
                       QSizeF(gridSize + 1, gridSize + 1));
     }
     if (previousFocusedPixel.has_value()) {
-        auto previousRect = QRectF(QPointF(previousFocusedPixel->x * gridSize - 0.5, previousFocusedPixel->y * gridSize - 0.5),
+        auto previousRect = QRectF(QPointF(previousFocusedPixel->x * gridSize, previousFocusedPixel->y * gridSize),
                                    QSizeF(gridSize + 1, gridSize + 1));
         if (rect.isValid()) {
             rect = rect.united(previousRect);
@@ -221,7 +225,7 @@ void GlyphWidget::updateIfNeeded(UpdateMode updateMode, std::optional<Font::Poin
     }
 
     if (rect.isValid()) {
-        update(rect);
+        update(rect.marginsAdded({0.5, 0.5, 0.5, 0.5}));
     }
 }
 
@@ -231,10 +235,13 @@ void GlyphWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     isDuringMouseMove_ = false;
 
-    for (const auto& i : affectedItems_) {
-        std::cout << "(" << i.first.x << ", " << i.first.y << ") ";
+    for (const auto& i : affectedPixels_.changes) {
+        std::cout << "((" << i.first.x << ", " << i.first.y << "), " << i.second << ") ";
     }
     std::cout << std::endl;
+
+    emit pixelsChanged(affectedPixels_);
+    affectedPixels_.changes.clear();
 }
 
 Font::Point GlyphWidget::pointForEvent(QGraphicsSceneMouseEvent *event) const

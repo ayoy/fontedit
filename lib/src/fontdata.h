@@ -28,11 +28,11 @@ public:
     explicit Glyph(Size sz);
     explicit Glyph(Size sz, std::vector<bool> pixels);
 
-    Size size() const { return size_; }
+    Size size() const noexcept { return size_; }
     bool is_pixel_set(Point p) const { return pixels_[p.offset(size_)]; }
     void set_pixel_set(Point p, bool is_set) { pixels_[p.offset(size_)] = is_set; }
 
-    const std::vector<bool>& pixels() const { return pixels_; }
+    const std::vector<bool>& pixels() const noexcept { return pixels_; }
 
 private:
     Size size_;

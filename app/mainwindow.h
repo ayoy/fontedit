@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
+
 #include "./ui_mainwindow.h"
 #include "mainwindowmodel.h"
 #include "facewidget.h"
@@ -19,13 +20,14 @@ public:
 
 private slots:
     void showFontDialog();
-    void displayFace(const Font::Face &face);
+    void displayFace(const Font::Face& face);
 
 private:
     void setupUI();
     void setupActions();
 
-    void displayGlyph(const Font::Glyph &glyph);
+    void resetCurrentGlyph();
+    void displayGlyph(const Font::Glyph& glyph);
     void updateUI(MainWindowModel::UIState uiState);
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };

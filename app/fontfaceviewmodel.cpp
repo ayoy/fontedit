@@ -117,3 +117,21 @@ Font::Face FontFaceViewModel::import_face(const QFont &font)
 
     return Font::Face(adapter);
 }
+
+Font::Glyph& FontFaceViewModel::active_glyph()
+{
+    if (!active_glyph_index_.has_value()) {
+        throw std::logic_error("No active glyph. Call set_active_glyph_index() first");
+    }
+    auto idx = active_glyph_index_.value();
+
+    auto i = modifiedGlyphs_.find(idx);
+    if (i == modifiedGlyphs_.end()) {
+        qDebug() << "active_glyph non-const cache miss";
+        modifiedGlyphs_.insert({ idx, face_.glyph_at(idx) });
+        return modifiedGlyphs_.at(idx);
+    }
+
+    qDebug() << "active_glyph non-const cache hit";
+    return i->second;
+}

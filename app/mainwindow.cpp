@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
     updateUI(viewModel_->uiState());
 
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
+    connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
+
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
     connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
         if (index == codeTabIndex) {
@@ -110,7 +112,7 @@ void MainWindow::showFontDialog()
     viewModel_->importFont(f);
 }
 
-void MainWindow::displayFace(const Font::Face &face)
+void MainWindow::displayFace(const Font::Face& face)
 {
     if (faceWidget_ == nullptr) {
         faceWidget_ = new FaceWidget();
@@ -127,19 +129,25 @@ void MainWindow::displayFace(const Font::Face &face)
     }
 }
 
-void MainWindow::displayGlyph(const Font::Glyph &glyph)
+void MainWindow::displayGlyph(const Font::Glyph& glyph)
 {
     if (!glyphWidget_.get()) {
         glyphWidget_ = std::make_unique<GlyphWidget>(glyph);
         ui_->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
-        connect(glyphWidget_.get(), &GlyphWidget::pixelChanged,
-                [&] (Font::Point p, bool is_selected) {
-            viewModel_->faceModel()->active_glyph().set_pixel_set(p, is_selected);
+        connect(glyphWidget_.get(), &GlyphWidget::pixelsChanged,
+                [&] (const BatchPixelChange &change) {
+            change.apply(viewModel_->faceModel()->active_glyph());
             viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
         });
     } else {
         glyphWidget_->load(glyph);
     }
     ui_->glyphGraphicsView->fitInView(glyphWidget_->rect(), Qt::KeepAspectRatio);
+}
+
+void MainWindow::resetCurrentGlyph()
+{
+    viewModel_->faceModel()->reset_active_glyph();
+    displayGlyph(viewModel_->faceModel()->active_glyph());
 }

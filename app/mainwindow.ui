@@ -220,7 +220,11 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QTextBrowser" name="sourceCodeTextBrowser"/>
+         <widget class="QTextBrowser" name="sourceCodeTextBrowser">
+          <property name="lineWrapMode">
+           <enum>QTextEdit::NoWrap</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_4">
