@@ -125,13 +125,28 @@ Font::Glyph& FontFaceViewModel::active_glyph()
     }
     auto idx = active_glyph_index_.value();
 
-    auto i = modifiedGlyphs_.find(idx);
-    if (i == modifiedGlyphs_.end()) {
+    auto i = originalGlyphs_.find(idx);
+    if (i == originalGlyphs_.end()) {
         qDebug() << "active_glyph non-const cache miss";
-        modifiedGlyphs_.insert({ idx, face_.glyph_at(idx) });
-        return modifiedGlyphs_.at(idx);
+        originalGlyphs_.insert({ idx, face_.glyph_at(idx) });
+        return originalGlyphs_.at(idx);
     }
 
     qDebug() << "active_glyph non-const cache hit";
-    return i->second;
+    return face_.glyph_at(idx);
+}
+
+void FontFaceViewModel::reset_glyph(std::size_t idx)
+{
+    face_.set_glyph(originalGlyphs_.at(idx), idx);
+    originalGlyphs_.erase(active_glyph_index_.value());
+}
+
+Font::Face FontFaceViewModel::original_face() const noexcept
+{
+    Font::Face f = face_;
+    for (const auto& pair : originalGlyphs_) {
+        f.set_glyph(pair.second, pair.first);
+    }
+    return f;
 }

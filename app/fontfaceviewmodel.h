@@ -17,6 +17,8 @@ public:
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
 
+    Font::Face original_face() const noexcept;
+
     void set_active_glyph_index(std::size_t idx) {
         if (idx >= face_.num_glyphs()) {
             throw std::out_of_range("Active glyph index higher than number of glyphs.");
@@ -35,26 +37,30 @@ public:
         return face_.glyph_at(active_glyph_index_.value());
     }
 
-    /// Copies a glyph to modifiedGlyphs_.
+    /// Makes a backup of an original (unmodified) glyph in originalGlyphs_.
     Font::Glyph& active_glyph();
 
     void reset_active_glyph() {
         if (!active_glyph_index_.has_value()) {
             return;
         }
-        modifiedGlyphs_.erase(active_glyph_index_.value());
+        reset_glyph(active_glyph_index_.value());
     }
 
     bool is_glyph_modified(std::size_t idx) {
-        return modifiedGlyphs_.find(idx) != modifiedGlyphs_.end();
+        // modified glyphs have their unmodified counterparts stored in originalGlyphs_.
+        return originalGlyphs_.find(idx) != originalGlyphs_.end();
     }
 
 private:
     static Font::Face import_face(const QFont &font);
+    void reset_glyph(std::size_t idx);
 
     Font::Face face_;
-    std::unordered_map<std::size_t, Font::Glyph> modifiedGlyphs_;
     std::optional<std::size_t> active_glyph_index_ { std::nullopt };
+
+    // this holds copies of unmodified glyphs once they are edited.
+    std::unordered_map<std::size_t, Font::Glyph> originalGlyphs_;
 };
 
 #endif // FONTFACEVIEWMODEL_H
