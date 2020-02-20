@@ -62,9 +62,14 @@ void GlyphWidget::setPixel(Font::Point p, bool value)
 
 void GlyphWidget::applyChange(const BatchPixelChange &change, bool reverse)
 {
-    // TODO: skip on first call (the initial 'redo')
-    change.apply(glyph_, reverse);
-    update();
+    //
+    // Apply only if there's no affected pixels (no operation in progress)
+    // - this is the initial call to redo() action.
+    //
+    if (affectedPixels_.changes.size() == 0) {
+        change.apply(glyph_, reverse);
+        update();
+    }
 }
 
 

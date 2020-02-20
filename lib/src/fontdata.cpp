@@ -10,7 +10,11 @@ Glyph::Glyph(Size sz) :
 Glyph::Glyph(Size sz, std::vector<bool> pixels) :
     size_ { sz },
     pixels_ { std::move(pixels) }
-{}
+{
+    if (pixels_.size() != sz.width * sz.height) {
+        throw std::logic_error { "pixels size must equal glyph size (width * height)" };
+    }
+}
 
 Face::Face(const FaceReader &data) :
     sz_ { data.font_size() },
