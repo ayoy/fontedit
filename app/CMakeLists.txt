@@ -23,6 +23,7 @@ add_subdirectory(facepreview)
 
 set(SRC_FILES
     assets.qrc
+    command.h
     fontfaceviewmodel.cpp
     fontfaceviewmodel.h
     global.h

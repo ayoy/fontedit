@@ -6,7 +6,7 @@
 #include <memory>
 #include <optional>
 
-#include "glypheditcommand.h"
+#include "batchpixelchange.h"
 
 
 class GlyphWidget : public QGraphicsWidget

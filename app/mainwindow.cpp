@@ -2,6 +2,7 @@
 #include "f2b.h"
 #include "facewidget.h"
 #include "fontfaceviewmodel.h"
+#include "command.h"
 
 #include <QGraphicsGridLayout>
 #include <QGraphicsWidget>
@@ -88,6 +89,9 @@ void MainWindow::setupActions()
     ui_->redoButton->setDefaultAction(redo);
     ui_->resetGlyphButton->setDefaultAction(ui_->actionReset_Glyph);
     ui_->resetFontButton->setDefaultAction(ui_->actionReset_Font);
+
+    ui_->menuEdit->insertAction(ui_->actionCopy_Glyph, undo);
+    ui_->menuEdit->insertAction(ui_->actionCopy_Glyph, redo);
 }
 
 void MainWindow::updateUI(MainWindowModel::UIState uiState)
@@ -144,7 +148,7 @@ void MainWindow::displayGlyph(const Font::Glyph& glyph)
         connect(glyphWidget_.get(), &GlyphWidget::pixelsChanged,
                 [&] (const BatchPixelChange &change)
         {
-            undoStack_->push(new GlyphEditCommand([&, change] {
+            undoStack_->push(new Command("Edit Glyph", [&, change] {
                 change.apply(viewModel_->faceModel()->active_glyph(), true);
                 glyphWidget_->applyChange(change, true);
             }, [&, change] {
