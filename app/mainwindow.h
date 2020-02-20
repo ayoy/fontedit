@@ -9,6 +9,7 @@
 #include "mainwindowmodel.h"
 #include "facewidget.h"
 #include "glyphwidget.h"
+#include "batchpixelchange.h"
 
 #include <memory>
 
@@ -30,6 +31,8 @@ private:
     void resetCurrentGlyph();
     void displayGlyph(const Font::Glyph& glyph);
     void updateUI(MainWindowModel::UIState uiState);
+    void editGlyph(const BatchPixelChange& change);
+    void switchActiveGlyph(std::size_t newIndex);
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 

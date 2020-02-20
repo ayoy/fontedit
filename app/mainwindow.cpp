@@ -129,7 +129,7 @@ void MainWindow::displayFace(const Font::Face& face)
         ui_->faceGraphicsView->scene()->addItem(faceWidget_);
 
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
-                viewModel_.get(), &MainWindowModel::setActiveGlyphIndex);
+                this, &MainWindow::switchActiveGlyph);
     }
 
     faceWidget_->load(face);
@@ -146,22 +146,43 @@ void MainWindow::displayGlyph(const Font::Glyph& glyph)
         ui_->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
         connect(glyphWidget_.get(), &GlyphWidget::pixelsChanged,
-                [&] (const BatchPixelChange &change)
-        {
-            undoStack_->push(new Command("Edit Glyph", [&, change] {
-                change.apply(viewModel_->faceModel()->active_glyph(), true);
-                glyphWidget_->applyChange(change, true);
-            }, [&, change] {
-                change.apply(viewModel_->faceModel()->active_glyph());
-                glyphWidget_->applyChange(change);
-            }));
-
-            viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
-        });
+                this, &MainWindow::editGlyph);
     } else {
         glyphWidget_->load(glyph);
     }
     ui_->glyphGraphicsView->fitInView(glyphWidget_->rect(), Qt::KeepAspectRatio);
+}
+
+void MainWindow::editGlyph(const BatchPixelChange& change)
+{
+    undoStack_->push(new Command("Edit Glyph", [&, change] {
+        change.apply(viewModel_->faceModel()->active_glyph(), true);
+        glyphWidget_->applyChange(change, true);
+    }, [&, change] {
+        change.apply(viewModel_->faceModel()->active_glyph());
+        glyphWidget_->applyChange(change);
+    }));
+
+    viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
+}
+
+void MainWindow::switchActiveGlyph(std::size_t newIndex)
+{
+    auto currentIndex = viewModel_->faceModel()->active_glyph_index();
+    if (currentIndex.has_value()) {
+        auto idx = currentIndex.value();
+
+        undoStack_->push(new Command("Switch Active Glyph", [&, idx] {
+            faceWidget_->setCurrentGlyphIndex(idx);
+            viewModel_->setActiveGlyphIndex(idx);
+        }, [&, newIndex] {
+            faceWidget_->setCurrentGlyphIndex(newIndex);
+            viewModel_->setActiveGlyphIndex(newIndex);
+        }));
+
+    } else {
+        viewModel_->setActiveGlyphIndex(newIndex);
+    }
 }
 
 void MainWindow::resetCurrentGlyph()
