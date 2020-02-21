@@ -47,8 +47,8 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         case ActionPaste:
         case ActionUndo:
         case ActionRedo:
-        case ActionResetGlyph:
-        case ActionResetFont:
+//        case ActionResetGlyph:
+//        case ActionResetFont:
         case ActionPrint:
         case ActionExport:
         case ActionTabCode:
@@ -75,8 +75,8 @@ void MainWindowModel::registerInputEvent(InputEvent e)
             state.set(ActionCopy);
             break;
         case UserEditedGlyph:
-            state.set(ActionResetGlyph);
-            state.set(ActionResetFont);
+//            state.set(ActionResetGlyph);
+//            state.set(ActionResetFont);
             break;
         }
     }
@@ -100,7 +100,7 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
         fontFaceViewModel_->set_active_glyph_index(index);
         registerInputEvent(UserLoadedGlyph);
 
-        emit activeGlyphChanged(fontFaceViewModel_->active_glyph());
+        emit activeGlyphChanged(fontFaceViewModel_->active_glyph(), index);
     } catch (const std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
     }

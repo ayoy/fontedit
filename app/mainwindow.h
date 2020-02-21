@@ -29,10 +29,11 @@ private:
     void setupActions();
 
     void resetCurrentGlyph();
-    void displayGlyph(const Font::Glyph& glyph);
+    void displayGlyph(const Font::Glyph& glyph, std::size_t index);
     void updateUI(MainWindowModel::UIState uiState);
     void editGlyph(const BatchPixelChange& change);
     void switchActiveGlyph(std::size_t newIndex);
+    void updateResetGlyphAction();
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 

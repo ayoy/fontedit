@@ -89,6 +89,8 @@ void MainWindow::setupActions()
     ui_->redoButton->setDefaultAction(redo);
     ui_->resetGlyphButton->setDefaultAction(ui_->actionReset_Glyph);
     ui_->resetFontButton->setDefaultAction(ui_->actionReset_Font);
+    ui_->actionReset_Glyph->setEnabled(false);
+    ui_->actionReset_Font->setEnabled(false);
 
     ui_->menuEdit->insertAction(ui_->actionCopy_Glyph, undo);
     ui_->menuEdit->insertAction(ui_->actionCopy_Glyph, redo);
@@ -104,8 +106,8 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
     ui_->actionPaste_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPaste]);
 //    ui_->undoButton->defaultAction()->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionUndo]);
 //    ui_->redoButton->defaultAction()->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionRedo]);
-    ui_->actionReset_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetGlyph]);
-    ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
+//    ui_->actionReset_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetGlyph]);
+//    ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
     ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
     ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
 }
@@ -139,7 +141,7 @@ void MainWindow::displayFace(const Font::Face& face)
     }
 }
 
-void MainWindow::displayGlyph(const Font::Glyph& glyph)
+void MainWindow::displayGlyph(const Font::Glyph& glyph, std::size_t index)
 {
     if (!glyphWidget_.get()) {
         glyphWidget_ = std::make_unique<GlyphWidget>(glyph);
@@ -150,20 +152,26 @@ void MainWindow::displayGlyph(const Font::Glyph& glyph)
     } else {
         glyphWidget_->load(glyph);
     }
+    updateResetGlyphAction();
     ui_->glyphGraphicsView->fitInView(glyphWidget_->rect(), Qt::KeepAspectRatio);
 }
 
 void MainWindow::editGlyph(const BatchPixelChange& change)
 {
-    undoStack_->push(new Command("Edit Glyph", [&, change] {
-        change.apply(viewModel_->faceModel()->active_glyph(), true);
-        glyphWidget_->applyChange(change, true);
-    }, [&, change] {
-        change.apply(viewModel_->faceModel()->active_glyph());
-        glyphWidget_->applyChange(change);
-    }));
+    auto currentIndex = viewModel_->faceModel()->active_glyph_index();
+    if (currentIndex.has_value()) {
+        undoStack_->push(new Command("Edit Glyph", [&, currentIndex, change] {
+            viewModel_->faceModel()->modify_glyph(currentIndex.value(), change, BatchPixelChange::ChangeType::Reverse);
+            updateResetGlyphAction();
+            glyphWidget_->applyChange(change, BatchPixelChange::ChangeType::Reverse);
+        }, [&, currentIndex, change] {
+            viewModel_->faceModel()->modify_glyph(currentIndex.value(), change);
+            updateResetGlyphAction();
+            glyphWidget_->applyChange(change);
+        }));
 
-    viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
+        viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
+    }
 }
 
 void MainWindow::switchActiveGlyph(std::size_t newIndex)
@@ -193,10 +201,20 @@ void MainWindow::resetCurrentGlyph()
     auto glyphIndex = viewModel_->faceModel()->active_glyph_index().value();
 
     undoStack_->push(new Command("Reset Glyph", [&, currentGlyphState, glyphIndex] {
-        viewModel_->faceModel()->face().set_glyph(currentGlyphState, glyphIndex);
-        displayGlyph(viewModel_->faceModel()->active_glyph());
-    }, [&] {
+        viewModel_->faceModel()->modify_glyph(glyphIndex, currentGlyphState);
+        displayGlyph(viewModel_->faceModel()->active_glyph(), glyphIndex);
+    }, [&, glyphIndex] {
         viewModel_->faceModel()->reset_active_glyph();
-        displayGlyph(viewModel_->faceModel()->active_glyph());
+        displayGlyph(viewModel_->faceModel()->active_glyph(), glyphIndex);
     }));
+}
+
+void MainWindow::updateResetGlyphAction()
+{
+    auto currentIndex = viewModel_->faceModel()->active_glyph_index();
+    if (currentIndex.has_value()) {
+        ui_->actionReset_Glyph->setEnabled(viewModel_->faceModel()->is_glyph_modified(currentIndex.value()));
+    } else {
+        ui_->actionReset_Glyph->setEnabled(false);
+    }
 }

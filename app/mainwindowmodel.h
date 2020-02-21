@@ -25,8 +25,8 @@ public:
         ActionPaste,
         ActionUndo,
         ActionRedo,
-        ActionResetGlyph,
-        ActionResetFont,
+//        ActionResetGlyph,
+//        ActionResetFont,
         ActionPrint,
         ActionExport,
         ActionTabCode,
@@ -82,7 +82,7 @@ public slots:
 signals:
     void uiStateChanged(UIState state);
     void faceLoaded(const Font::Face &face);
-    void activeGlyphChanged(const Font::Glyph &glyph);
+    void activeGlyphChanged(const Font::Glyph &glyph, std::size_t index);
     void sourceCodeChanged(const QString &sourceCode);
 
 private:

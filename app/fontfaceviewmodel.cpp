@@ -118,26 +118,48 @@ Font::Face FontFaceViewModel::import_face(const QFont &font)
     return Font::Face(adapter);
 }
 
-Font::Glyph& FontFaceViewModel::active_glyph()
+void FontFaceViewModel::modify_glyph(std::size_t index, const Font::Glyph &new_glyph)
 {
-    if (!active_glyph_index_.has_value()) {
-        throw std::logic_error("No active glyph. Call set_active_glyph_index() first");
-    }
-    auto idx = active_glyph_index_.value();
+    do_modify_glyph(index, [&](Font::Glyph &glyph) {
+        glyph = new_glyph;
+    });
+}
 
-    auto i = originalGlyphs_.find(idx);
-    if (i == originalGlyphs_.end()) {
+void FontFaceViewModel::modify_glyph(std::size_t index,
+                                     const BatchPixelChange &change,
+                                     BatchPixelChange::ChangeType changeType)
+{
+    do_modify_glyph(index, [&](Font::Glyph& glyph) {
+        change.apply(glyph, changeType);
+    });
+}
+
+void FontFaceViewModel::do_modify_glyph(std::size_t idx, std::function<void (Font::Glyph&)> change)
+{
+    Font::Glyph& glyph { face_.glyph_at(idx) };
+    bool first_change = false;
+
+    if (originalGlyphs_.find(idx) == originalGlyphs_.end()) {
         qDebug() << "active_glyph non-const cache miss";
-        originalGlyphs_.insert({ idx, face_.glyph_at(idx) });
-        return originalGlyphs_.at(idx);
+        originalGlyphs_.insert({ idx, glyph });
+        first_change = true;
+    } else {
+        qDebug() << "active_glyph non-const cache hit";
     }
 
-    qDebug() << "active_glyph non-const cache hit";
-    return face_.glyph_at(idx);
+    change(glyph);
+
+    // remove glyph from originals when restoring initial state
+    if (!first_change && glyph == originalGlyphs_.at(idx)) {
+        originalGlyphs_.erase(idx);
+    }
 }
 
 void FontFaceViewModel::reset_glyph(std::size_t idx)
 {
+    if (!is_glyph_modified(idx)) {
+        throw std::logic_error { "Can't reset unmodified glyph" };
+    }
     face_.set_glyph(originalGlyphs_.at(idx), idx);
     originalGlyphs_.erase(active_glyph_index_.value());
 }

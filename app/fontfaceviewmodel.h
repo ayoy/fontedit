@@ -7,6 +7,7 @@
 #include <vector>
 #include <exception>
 #include <unordered_map>
+#include "batchpixelchange.h"
 
 class FontFaceViewModel
 {
@@ -37,9 +38,6 @@ public:
         return face_.glyph_at(active_glyph_index_.value());
     }
 
-    /// Makes a backup of an original (unmodified) glyph in originalGlyphs_.
-    Font::Glyph& active_glyph();
-
     void reset_active_glyph() {
         if (!active_glyph_index_.has_value()) {
             return;
@@ -47,7 +45,16 @@ public:
         reset_glyph(active_glyph_index_.value());
     }
 
-    bool is_glyph_modified(std::size_t idx) {
+    void modify_glyph(std::size_t index, const Font::Glyph& new_glyph);
+
+    void modify_glyph(std::size_t index, const BatchPixelChange &change,
+                      BatchPixelChange::ChangeType changeType = BatchPixelChange::ChangeType::Normal);
+
+    bool is_modified() const {
+        return originalGlyphs_.size() > 0;
+    }
+
+    bool is_glyph_modified(std::size_t idx) const {
         // modified glyphs have their unmodified counterparts stored in originalGlyphs_.
         return originalGlyphs_.find(idx) != originalGlyphs_.end();
     }
@@ -55,6 +62,7 @@ public:
 private:
     static Font::Face import_face(const QFont &font);
     void reset_glyph(std::size_t idx);
+    void do_modify_glyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
 
     Font::Face face_;
     std::optional<std::size_t> active_glyph_index_ { std::nullopt };

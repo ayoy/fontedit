@@ -14,6 +14,10 @@ struct PointHash {
 };
 
 struct BatchPixelChange {
+    enum class ChangeType {
+        Normal, Reverse
+    };
+
     std::unordered_map<Font::Point,bool,PointHash> changes;
 
     void add(const Font::Point &pixel, bool value) {
@@ -25,9 +29,9 @@ struct BatchPixelChange {
         }
     }
 
-    void apply(Font::Glyph& glyph, bool reverse = false) const {
+    void apply(Font::Glyph& glyph, ChangeType type = ChangeType::Normal) const {
         for (const auto& i : changes) {
-            glyph.set_pixel_set(i.first, reverse ? !i.second : i.second);
+            glyph.set_pixel_set(i.first, type == ChangeType::Normal ? i.second : !i.second);
         }
     }
 };

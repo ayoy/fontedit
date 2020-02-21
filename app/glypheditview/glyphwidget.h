@@ -26,7 +26,8 @@ public:
     QRectF boundingRect() const override;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void applyChange(const BatchPixelChange &change, bool reverse = false);
+    void applyChange(const BatchPixelChange &change,
+                     BatchPixelChange::ChangeType changeType = BatchPixelChange::ChangeType::Normal);
 
 signals:
     void pixelsChanged(const BatchPixelChange& changes);
