@@ -181,6 +181,10 @@ void MainWindow::switchActiveGlyph(std::size_t newIndex)
     auto currentIndex = viewModel_->faceModel()->active_glyph_index();
     if (currentIndex.has_value()) {
         auto idx = currentIndex.value();
+        if (idx == newIndex) {
+            return;
+        }
+
 
         auto setGlyph = [&](std::size_t index) -> std::function<void()> {
             return [&, index] {
