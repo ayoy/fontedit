@@ -36,6 +36,8 @@ private:
     void switchActiveGlyph(std::size_t newIndex);
     void updateResetActions();
 
+    void exportSourceCode();
+
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 
     std::unique_ptr<GlyphWidget> glyphWidget_ {};

@@ -9,10 +9,14 @@
 #include <QDebug>
 #include <QStyle>
 #include <QFontDialog>
+#include <QFileDialog>
 #include <QScrollBar>
 #include <QMessageBox>
 
 #include <iostream>
+
+#include <QFile>
+#include <QTextStream>
 
 static constexpr auto codeTabIndex = 1;
 
@@ -28,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
+
+    connect(ui_->exportButton, &QPushButton::clicked, this, &MainWindow::exportSourceCode);
 
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
     connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
@@ -238,4 +244,16 @@ void MainWindow::updateResetActions()
         ui_->actionReset_Glyph->setEnabled(false);
     }
     ui_->actionReset_Font->setEnabled(viewModel_->faceModel()->is_modified());
+}
+
+void MainWindow::exportSourceCode()
+{
+    auto fileName = QFileDialog::getSaveFileName(this, tr("Save file"));
+
+    QFile output(fileName);
+    if (output.open(QFile::WriteOnly | QFile::Truncate)) {
+        output.write(ui_->sourceCodeTextBrowser->document()->toPlainText().toUtf8());
+        output.close();
+    }
+
 }
