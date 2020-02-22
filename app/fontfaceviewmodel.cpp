@@ -155,6 +155,12 @@ void FontFaceViewModel::do_modify_glyph(std::size_t idx, std::function<void (Fon
     }
 }
 
+void FontFaceViewModel::reset()
+{
+    face_ = original_face();
+    originalGlyphs_.clear();
+}
+
 void FontFaceViewModel::reset_glyph(std::size_t idx)
 {
     if (!is_glyph_modified(idx)) {

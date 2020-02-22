@@ -45,6 +45,8 @@ public:
         reset_glyph(active_glyph_index_.value());
     }
 
+    void reset();
+
     void modify_glyph(std::size_t index, const Font::Glyph& new_glyph);
 
     void modify_glyph(std::size_t index, const BatchPixelChange &change,

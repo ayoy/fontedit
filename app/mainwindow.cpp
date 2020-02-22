@@ -10,6 +10,7 @@
 #include <QStyle>
 #include <QFontDialog>
 #include <QScrollBar>
+#include <QMessageBox>
 
 #include <iostream>
 
@@ -26,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
+    connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
     connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
@@ -141,7 +143,7 @@ void MainWindow::displayFace(const Font::Face& face)
     }
 }
 
-void MainWindow::displayGlyph(const Font::Glyph& glyph, std::size_t index)
+void MainWindow::displayGlyph(const Font::Glyph& glyph, std::size_t)
 {
     if (!glyphWidget_.get()) {
         glyphWidget_ = std::make_unique<GlyphWidget>(glyph);
@@ -152,7 +154,7 @@ void MainWindow::displayGlyph(const Font::Glyph& glyph, std::size_t index)
     } else {
         glyphWidget_->load(glyph);
     }
-    updateResetGlyphAction();
+    updateResetActions();
     ui_->glyphGraphicsView->fitInView(glyphWidget_->rect(), Qt::KeepAspectRatio);
 }
 
@@ -162,11 +164,11 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
     if (currentIndex.has_value()) {
         undoStack_->push(new Command("Edit Glyph", [&, currentIndex, change] {
             viewModel_->faceModel()->modify_glyph(currentIndex.value(), change, BatchPixelChange::ChangeType::Reverse);
-            updateResetGlyphAction();
+            updateResetActions();
             glyphWidget_->applyChange(change, BatchPixelChange::ChangeType::Reverse);
         }, [&, currentIndex, change] {
             viewModel_->faceModel()->modify_glyph(currentIndex.value(), change);
-            updateResetGlyphAction();
+            updateResetActions();
             glyphWidget_->applyChange(change);
         }));
 
@@ -209,7 +211,21 @@ void MainWindow::resetCurrentGlyph()
     }));
 }
 
-void MainWindow::updateResetGlyphAction()
+void MainWindow::resetFont()
+{
+    QString message = "Are you sure you want to reset all changes to the font? This operation cannot be undone.";
+    auto result = QMessageBox::warning(this, "Reset Font", message, QMessageBox::Reset, QMessageBox::Cancel);
+    if (result == QMessageBox::Reset) {
+        viewModel_->faceModel()->reset();
+        undoStack_->clear();
+        updateResetActions();
+        if (viewModel_->faceModel()->active_glyph_index().has_value()) {
+            displayGlyph(viewModel_->faceModel()->active_glyph(), viewModel_->faceModel()->active_glyph_index().value());
+        }
+    }
+}
+
+void MainWindow::updateResetActions()
 {
     auto currentIndex = viewModel_->faceModel()->active_glyph_index();
     if (currentIndex.has_value()) {
@@ -217,4 +233,5 @@ void MainWindow::updateResetGlyphAction()
     } else {
         ui_->actionReset_Glyph->setEnabled(false);
     }
+    ui_->actionReset_Font->setEnabled(viewModel_->faceModel()->is_modified());
 }
