@@ -179,15 +179,19 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
 {
     auto currentIndex = viewModel_->faceModel()->active_glyph_index();
     if (currentIndex.has_value()) {
-        undoStack_->push(new Command("Edit Glyph", [&, currentIndex, change] {
-            viewModel_->faceModel()->modify_glyph(currentIndex.value(), change, BatchPixelChange::ChangeType::Reverse);
-            updateResetActions();
-            glyphWidget_->applyChange(change, BatchPixelChange::ChangeType::Reverse);
-        }, [&, currentIndex, change] {
-            viewModel_->faceModel()->modify_glyph(currentIndex.value(), change);
-            updateResetActions();
-            glyphWidget_->applyChange(change);
-        }));
+
+        auto applyChange = [&, currentIndex, change](BatchPixelChange::ChangeType type) -> std::function<void()> {
+            return [&, currentIndex, change, type] {
+                viewModel_->faceModel()->modify_glyph(currentIndex.value(), change, type);
+                updateResetActions();
+                glyphWidget_->applyChange(change, type);
+                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->active_glyph());
+            };
+        };
+
+        undoStack_->push(new Command("Edit Glyph",
+                                     applyChange(BatchPixelChange::ChangeType::Reverse),
+                                     applyChange(BatchPixelChange::ChangeType::Normal)));
 
         viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
     }

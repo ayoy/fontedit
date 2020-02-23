@@ -19,9 +19,15 @@ static QString description(char asciiCode)
 GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, char asciiCode, QSizeF imageSize, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     description_ { description(asciiCode) },
-    preview_ { Font::glyph_bitmap_preview(glyph) },
-    imageSize_ { imageSize }
+    imageSize_ { imageSize },
+    preview_ { Font::glyph_bitmap_preview(glyph) }
 {
+}
+
+void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph)
+{
+    preview_ = Font::glyph_bitmap_preview(glyph);
+    update();
 }
 
 void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

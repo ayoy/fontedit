@@ -73,11 +73,19 @@ void FaceWidget::setCurrentGlyphIndex(std::size_t index)
     }
 }
 
+void FaceWidget::updateGlyphPreview(std::size_t index, const Font::Glyph &glyph)
+{
+    auto item = dynamic_cast<GlyphInfoWidget *>(layout()->itemAt(index));
+    if (item) {
+        item->updateGlyph(glyph);
+    }
+}
+
 void FaceWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
 {
     if (focusWidget_ == nullptr) {
         focusWidget_ = std::make_unique<FocusWidget>(this);
-        focusWidget_->setColor(Qt::black);
+        focusWidget_->setColor(Qt::blue);
     }
 
     focusWidget_->setFocus(item, isFocused);

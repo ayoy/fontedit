@@ -17,8 +17,9 @@ public:
 
     explicit FaceWidget(QGraphicsItem *parent = nullptr);
 
-    void load(const Font::Face &face);
+    void load(const Font::Face& face);
     void setCurrentGlyphIndex(std::size_t index);
+    void updateGlyphPreview(std::size_t index, const Font::Glyph& glyph);
 
 signals:
     void currentGlyphIndexChanged(std::size_t index);

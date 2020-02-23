@@ -103,6 +103,12 @@ void MainWindowModel::importFont(const QFont &font)
 
 void MainWindowModel::setActiveGlyphIndex(std::size_t index)
 {
+    if (fontFaceViewModel_->active_glyph_index().has_value() and
+            fontFaceViewModel_->active_glyph_index().value() == index)
+    {
+        return;
+    }
+
     try {
         fontFaceViewModel_->set_active_glyph_index(index);
         registerInputEvent(UserLoadedGlyph);
