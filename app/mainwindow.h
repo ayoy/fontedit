@@ -30,7 +30,7 @@ private:
 
     void resetCurrentGlyph();
     void resetFont();
-    void displayGlyph(const Font::Glyph& glyph, std::size_t index);
+    void displayGlyph(const Font::Glyph& glyph);
     void updateUI(MainWindowModel::UIState uiState);
     void editGlyph(const BatchPixelChange& change);
     void switchActiveGlyph(std::size_t newIndex);

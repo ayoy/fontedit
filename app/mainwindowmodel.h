@@ -82,7 +82,7 @@ public slots:
 signals:
     void uiStateChanged(UIState state) const;
     void faceLoaded(const Font::Face& face) const;
-    void activeGlyphChanged(const Font::Glyph& glyph, std::size_t index) const;
+    void activeGlyphChanged(const Font::Glyph& glyph) const;
     void sourceCodeUpdating() const;
     void sourceCodeChanged(const QString& sourceCode) const;
     void runnableFinished(const QString& result) const;

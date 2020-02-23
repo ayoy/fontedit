@@ -107,7 +107,7 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
         fontFaceViewModel_->set_active_glyph_index(index);
         registerInputEvent(UserLoadedGlyph);
 
-        emit activeGlyphChanged(fontFaceViewModel_->active_glyph(), index);
+        emit activeGlyphChanged(fontFaceViewModel_->active_glyph());
     } catch (const std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
     }

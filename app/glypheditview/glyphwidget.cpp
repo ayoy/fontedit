@@ -63,7 +63,7 @@ void GlyphWidget::setPixel(Font::Point p, bool value)
 void GlyphWidget::applyChange(const BatchPixelChange &change, BatchPixelChange::ChangeType changeType)
 {
     //
-    // Apply only if there's no affected pixels (no operation in progress)
+    // Apply only if there are no affected pixels (no operation in progress)
     // - this is the initial call to redo() action.
     //
     if (affectedPixels_.changes.size() == 0) {
