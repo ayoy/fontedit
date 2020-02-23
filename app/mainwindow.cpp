@@ -154,7 +154,9 @@ void MainWindow::displayFace(const Font::Face& face)
 
     faceWidget_->load(face);
 
-    if (auto g = glyphWidget_.get()) {
+    if (viewModel_->faceModel()->active_glyph_index().has_value()) {
+        displayGlyph(viewModel_->faceModel()->active_glyph());
+    } else if (auto g = glyphWidget_.get()) {
         ui_->glyphGraphicsView->scene()->removeItem(g);
         glyphWidget_.release();
     }
@@ -206,7 +208,6 @@ void MainWindow::switchActiveGlyph(std::size_t newIndex)
             return;
         }
 
-
         auto setGlyph = [&](std::size_t index) -> std::function<void()> {
             return [&, index] {
                 faceWidget_->setCurrentGlyphIndex(index);
@@ -230,9 +231,11 @@ void MainWindow::resetCurrentGlyph()
     undoStack_->push(new Command("Reset Glyph", [&, currentGlyphState, glyphIndex] {
         viewModel_->faceModel()->modify_glyph(glyphIndex, currentGlyphState);
         displayGlyph(viewModel_->faceModel()->active_glyph());
-    }, [&] {
+        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->active_glyph());
+    }, [&, glyphIndex] {
         viewModel_->faceModel()->reset_active_glyph();
         displayGlyph(viewModel_->faceModel()->active_glyph());
+        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->active_glyph());
     }));
 }
 
@@ -244,9 +247,7 @@ void MainWindow::resetFont()
         viewModel_->faceModel()->reset();
         undoStack_->clear();
         updateResetActions();
-        if (viewModel_->faceModel()->active_glyph_index().has_value()) {
-            displayGlyph(viewModel_->faceModel()->active_glyph());
-        }
+        displayFace(viewModel_->faceModel()->face());
     }
 }
 
