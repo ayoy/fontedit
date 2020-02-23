@@ -57,11 +57,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
     connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
     connect(viewModel_.get(), &MainWindowModel::sourceCodeUpdating, [&]() {
-        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
+//        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
     });
     connect(viewModel_.get(), &MainWindowModel::sourceCodeChanged, [&](const QString& text) {
         ui_->stackedWidget->setCurrentWidget(ui_->sourceCodeContainer);
-        ui_->sourceCodeTextBrowser->setText(text);
+        ui_->sourceCodeTextBrowser->setPlainText(text);
     });
 }
 

@@ -6,7 +6,8 @@
 
 static constexpr auto col_count = 3;
 static constexpr auto printable_ascii_offset = ' ';
-static constexpr auto min_cell_height = 100.0;
+static constexpr auto min_cell_height = 120.0;
+static constexpr auto min_image_height = min_cell_height - GlyphInfoWidget::descriptionHeight - 3 * GlyphInfoWidget::cellMargin;
 static constexpr auto max_image_width = FaceWidget::cell_width - 2 * GlyphInfoWidget::cellMargin;
 
 FaceWidget::FaceWidget(QGraphicsItem *parent) :
@@ -36,7 +37,9 @@ void FaceWidget::load(const Font::Face &face)
 
     QSizeF imageSize { Font::qsize_with_size(face.glyph_size()) };
     if (imageSize.width() > max_image_width) {
-        imageSize.scale({ max_image_width, qInf() }, Qt::KeepAspectRatio);
+        imageSize.scale(max_image_width, qInf(), Qt::KeepAspectRatio);
+    } else if (imageSize.height() < min_image_height) {
+        imageSize.scale(qInf(), min_image_height, Qt::KeepAspectRatio);
     }
     auto size = imageSize;
     size.rheight() += GlyphInfoWidget::cellMargin + GlyphInfoWidget::descriptionHeight;

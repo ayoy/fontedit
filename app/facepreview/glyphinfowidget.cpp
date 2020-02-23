@@ -52,4 +52,6 @@ void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     imageRect.moveBottom(rect().height() - cellMargin);
     painter->setPen(QPen(QBrush(Qt::black), 1));
     painter->drawPixmap(imageRect, preview_, preview_.rect());
+    painter->setPen(QPen(QBrush(Qt::lightGray), 1));
+    painter->drawRect(imageRect.marginsAdded(QMarginsF(0.5, 0.5, 0.5, 0.5)));
 }
