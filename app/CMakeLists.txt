@@ -33,6 +33,8 @@ set(SRC_FILES
     mainwindow.ui
     mainwindowmodel.cpp
     mainwindowmodel.h
+    sourcecoderunnable.cpp
+    sourcecoderunnable.h
     )
 
 if (APPLE)

@@ -12,6 +12,7 @@
 #include <QFileDialog>
 #include <QScrollBar>
 #include <QMessageBox>
+#include <QKeySequence>
 
 #include <iostream>
 
@@ -33,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
+    connect(ui_->actionExport, &QAction::triggered, this, &MainWindow::exportSourceCode);
     connect(ui_->exportButton, &QPushButton::clicked, this, &MainWindow::exportSourceCode);
 
     connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
@@ -54,7 +56,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
     connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
-    connect(viewModel_.get(), &MainWindowModel::sourceCodeChanged, ui_->sourceCodeTextBrowser, &QTextBrowser::setText);
+    connect(viewModel_.get(), &MainWindowModel::sourceCodeUpdating, [&]() {
+        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
+    });
+    connect(viewModel_.get(), &MainWindowModel::sourceCodeChanged, [&](const QString& text) {
+        ui_->stackedWidget->setCurrentWidget(ui_->sourceCodeContainer);
+        ui_->sourceCodeTextBrowser->setText(text);
+    });
 }
 
 void MainWindow::setupUI()
@@ -84,9 +92,11 @@ void MainWindow::setupActions()
 {
     auto undo = undoStack_->createUndoAction(this);
     undo->setIcon(QIcon {":/toolbar/assets/undo.svg"});
+    undo->setShortcut(QKeySequence::Undo);
 
     auto redo = undoStack_->createRedoAction(this);
     redo->setIcon(QIcon {":/toolbar/assets/redo.svg"});
+    redo->setShortcut(QKeySequence::Redo);
 
     ui_->importFontButton->setDefaultAction(ui_->actionImport_Font);
     ui_->addGlyphButton->setDefaultAction(ui_->actionAdd_Glyph);
@@ -255,5 +265,4 @@ void MainWindow::exportSourceCode()
         output.write(ui_->sourceCodeTextBrowser->document()->toPlainText().toUtf8());
         output.close();
     }
-
 }

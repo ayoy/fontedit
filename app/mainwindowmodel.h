@@ -80,10 +80,12 @@ public slots:
     void setOutputFormat(const QString &format); // human-readable
 
 signals:
-    void uiStateChanged(UIState state);
-    void faceLoaded(const Font::Face &face);
-    void activeGlyphChanged(const Font::Glyph &glyph, std::size_t index);
-    void sourceCodeChanged(const QString &sourceCode);
+    void uiStateChanged(UIState state) const;
+    void faceLoaded(const Font::Face& face) const;
+    void activeGlyphChanged(const Font::Glyph& glyph, std::size_t index) const;
+    void sourceCodeUpdating() const;
+    void sourceCodeChanged(const QString& sourceCode) const;
+    void runnableFinished(const QString& result) const;
 
 private:
     void reloadSourceCode();

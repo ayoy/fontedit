@@ -1,9 +1,12 @@
 #include "mainwindowmodel.h"
+#include "sourcecoderunnable.h"
 #include <f2b.h>
 
 #include <QDebug>
+#include <QThreadPool>
 
 #include <iostream>
+#include <thread>
 
 Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
 
@@ -28,6 +31,10 @@ MainWindowModel::MainWindowModel(QObject *parent) :
     formats_.insert(QString::fromStdString(std::string(Format::PythonBytes::identifier)), "Python Bytes");
 
     currentFormat_ = settings_.value(SettingsKey::format, formats_.firstKey()).toString();
+
+    connect(this, &MainWindowModel::runnableFinished,
+            this, &MainWindowModel::sourceCodeChanged,
+            Qt::BlockingQueuedConnection);
 
     qDebug() << "output format:" << currentFormat_;
     registerInputEvent(UserIdle);
@@ -135,24 +142,14 @@ void MainWindowModel::setOutputFormat(const QString &format)
 
 void MainWindowModel::reloadSourceCode()
 {
-    std::string_view current { currentFormat_.toStdString() };
-
     /// WIP :)
 
-    QString output;
+    emit sourceCodeUpdating();
 
-    FontSourceCodeGenerator generator(sourceCodeOptions_);
+    auto r = new SourceCodeRunnable { faceModel()->face(), sourceCodeOptions_, currentFormat_ };
+    r->setCompletionHandler([&](const QString& output) {
+        emit runnableFinished(output);
+    });
 
-    if (current == Format::Arduino::identifier) {
-        output = QString::fromStdString(generator.generate<Format::Arduino>(faceModel()->face()));
-    } else if (current == Format::C::identifier) {
-        output = QString::fromStdString(generator.generate<Format::C>(faceModel()->face()));
-    } else if (current == Format::PythonList::identifier) {
-        output = QString::fromStdString(generator.generate<Format::PythonList>(faceModel()->face()));
-    } else if (current == Format::PythonBytes::identifier) {
-        output = QString::fromStdString(generator.generate<Format::PythonBytes>(faceModel()->face()));
-    }
-
-//    qDebug() << output;
-    emit sourceCodeChanged(output);
+    QThreadPool::globalInstance()->start(r);
 }
