@@ -157,8 +157,9 @@ void MainWindow::displayFace(const Font::Face& face)
 
     QElapsedTimer timer;
     timer.start();
-    qDebug() << "safe top margin:" << face.safe_top_margin();
-    qDebug() << "safe bottom margin:" << face.safe_bottom_margin();
+    auto margins = face.calculate_margins();
+    qDebug() << "safe top margin:" << margins.top;
+    qDebug() << "safe bottom margin:" << margins.bottom;
     qDebug() << "time:" << timer.elapsed();
 
     if (viewModel_->faceModel()->active_glyph_index().has_value()) {
@@ -171,17 +172,18 @@ void MainWindow::displayFace(const Font::Face& face)
 
 void MainWindow::displayGlyph(const Font::Glyph& glyph)
 {
+    auto margins = viewModel_->faceModel()->original_face_margins();
     if (!glyphWidget_.get()) {
-        glyphWidget_ = std::make_unique<GlyphWidget>(glyph);
+        glyphWidget_ = std::make_unique<GlyphWidget>(glyph, margins);
         ui_->glyphGraphicsView->scene()->addItem(glyphWidget_.get());
 
         connect(glyphWidget_.get(), &GlyphWidget::pixelsChanged,
                 this, &MainWindow::editGlyph);
     } else {
-        glyphWidget_->load(glyph);
+        glyphWidget_->load(glyph, margins);
     }
     updateResetActions();
-    ui_->glyphGraphicsView->fitInView(glyphWidget_->rect(), Qt::KeepAspectRatio);
+    ui_->glyphGraphicsView->fitInView(glyphWidget_->boundingRect(), Qt::KeepAspectRatio);
 }
 
 void MainWindow::editGlyph(const BatchPixelChange& change)

@@ -19,10 +19,10 @@ class GlyphWidget : public QGraphicsWidget
     };
 
 public:
-    explicit GlyphWidget(const Font::Glyph& glyph, QGraphicsItem* parent = nullptr);
+    explicit GlyphWidget(const Font::Glyph& glyph, Font::Margins margins = {}, QGraphicsItem* parent = nullptr);
     virtual ~GlyphWidget() = default;
 
-    void load(const Font::Glyph& glyph);
+    void load(const Font::Glyph& glyph, Font::Margins margins = {});
     QRectF boundingRect() const override;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -50,6 +50,7 @@ private:
     Font::Point pointForEvent(QGraphicsSceneMouseEvent *event) const;
 
     Font::Glyph glyph_;
+    Font::Margins margins_;
     BatchPixelChange affectedPixels_;
     std::optional<Font::Point> focusedPixel_ {};
 

@@ -9,6 +9,7 @@
 #include <iostream>
 
 static constexpr qreal gridSize = 20;
+static constexpr QRgb marginColor = 0xe2e2e2;
 
 QRectF rectForPoint(const Font::Point& point)
 {
@@ -17,18 +18,20 @@ QRectF rectForPoint(const Font::Point& point)
 }
 
 
-GlyphWidget::GlyphWidget(const Font::Glyph& glyph, QGraphicsItem* parent) :
+GlyphWidget::GlyphWidget(const Font::Glyph& glyph, Font::Margins margins, QGraphicsItem* parent) :
     QGraphicsWidget(parent),
-    glyph_ { glyph }
+    glyph_ { glyph },
+    margins_ { margins }
 {
     setFocusPolicy(Qt::ClickFocus);
     setPreferredSize({ gridSize * static_cast<qreal>(glyph.size().width),
                        gridSize * static_cast<qreal>(glyph.size().height) });
 }
 
-void GlyphWidget::load(const Font::Glyph &glyph)
+void GlyphWidget::load(const Font::Glyph &glyph, Font::Margins margins)
 {
     glyph_ = glyph;
+    margins_ = margins;
     setPreferredSize({ gridSize * static_cast<qreal>(glyph.size().width),
                        gridSize * static_cast<qreal>(glyph.size().height) });
     update();
@@ -84,10 +87,14 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     QRectF rect = QRectF(0, 0,
                          glyph_.size().width * gridSize,
                          glyph_.size().height * gridSize);
+    QRectF activeAreaRect = QRectF(0, margins_.top * gridSize,
+                                   boundingRect().width(),
+                                   (glyph_.size().height - margins_.top - margins_.bottom) * gridSize);
+
+    painter->fillRect(rect, QColor(marginColor));
+    painter->fillRect(activeAreaRect, Qt::white);
 
     painter->setPen(QPen(QBrush(Qt::darkGray), 0.5));
-
-    painter->fillRect(rect, Qt::white);
     painter->drawRect(rect);
 
     for (std::size_t row = 0; row < glyph_.size().height; ++row) {

@@ -99,7 +99,8 @@ std::unique_ptr<QImage> QFontFaceReader::read_font(const QFont &font)
 
 
 FontFaceViewModel::FontFaceViewModel(Font::Face face) noexcept :
-    face_ { face }
+    face_ { face },
+    original_margins_ { face.calculate_margins() }
 {
 }
 

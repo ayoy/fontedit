@@ -16,6 +16,19 @@ Glyph::Glyph(Size sz, std::vector<bool> pixels) :
     }
 }
 
+std::size_t Glyph::top_margin() const noexcept
+{
+    auto first_set_pixel = std::find(pixels_.begin(), pixels_.end(), true);
+    return static_cast<std::size_t>(std::distance(pixels_.begin(), first_set_pixel)) / size_.width;
+}
+
+std::size_t Glyph::bottom_margin() const noexcept
+{
+    auto last_set_pixel = std::find(pixels_.rbegin(), pixels_.rend(), true);
+    return static_cast<std::size_t>(std::distance(pixels_.rbegin(), last_set_pixel)) / size_.width;
+}
+
+
 Face::Face(const FaceReader &data) :
     sz_ { data.font_size() },
     glyphs_ { read_glyphs(data) }
@@ -47,61 +60,14 @@ std::vector<Glyph> Face::read_glyphs(const FaceReader &data)
     return glyphs;
 }
 
-std::size_t Face::safe_top_margin() const noexcept
+Margins Face::calculate_margins() const noexcept
 {
-    std::size_t safe_margin = sz_.height;
-
-//    for (const auto& g : glyphs_) {
-//        for (std::size_t i = 0; i < g.pixels().size(); ++i) {
-//            if (g.pixels()[i] == true) {
-//                auto new_safe_margin = i / sz_.width;
-//                if (new_safe_margin < safe_margin) {
-//                    safe_margin = new_safe_margin;
-//                    break;
-//                }
-//            }
-//        }
-//    }
-
-
-//    for (const auto& g : glyphs_) {
-//        auto i = std::find(g.pixels().begin(), g.pixels().end(), true);
-//        safe_margin = std::min(safe_margin, std::distance(g.pixels().begin(), i) / sz_.width);
-//    }
+    Margins m;
 
     std::for_each(glyphs_.begin(), glyphs_.end(), [&](const Font::Glyph& g) {
-        auto i = std::find(g.pixels().begin(), g.pixels().end(), true);
-        safe_margin = std::min(safe_margin, std::distance(g.pixels().begin(), i) / sz_.width);
-    });
-    return safe_margin;
-}
-
-std::size_t Face::safe_bottom_margin() const noexcept
-{
-    std::size_t safe_margin = sz_.height;
-
-//    for (const auto& g : glyphs_) {
-//        for (std::size_t i = g.pixels().size(); i != 0; --i) {
-//            if (g.pixels()[i-1] == true) {
-//                auto new_safe_margin = sz_.height - 1 - ((i-1) / sz_.width);
-//                if (new_safe_margin < safe_margin) {
-//                    safe_margin = new_safe_margin;
-//                    break;
-//                }
-//            }
-//        }
-//    }
-
-
-//    for (const auto& g : glyphs_) {
-//        auto i = std::find(g.pixels().rbegin(), g.pixels().rend(), true);
-//        safe_margin = std::min(safe_margin, std::distance(g.pixels().rbegin(), i) / sz_.width);
-//    }
-
-    std::for_each(glyphs_.begin(), glyphs_.end(), [&](const Font::Glyph& g) {
-        auto i = std::find(g.pixels().rbegin(), g.pixels().rend(), true);
-        safe_margin = std::min(safe_margin, std::distance(g.pixels().rbegin(), i) / sz_.width);
+        m.top = std::min(m.top, g.top_margin());
+        m.bottom = std::min(m.bottom, g.bottom_margin());
     });
 
-    return safe_margin;
+    return m;
 }

@@ -37,6 +37,20 @@ inline bool operator!=(const Point& lhs, const Point& rhs) noexcept {
 }
 
 
+struct Margins {
+    std::size_t top;
+    std::size_t bottom;
+};
+
+inline bool operator==(const Margins& lhs, const Margins& rhs) noexcept {
+    return lhs.top == rhs.top && lhs.bottom == rhs.bottom;
+}
+
+inline bool operator!=(const Margins& lhs, const Margins& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+
 class Glyph
 {
 public:
@@ -48,6 +62,9 @@ public:
     void set_pixel_set(Point p, bool is_set) { pixels_[p.offset(size_)] = is_set; }
 
     const std::vector<bool>& pixels() const noexcept { return pixels_; }
+
+    std::size_t top_margin() const noexcept;
+    std::size_t bottom_margin() const noexcept;
 
 private:
     Size size_;
@@ -102,8 +119,7 @@ public:
         return glyphs_[ascii-32];
     }
 
-    std::size_t safe_top_margin() const noexcept;
-    std::size_t safe_bottom_margin() const noexcept;
+    Margins calculate_margins() const noexcept;
 
 private:
     static std::vector<Glyph> read_glyphs(const FaceReader &data);

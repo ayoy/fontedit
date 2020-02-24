@@ -17,6 +17,7 @@ public:
 
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
+    Font::Margins original_face_margins() const noexcept { return original_margins_; }
 
     Font::Face original_face() const noexcept;
 
@@ -67,6 +68,7 @@ private:
     void do_modify_glyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
 
     Font::Face face_;
+    Font::Margins original_margins_;
     std::optional<std::size_t> active_glyph_index_ { std::nullopt };
 
     // this holds copies of unmodified glyphs once they are edited.
