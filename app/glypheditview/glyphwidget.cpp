@@ -1,4 +1,5 @@
 #include "glyphwidget.h"
+#include "common.h"
 #include <QPainter>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
@@ -9,7 +10,6 @@
 #include <iostream>
 
 static constexpr qreal gridSize = 20;
-static constexpr QRgb marginColor = 0xe2e2e2;
 
 QRectF rectForPoint(const Font::Point& point)
 {
@@ -91,7 +91,7 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
                                    boundingRect().width(),
                                    (glyph_.size().height - margins_.top - margins_.bottom) * gridSize);
 
-    painter->fillRect(rect, QColor(marginColor));
+    painter->fillRect(rect, Color::glyphMargin);
     painter->fillRect(activeAreaRect, Qt::white);
 
     painter->setPen(QPen(QBrush(Qt::darkGray), 0.5));

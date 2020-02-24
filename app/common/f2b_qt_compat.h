@@ -7,6 +7,7 @@
 #include <QBitmap>
 #include <QPainter>
 #include <QDebug>
+#include "common.h"
 
 namespace Font {
 
@@ -47,7 +48,7 @@ inline QPixmap glyph_preview_pixmap(const Font::Glyph &g, Font::Margins m)
 
     QPixmap b(image_size);
     QPainter p(&b);
-    p.fillRect(b.rect(), 0xe2e2e2);
+    p.fillRect(b.rect(), Color::glyphMargin);
     p.drawImage(QPoint(0, m.top), image);
     p.end();
 
