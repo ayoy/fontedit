@@ -26,24 +26,29 @@ inline QSize qsize_with_size(const Font::Size &s)
     return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };
 }
 
-inline QBitmap glyph_bitmap_preview(const Font::Glyph &g)
+inline QPixmap glyph_preview_pixmap(const Font::Glyph &g, Font::Margins m)
 {
+    auto glyph_size = g.size();
+    glyph_size.height -= m.top + m.bottom;
+
     auto image_size = qsize_with_size(g.size());
+    auto useful_image_size = qsize_with_size(glyph_size);
 
-    QImage image(image_size, QImage::Format_Mono);
-    image.fill(Qt::color1);
+    QImage image(useful_image_size, QImage::Format_Grayscale8);
+    image.fill(Qt::white);
 
-    for (std::vector<bool>::size_type y = 0; y < g.size().height; ++y) {
-        for (std::vector<bool>::size_type x = 0; x < g.size().width; ++x) {
-            if (g.is_pixel_set({x, y})) {
-                image.setPixel(x, y, Qt::color0);
+    for (std::vector<bool>::size_type y = 0; y < glyph_size.height; ++y) {
+        for (std::vector<bool>::size_type x = 0; x < glyph_size.width; ++x) {
+            if (g.is_pixel_set({x, y + m.top})) {
+                image.setPixel(x, y, Qt::black);
             }
         }
     }
 
-    QBitmap b(image_size);
+    QPixmap b(image_size);
     QPainter p(&b);
-    p.drawImage(QPoint(), image);
+    p.fillRect(b.rect(), 0xe2e2e2);
+    p.drawImage(QPoint(0, m.top), image);
     p.end();
 
     return b;

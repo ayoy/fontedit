@@ -18,7 +18,7 @@ FaceWidget::FaceWidget(QGraphicsItem *parent) :
     setLayout(layout_);
 }
 
-void FaceWidget::load(const Font::Face &face)
+void FaceWidget::load(const Font::Face &face, Font::Margins margins)
 {
     // TODO: Reuse items instead of deleting them all
     for (auto& item : childItems()) {
@@ -54,7 +54,7 @@ void FaceWidget::load(const Font::Face &face)
 
     auto index = 0;
     for (const auto& g : face.glyphs()) {
-        auto glyphWidget = new GlyphInfoWidget(g, printable_ascii_offset + index, imageSize);
+        auto glyphWidget = new GlyphInfoWidget(g, printable_ascii_offset + index, imageSize, margins);
 
         // TODO: reduce number of these calls
         layout_->setRowFixedHeight(index / col_count, itemSize_.height());

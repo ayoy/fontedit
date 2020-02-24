@@ -153,14 +153,11 @@ void MainWindow::displayFace(const Font::Face& face)
                 this, &MainWindow::switchActiveGlyph);
     }
 
-    faceWidget_->load(face);
+    auto margins = viewModel_->faceModel()->original_face_margins();
+    faceWidget_->load(face, margins);
 
     QElapsedTimer timer;
     timer.start();
-    auto margins = face.calculate_margins();
-    qDebug() << "safe top margin:" << margins.top;
-    qDebug() << "safe bottom margin:" << margins.bottom;
-    qDebug() << "time:" << timer.elapsed();
 
     if (viewModel_->faceModel()->active_glyph_index().has_value()) {
         displayGlyph(viewModel_->faceModel()->active_glyph());

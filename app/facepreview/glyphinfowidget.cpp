@@ -16,17 +16,22 @@ static QString description(char asciiCode)
     return QString::fromStdString(stream.str());
 }
 
-GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, char asciiCode, QSizeF imageSize, QGraphicsItem *parent) :
+GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, char asciiCode, QSizeF imageSize,
+                                 Font::Margins margins, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     description_ { description(asciiCode) },
     imageSize_ { imageSize },
-    preview_ { Font::glyph_bitmap_preview(glyph) }
+    preview_ { Font::glyph_preview_pixmap(glyph, margins) },
+    margins_ { margins }
 {
 }
 
-void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph)
+void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph, std::optional<Font::Margins> margins)
 {
-    preview_ = Font::glyph_bitmap_preview(glyph);
+    if (margins.has_value()) {
+        margins_ = margins.value();
+    }
+    preview_ = Font::glyph_preview_pixmap(glyph, margins_);
     update();
 }
 
