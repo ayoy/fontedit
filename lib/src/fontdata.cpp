@@ -1,4 +1,5 @@
 #include "fontdata.h"
+#include <algorithm>
 
 using namespace Font;
 
