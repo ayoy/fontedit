@@ -102,6 +102,9 @@ public:
         return glyphs_[ascii-32];
     }
 
+    std::size_t safe_top_margin() const noexcept;
+    std::size_t safe_bottom_margin() const noexcept;
+
 private:
     static std::vector<Glyph> read_glyphs(const FaceReader &data);
 

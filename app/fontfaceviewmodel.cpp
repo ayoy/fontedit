@@ -11,9 +11,6 @@
 #include <QTextDocument>
 #include <QTextFrame>
 
-#include <string>
-
-
 static constexpr std::string_view ascii_glyphs
         { " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" };
 

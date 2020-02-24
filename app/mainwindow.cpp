@@ -13,6 +13,7 @@
 #include <QScrollBar>
 #include <QMessageBox>
 #include <QKeySequence>
+#include <QElapsedTimer>
 
 #include <iostream>
 
@@ -153,6 +154,12 @@ void MainWindow::displayFace(const Font::Face& face)
     }
 
     faceWidget_->load(face);
+
+    QElapsedTimer timer;
+    timer.start();
+    qDebug() << "safe top margin:" << face.safe_top_margin();
+    qDebug() << "safe bottom margin:" << face.safe_bottom_margin();
+    qDebug() << "time:" << timer.elapsed();
 
     if (viewModel_->faceModel()->active_glyph_index().has_value()) {
         displayGlyph(viewModel_->faceModel()->active_glyph());
