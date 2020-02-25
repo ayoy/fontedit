@@ -13,6 +13,11 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(Global::application_name);
     QApplication::setApplicationVersion(Global::application_version);
 
+
+    QTranslator myappTranslator;
+    myappTranslator.load("fontedit_en");
+    a.installTranslator(&myappTranslator);
+
     MainWindow w;
     w.show();
     return QApplication::exec();

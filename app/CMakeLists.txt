@@ -16,12 +16,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt5LinguistTools)
 
 add_subdirectory(common)
 add_subdirectory(glypheditview)
 add_subdirectory(facepreview)
 
+
+set(TS_FILES l10n/fontedit_en.ts)
+qt5_add_translation(QM_FILES ${TS_FILES})
+
 set(SRC_FILES
+    ${QM_FILES}
+    l10n/fontedit_en.ts
     assets.qrc
     command.h
     fontfaceviewmodel.cpp
