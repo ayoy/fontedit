@@ -22,7 +22,6 @@ static const QString template_text = []{
     return QString::fromStdString(stream.str());
 }();
 
-
 class QFontFaceReader : public Font::FaceReader
 {
 public:
@@ -98,22 +97,51 @@ std::unique_ptr<QImage> QFontFaceReader::read_font(const QFont &font)
 }
 
 
-FontFaceViewModel::FontFaceViewModel(Font::Face face) noexcept :
+Font::Face import_face(const QFont &font)
+{
+    QFontFaceReader adapter(font);
+    return Font::Face(adapter);
+}
+
+QString font_name(const QFont &font)
+{
+    QStringList s;
+    s << QString("%1 %2pt").arg(font.family()).arg(QString::number(font.pointSize()));
+    if (font.bold()) {
+        s << "Bold";
+    }
+    if (font.italic()) {
+        s << "Italic";
+    }
+    if (font.underline()) {
+        s << "Underline";
+    }
+    if (font.strikeOut()) {
+        s << "Strikeout";
+    }
+
+    return s.join(", ");
+}
+
+
+FontFaceViewModel::FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept :
     face_ { face },
+    name_ { name },
     original_margins_ { face.calculate_margins() }
 {
 }
 
 FontFaceViewModel::FontFaceViewModel(const QFont &font) :
-    FontFaceViewModel(import_face(font))
+    FontFaceViewModel(import_face(font), font_name(font))
 {
 }
 
-Font::Face FontFaceViewModel::import_face(const QFont &font)
+FaceInfo FontFaceViewModel::faceInfo() const
 {
-    QFontFaceReader adapter(font);
-
-    return Font::Face(adapter);
+    auto fontName = name_.has_value() ? name_.value() : "Custom font";
+    auto size = face_.glyph_size();
+    size.height -= original_margins_.top + original_margins_.bottom;
+    return { fontName, face_.glyph_size(), size, face_.num_glyphs() };
 }
 
 void FontFaceViewModel::modify_glyph(std::size_t index, const Font::Glyph &new_glyph)

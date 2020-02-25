@@ -71,6 +71,8 @@ void MainWindow::setupUI()
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
+    ui_->faceInfoLabel->setVisible(false);
+
     auto scrollBarWidth = ui_->faceGraphicsView->verticalScrollBar()->sizeHint().width();
     auto faceViewWidth = static_cast<int>(FaceWidget::cell_width) * 3 + scrollBarWidth;
     ui_->faceGraphicsView->setMinimumSize({ faceViewWidth,
@@ -155,9 +157,8 @@ void MainWindow::displayFace(const Font::Face& face)
 
     auto margins = viewModel_->faceModel()->original_face_margins();
     faceWidget_->load(face, margins);
-
-    QElapsedTimer timer;
-    timer.start();
+    updateFaceInfoLabel(viewModel_->faceModel()->faceInfo());
+    ui_->faceInfoLabel->setVisible(true);
 
     if (viewModel_->faceModel()->active_glyph_index().has_value()) {
         displayGlyph(viewModel_->faceModel()->active_glyph());
@@ -165,6 +166,16 @@ void MainWindow::displayFace(const Font::Face& face)
         ui_->glyphGraphicsView->scene()->removeItem(g);
         glyphWidget_.release();
     }
+}
+
+void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
+{
+    QStringList lines;
+    lines << faceInfo.fontName;
+    lines << tr("Size (full): %1x%2px").arg(faceInfo.size.width).arg(faceInfo.size.height);
+    lines << tr("Size (adjusted): %1x%2px").arg(faceInfo.sizeWithoutMargins.width).arg(faceInfo.sizeWithoutMargins.height);
+    lines << tr("%n Glyph(s)", "", faceInfo.numberOfGlyphs);
+    ui_->faceInfoLabel->setText(lines.join("\n"));
 }
 
 void MainWindow::displayGlyph(const Font::Glyph& glyph)
@@ -197,7 +208,7 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
             };
         };
 
-        undoStack_->push(new Command("Edit Glyph",
+        undoStack_->push(new Command(tr("Edit Glyph"),
                                      applyChange(BatchPixelChange::ChangeType::Reverse),
                                      applyChange(BatchPixelChange::ChangeType::Normal)));
 
@@ -221,7 +232,7 @@ void MainWindow::switchActiveGlyph(std::size_t newIndex)
             };
         };
 
-        undoStack_->push(new Command("Switch Active Glyph",
+        undoStack_->push(new Command(tr("Switch Active Glyph"),
                                      setGlyph(idx),
                                      setGlyph(newIndex)));
     } else {
@@ -234,7 +245,7 @@ void MainWindow::resetCurrentGlyph()
     Font::Glyph currentGlyphState { viewModel_->faceModel()->active_glyph() };
     auto glyphIndex = viewModel_->faceModel()->active_glyph_index().value();
 
-    undoStack_->push(new Command("Reset Glyph", [&, currentGlyphState, glyphIndex] {
+    undoStack_->push(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
         viewModel_->faceModel()->modify_glyph(glyphIndex, currentGlyphState);
         displayGlyph(viewModel_->faceModel()->active_glyph());
         faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->active_glyph());
@@ -247,8 +258,8 @@ void MainWindow::resetCurrentGlyph()
 
 void MainWindow::resetFont()
 {
-    QString message = "Are you sure you want to reset all changes to the font? This operation cannot be undone.";
-    auto result = QMessageBox::warning(this, "Reset Font", message, QMessageBox::Reset, QMessageBox::Cancel);
+    auto message = tr("Are you sure you want to reset all changes to the font? This operation cannot be undone.");
+    auto result = QMessageBox::warning(this, tr("Reset Font"), message, QMessageBox::Reset, QMessageBox::Cancel);
     if (result == QMessageBox::Reset) {
         viewModel_->faceModel()->reset();
         undoStack_->clear();

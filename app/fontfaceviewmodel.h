@@ -9,17 +9,27 @@
 #include <unordered_map>
 #include "batchpixelchange.h"
 
+struct FaceInfo
+{
+    QString fontName;
+    Font::Size size;
+    Font::Size sizeWithoutMargins;
+    std::size_t numberOfGlyphs;
+};
+
 class FontFaceViewModel
 {
 public:
-    explicit FontFaceViewModel(Font::Face face) noexcept;
+    explicit FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept;
     explicit FontFaceViewModel(const QFont &font);
 
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
-    Font::Margins original_face_margins() const noexcept { return original_margins_; }
+
+    FaceInfo faceInfo() const;
 
     Font::Face original_face() const noexcept;
+    Font::Margins original_face_margins() const noexcept { return original_margins_; }
 
     void set_active_glyph_index(std::size_t idx) {
         if (idx >= face_.num_glyphs()) {
@@ -63,11 +73,11 @@ public:
     }
 
 private:
-    static Font::Face import_face(const QFont &font);
     void reset_glyph(std::size_t idx);
     void do_modify_glyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
 
     Font::Face face_;
+    std::optional<QString> name_;
     Font::Margins original_margins_;
     std::optional<std::size_t> active_glyph_index_ { std::nullopt };
 

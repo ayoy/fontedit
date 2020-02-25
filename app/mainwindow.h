@@ -35,6 +35,7 @@ private:
     void editGlyph(const BatchPixelChange& change);
     void switchActiveGlyph(std::size_t newIndex);
     void updateResetActions();
+    void updateFaceInfoLabel(const FaceInfo& faceInfo);
 
     void exportSourceCode();
 

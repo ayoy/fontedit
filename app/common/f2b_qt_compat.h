@@ -29,17 +29,17 @@ inline QSize qsize_with_size(const Font::Size &s)
 
 inline QPixmap glyph_preview_pixmap(const Font::Glyph &g, Font::Margins m)
 {
-    auto glyph_size = g.size();
-    glyph_size.height -= m.top + m.bottom;
+    auto useful_glyph_size = g.size();
+    useful_glyph_size.height -= m.top + m.bottom;
 
     auto image_size = qsize_with_size(g.size());
-    auto useful_image_size = qsize_with_size(glyph_size);
+    auto useful_image_size = qsize_with_size(useful_glyph_size);
 
     QImage image(useful_image_size, QImage::Format_Grayscale8);
     image.fill(Qt::white);
 
-    for (std::vector<bool>::size_type y = 0; y < glyph_size.height; ++y) {
-        for (std::vector<bool>::size_type x = 0; x < glyph_size.width; ++x) {
+    for (std::vector<bool>::size_type y = 0; y < useful_glyph_size.height; ++y) {
+        for (std::vector<bool>::size_type x = 0; x < useful_glyph_size.width; ++x) {
             if (g.is_pixel_set({x, y + m.top})) {
                 image.setPixel(x, y, Qt::black);
             }
