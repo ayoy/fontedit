@@ -50,6 +50,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui_->bitNumberingCheckBox, &QCheckBox::stateChanged, [&](int state) {
         viewModel_->setMSBEnabled(state == Qt::Checked);
     });
+    connect(ui_->lineSpacingCheckBox, &QCheckBox::stateChanged, [&](int state) {
+        viewModel_->setIncludeLineSpacing(state == Qt::Checked);
+    });
     connect(ui_->formatComboBox, &QComboBox::currentTextChanged,
             viewModel_.get(), &MainWindowModel::setOutputFormat);
 
@@ -80,6 +83,7 @@ void MainWindow::setupUI()
 
     ui_->invertBitsCheckBox->setCheckState(viewModel_->invertBits());
     ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
+    ui_->lineSpacingCheckBox->setCheckState(viewModel_->includeLineSpacing());
 
     for (const auto &pair : viewModel_->outputFormats().toStdMap()) {
         ui_->formatComboBox->addItem(pair.second, pair.first);

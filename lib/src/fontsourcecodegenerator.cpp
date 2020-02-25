@@ -22,3 +22,7 @@ std::string comment_for_glyph(std::size_t index)
     return s.str();
 }
 
+Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size)
+{
+    return { line_margins.top * glyph_size.width, line_margins.bottom * glyph_size.width };
+}

@@ -13,6 +13,7 @@ Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
 namespace SettingsKey {
 static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
+static const QString includeLineSpacing = "source_code_options/include_line_spacing";
 static const QString format = "source_code_options/format";
 }
 
@@ -136,6 +137,13 @@ void MainWindowModel::setMSBEnabled(bool enabled)
     auto bitNumbering = enabled ? SourceCodeOptions::MSB : SourceCodeOptions::LSB;
     sourceCodeOptions_.bit_numbering = bitNumbering;
     settings_.setValue(SettingsKey::bitNumbering, bitNumbering);
+    reloadSourceCode();
+}
+
+void MainWindowModel::setIncludeLineSpacing(bool enabled)
+{
+    sourceCodeOptions_.include_line_spacing = enabled;
+    settings_.setValue(SettingsKey::invertBits, enabled);
     reloadSourceCode();
 }
 

@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <bitset>
+#include <algorithm>
 
 static constexpr auto byte_size = 8;
 
@@ -16,10 +17,19 @@ struct SourceCodeOptions
 
     BitNumbering bit_numbering { LSB };
     bool invert_bits { false };
+    bool include_line_spacing { false };
 };
 
 std::string current_timestamp();
 std::string comment_for_glyph(std::size_t index);
+
+/**
+ * @brief Converts line margins to pixel margins.
+ * @param line_margins - margins expressed in lines
+ * @param glyph_size
+ * @return Margins expressed in pixel offset for a given glyph size (width).
+ */
+Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size);
 
 /**
  * @brief A simple converter which converts fixed-width fonts.
@@ -116,11 +126,19 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face)
         bits.reset();
     };
 
+
+    auto margins = [&] () -> Font::Margins {
+        if (options_.include_line_spacing) {
+            return {};
+        }
+        return pixel_margins(face.calculate_margins(), face.glyph_size());
+    }();
+
     for (const auto& glyph : face.glyphs()) {
         T::append(s, Elem<Idiom::IdiomBeginArrayRow> {});
 
-        for (auto pixel : glyph.pixels()) {
-
+        std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
+                      [&](auto pixel) {
             switch (options_.bit_numbering) {
             case SourceCodeOptions::LSB:
                 bits[bit_pos] = pixel;
@@ -141,7 +159,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face)
                 append_byte(bits);
                 bit_pos = 0;
             }
-        }
+        });
 
         T::append(s, Elem<Idiom::IdiomComment> { comment_for_glyph(glyph_id) });
         T::append(s, Elem<Idiom::IdiomLineBreak> {});

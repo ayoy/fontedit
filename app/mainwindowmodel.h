@@ -61,6 +61,10 @@ public:
                 ? Qt::Checked : Qt::Unchecked;
     }
 
+    Qt::CheckState includeLineSpacing() const {
+        return sourceCodeOptions_.include_line_spacing ? Qt::Checked : Qt::Unchecked;
+    }
+
     const QMap<QString,QString>& outputFormats() const {
         return formats_;
     }
@@ -77,6 +81,7 @@ public slots:
     void prepareSourceCodeTab();
     void setInvertBits(bool enabled);
     void setMSBEnabled(bool enabled);
+    void setIncludeLineSpacing(bool enabled);
     void setOutputFormat(const QString &format); // human-readable
 
 signals:
