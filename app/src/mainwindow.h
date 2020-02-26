@@ -38,6 +38,7 @@ private:
     void switchActiveGlyph(std::size_t newIndex);
     void updateResetActions();
     void updateFaceInfoLabel(const FaceInfo& faceInfo);
+    void updateDocumentTitle(const QString& title);
 
     void exportSourceCode();
 

@@ -20,6 +20,7 @@
 #include <QFile>
 #include <QTextStream>
 
+static constexpr auto editTabIndex = 0;
 static constexpr auto codeTabIndex = 1;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -60,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
             viewModel_.get(), &MainWindowModel::setOutputFormat);
 
 
+    connect(viewModel_.get(), &MainWindowModel::documentTitleChanged, this, &MainWindow::updateDocumentTitle);
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
     connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
@@ -74,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::setupUI()
 {
+    updateDocumentTitle(viewModel_->documentTitle());
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
@@ -132,6 +135,7 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
     ui_->actionOpen->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionOpen]);
     ui_->actionAdd_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionAddGlyph]);
     ui_->actionSave->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
+    ui_->actionSave_As->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
     ui_->actionCopy_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionCopy]);
     ui_->actionPaste_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPaste]);
 //    ui_->undoButton->defaultAction()->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionUndo]);
@@ -206,6 +210,11 @@ void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
     ui_->faceInfoLabel->setText(lines.join("\n"));
 }
 
+void MainWindow::updateDocumentTitle(const QString &title)
+{
+    ui_->tabWidget->setTabText(editTabIndex, title);
+}
+
 void MainWindow::displayGlyph(const Font::Glyph& glyph)
 {
     auto margins = viewModel_->faceModel()->original_face_margins();
@@ -233,6 +242,7 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
                 updateResetActions();
                 glyphWidget_->applyChange(change, type);
                 faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->active_glyph());
+                viewModel_->updateDocumentTitle();
             };
         };
 
@@ -277,10 +287,12 @@ void MainWindow::resetCurrentGlyph()
         viewModel_->faceModel()->modify_glyph(glyphIndex, currentGlyphState);
         displayGlyph(viewModel_->faceModel()->active_glyph());
         faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->active_glyph());
+        viewModel_->updateDocumentTitle();
     }, [&, glyphIndex] {
         viewModel_->faceModel()->reset_active_glyph();
         displayGlyph(viewModel_->faceModel()->active_glyph());
         faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->active_glyph());
+        viewModel_->updateDocumentTitle();
     }));
 }
 

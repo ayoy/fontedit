@@ -80,6 +80,9 @@ public:
         return documentPath_;
     }
 
+    QString documentTitle() const { return documentTitle_; }
+    void updateDocumentTitle();
+
 public slots:
     void importFont(const QFont& font);
     void loadFace(const QString& fileName);
@@ -98,6 +101,7 @@ signals:
     void sourceCodeUpdating() const;
     void sourceCodeChanged(const QString& sourceCode) const;
     void runnableFinished(const QString& result) const;
+    void documentTitleChanged(const QString& title);
 
 private:
     void reloadSourceCode();
@@ -105,6 +109,7 @@ private:
     UIState uiState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_;
     std::optional<QString> documentPath_;
+    QString documentTitle_;
     SourceCodeOptions sourceCodeOptions_;
 
     QMap<QString, QString> formats_; // identifier <-> human-readable

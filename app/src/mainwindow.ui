@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>757</width>
-    <height>620</height>
+    <width>724</width>
+    <height>619</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,9 +84,12 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>8</width>
               <height>20</height>
              </size>
             </property>
@@ -117,9 +120,12 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>8</width>
               <height>20</height>
              </size>
             </property>
@@ -408,7 +414,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>757</width>
+     <width>724</width>
      <height>22</height>
     </rect>
    </property>

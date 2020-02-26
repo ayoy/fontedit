@@ -6,6 +6,7 @@
 #include <QThreadPool>
 #include <QFile>
 #include <QDataStream>
+#include <QDir>
 
 #include <iostream>
 #include <thread>
@@ -41,6 +42,7 @@ MainWindowModel::MainWindowModel(QObject *parent) :
 
     qDebug() << "output format:" << currentFormat_;
     registerInputEvent(UserIdle);
+    updateDocumentTitle();
 }
 
 void MainWindowModel::registerInputEvent(InputEvent e)
@@ -100,12 +102,35 @@ void MainWindowModel::registerInputEvent(InputEvent e)
     }
 }
 
+void MainWindowModel::updateDocumentTitle()
+{
+    QString name;
+    if (documentPath_.has_value()) {
+        QFileInfo fileInfo {documentPath_.value()};
+        name = fileInfo.baseName();
+    } else {
+        name = tr("New Font");
+    }
+
+    if (auto faceModel = fontFaceViewModel_.get()) {
+        if (faceModel->is_modified()) {
+            name += " - ";
+            name += tr("Edited");
+        }
+    }
+    if (name != documentTitle_) {
+        documentTitle_ = name;
+        emit documentTitleChanged(documentTitle_);
+    }
+}
+
 void MainWindowModel::importFont(const QFont &font)
 {
     fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
     registerInputEvent(UserLoadedFace);
     documentPath_ = {};
     emit faceLoaded(fontFaceViewModel_->face());
+    updateDocumentTitle();
 }
 
 void MainWindowModel::loadFace(const QString &fileName)
@@ -125,6 +150,7 @@ void MainWindowModel::loadFace(const QString &fileName)
     registerInputEvent(UserLoadedFace);
     documentPath_ = fileName;
     emit faceLoaded(fontFaceViewModel_->face());
+    updateDocumentTitle();
 }
 
 void MainWindowModel::saveFace(const QString& fileName)

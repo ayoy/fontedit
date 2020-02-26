@@ -217,7 +217,7 @@ QDataStream& operator<<(QDataStream& s, const FontFaceViewModel &vm)
     s << vm.face_;
     s << vm.name_;
     s << (quint32) vm.original_margins_.top << (quint32) vm.original_margins_.bottom;
-    s << vm.originalGlyphs_;
+//    s << vm.originalGlyphs_;
     return s;
 }
 
@@ -237,7 +237,7 @@ QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm)
         s >> top >> bottom;
         viewModel.original_margins_ = { top, bottom };
 
-        s >> viewModel.originalGlyphs_;
+//        s >> viewModel.originalGlyphs_;
 
         vm = viewModel;
     }
