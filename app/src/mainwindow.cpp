@@ -35,6 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
+    connect(ui_->saveButton, &QPushButton::clicked, this, &MainWindow::saveOrSaveAs);
+    connect(ui_->actionSave, &QAction::triggered, this, &MainWindow::saveOrSaveAs);
+
     connect(ui_->actionExport, &QAction::triggered, this, &MainWindow::exportSourceCode);
     connect(ui_->exportButton, &QPushButton::clicked, this, &MainWindow::exportSourceCode);
 
@@ -147,6 +150,11 @@ void MainWindow::showFontDialog()
 
 //    viewModel_->registerInputEvent(MainWindowModel::ActionImportFont);
     viewModel_->importFont(f);
+}
+
+void MainWindow::saveOrSaveAs()
+{
+
 }
 
 void MainWindow::displayFace(const Font::Face& face)

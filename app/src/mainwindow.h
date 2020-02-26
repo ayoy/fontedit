@@ -21,13 +21,14 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 private slots:
-    void showFontDialog();
     void displayFace(const Font::Face& face);
 
 private:
     void setupUI();
     void setupActions();
 
+    void showFontDialog();
+    void saveOrSaveAs();
     void resetCurrentGlyph();
     void resetFont();
     void displayGlyph(const Font::Glyph& glyph);

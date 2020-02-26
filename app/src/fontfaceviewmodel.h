@@ -20,6 +20,7 @@ struct FaceInfo
 class FontFaceViewModel
 {
 public:
+    explicit FontFaceViewModel() = default;
     explicit FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept;
     explicit FontFaceViewModel(const QFont &font);
 
@@ -79,10 +80,17 @@ private:
     Font::Face face_;
     std::optional<QString> name_;
     Font::Margins original_margins_;
-    std::optional<std::size_t> active_glyph_index_ { std::nullopt };
-
     // this holds copies of unmodified glyphs once they are edited.
     std::unordered_map<std::size_t, Font::Glyph> originalGlyphs_;
+
+    // not persisted
+    std::optional<std::size_t> active_glyph_index_;
+
+    friend QDataStream& operator<<(QDataStream&, const FontFaceViewModel&);
+    friend QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm);
 };
+
+QDataStream& operator<<(QDataStream& s, const FontFaceViewModel& vm);
+QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm);
 
 #endif // FONTFACEVIEWMODEL_H

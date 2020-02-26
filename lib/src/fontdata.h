@@ -54,7 +54,7 @@ inline bool operator!=(const Margins& lhs, const Margins& rhs) noexcept {
 class Glyph
 {
 public:
-    explicit Glyph(Size sz);
+    explicit Glyph(Size sz = {});
     explicit Glyph(Size sz, std::vector<bool> pixels);
 
     Size size() const noexcept { return size_; }
@@ -94,7 +94,9 @@ public:
 class Face
 {
 public:
+    explicit Face() = default;
     explicit Face(const FaceReader &data);
+    explicit Face(Size size, const std::vector<Glyph> glyphs);
 
     Size glyph_size() const noexcept { return sz_; }
     std::size_t num_glyphs() const noexcept { return glyphs_.size(); }
@@ -127,6 +129,14 @@ private:
     Size sz_;
     std::vector<Glyph> glyphs_;
 };
+
+inline bool operator==(const Face& lhs, const Face& rhs) noexcept {
+    return lhs.glyph_size() == rhs.glyph_size() && lhs.glyphs() == rhs.glyphs();
+}
+
+inline bool operator!=(const Face& lhs, const Face& rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 }
 

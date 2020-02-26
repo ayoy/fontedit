@@ -31,8 +31,12 @@ std::size_t Glyph::bottom_margin() const noexcept
 
 
 Face::Face(const FaceReader &data) :
-    sz_ { data.font_size() },
-    glyphs_ { read_glyphs(data) }
+    Face(data.font_size(), read_glyphs(data))
+{}
+
+Face::Face(Size size, const std::vector<Glyph> glyphs) :
+    sz_ { size },
+    glyphs_ { glyphs }
 {}
 
 std::vector<Glyph> Face::read_glyphs(const FaceReader &data)

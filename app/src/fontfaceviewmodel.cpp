@@ -204,3 +204,43 @@ Font::Face FontFaceViewModel::original_face() const noexcept
     }
     return f;
 }
+
+static constexpr auto magic_number = 0x1c22f998;
+static constexpr auto version = 1;
+
+QDataStream& operator<<(QDataStream& s, const FontFaceViewModel &vm)
+{
+    s << (quint32) magic_number;
+    s << (qint32) version;
+    s.setVersion(QDataStream::Qt_5_7);
+
+    s << vm.face_;
+    s << vm.name_;
+    s << (quint32) vm.original_margins_.top << (quint32) vm.original_margins_.bottom;
+    s << vm.originalGlyphs_;
+    return s;
+}
+
+QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm)
+{
+    quint32 magic_number;
+    quint32 version;
+    s >> magic_number >> version;
+    if (magic_number == std_optional_magic_number && version == std_optional_version) {
+        s.setVersion(QDataStream::Qt_5_7);
+
+        FontFaceViewModel viewModel;
+        s >> viewModel.face_;
+        s >> viewModel.name_;
+
+        quint32 top, bottom;
+        s >> top >> bottom;
+        viewModel.original_margins_ = { top, bottom };
+
+        s >> viewModel.originalGlyphs_;
+
+        vm = viewModel;
+    }
+
+    return s;
+}
