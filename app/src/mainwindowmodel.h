@@ -19,6 +19,7 @@ class MainWindowModel: public QObject
 public:
     enum InterfaceAction {
         ActionImportFont = 0,
+        ActionOpen,
         ActionAddGlyph,
         ActionSave,
         ActionCopy,
@@ -75,8 +76,14 @@ public:
 
     void registerInputEvent(InputEvent e);
 
+    const std::optional<QString>& currentDocumentPath() const {
+        return documentPath_;
+    }
+
 public slots:
     void importFont(const QFont& font);
+    void loadFace(const QString& fileName);
+    void saveFace(const QString& fileName);
     void setActiveGlyphIndex(std::size_t index);
     void prepareSourceCodeTab();
     void setInvertBits(bool enabled);
@@ -96,7 +103,8 @@ private:
     void reloadSourceCode();
 
     UIState uiState_ { 1<<ActionImportFont };
-    std::unique_ptr<FontFaceViewModel> fontFaceViewModel_ {};
+    std::unique_ptr<FontFaceViewModel> fontFaceViewModel_;
+    std::optional<QString> documentPath_;
     SourceCodeOptions sourceCodeOptions_;
 
     QMap<QString, QString> formats_; // identifier <-> human-readable

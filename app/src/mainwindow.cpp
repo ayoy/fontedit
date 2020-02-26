@@ -32,10 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
     updateUI(viewModel_->uiState());
 
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
+    connect(ui_->actionOpen, &QAction::triggered, this, &MainWindow::showOpenFaceDialog);
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
-    connect(ui_->saveButton, &QPushButton::clicked, this, &MainWindow::saveOrSaveAs);
     connect(ui_->actionSave, &QAction::triggered, this, &MainWindow::saveOrSaveAs);
 
     connect(ui_->actionExport, &QAction::triggered, this, &MainWindow::exportSourceCode);
@@ -108,6 +108,7 @@ void MainWindow::setupActions()
     redo->setIcon(QIcon {":/toolbar/assets/redo.svg"});
     redo->setShortcut(QKeySequence::Redo);
 
+    ui_->openButton->setDefaultAction(ui_->actionOpen);
     ui_->importFontButton->setDefaultAction(ui_->actionImport_Font);
     ui_->addGlyphButton->setDefaultAction(ui_->actionAdd_Glyph);
     ui_->saveButton->setDefaultAction(ui_->actionSave);
@@ -128,6 +129,7 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
 {
     ui_->tabWidget->setTabEnabled(1, uiState[MainWindowModel::InterfaceAction::ActionTabCode]);
     ui_->actionImport_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionImportFont]);
+    ui_->actionOpen->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionOpen]);
     ui_->actionAdd_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionAddGlyph]);
     ui_->actionSave->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
     ui_->actionCopy_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionCopy]);
@@ -152,9 +154,23 @@ void MainWindow::showFontDialog()
     viewModel_->importFont(f);
 }
 
+void MainWindow::showOpenFaceDialog()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Font file"), QString(), tr("FontEdit documents (*.fontedit)"));
+    if (!fileName.isNull()) {
+        viewModel_->loadFace(fileName);
+    }
+}
+
 void MainWindow::saveOrSaveAs()
 {
-
+    auto currentPath = viewModel_->currentDocumentPath();
+    if (currentPath.has_value()) {
+        viewModel_->saveFace(currentPath.value());
+    } else {
+        QString fileName = QFileDialog::getSaveFileName(this, "Save");
+        viewModel_->saveFace(fileName);
+    }
 }
 
 void MainWindow::displayFace(const Font::Face& face)

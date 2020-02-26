@@ -28,6 +28,7 @@ private:
     void setupActions();
 
     void showFontDialog();
+    void showOpenFaceDialog();
     void saveOrSaveAs();
     void resetCurrentGlyph();
     void resetFont();

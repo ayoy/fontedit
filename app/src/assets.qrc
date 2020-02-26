@@ -13,5 +13,6 @@
         <file>assets/font.svg</file>
         <file>assets/clear.svg</file>
         <file>assets/settings.svg</file>
+        <file>assets/open.svg</file>
     </qresource>
 </RCC>

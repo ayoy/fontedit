@@ -4,6 +4,8 @@
 
 #include <QDebug>
 #include <QThreadPool>
+#include <QFile>
+#include <QDataStream>
 
 #include <iostream>
 #include <thread>
@@ -48,6 +50,7 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         auto action = std::get<InterfaceAction>(e);
         switch (action) {
         case ActionImportFont:
+        case ActionOpen:
         case ActionAddGlyph:
         case ActionSave:
             break;
@@ -69,10 +72,12 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         case UserIdle:
             state.reset();
             state.set(ActionImportFont);
+            state.set(ActionOpen);
             break;
         case UserLoadedFace:
             state.reset();
             state.set(ActionImportFont);
+            state.set(ActionOpen);
             state.set(ActionAddGlyph);
             state.set(ActionSave);
             state.set(ActionPrint);
@@ -99,7 +104,41 @@ void MainWindowModel::importFont(const QFont &font)
 {
     fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
     registerInputEvent(UserLoadedFace);
+    documentPath_ = {};
     emit faceLoaded(fontFaceViewModel_->face());
+}
+
+void MainWindowModel::loadFace(const QString &fileName)
+{
+    // TODO: error handling
+    QFile f(fileName);
+    f.open(QIODevice::ReadOnly);
+
+    QDataStream s(&f);
+    auto vm = std::make_unique<FontFaceViewModel>();
+    s >> *vm;
+    fontFaceViewModel_ = std::move(vm);
+    f.close();
+
+    qDebug() << "face loaded from" << fileName;
+
+    registerInputEvent(UserLoadedFace);
+    documentPath_ = fileName;
+    emit faceLoaded(fontFaceViewModel_->face());
+}
+
+void MainWindowModel::saveFace(const QString& fileName)
+{
+    // TODO: error handling
+    QFile f(fileName);
+    f.open(QIODevice::WriteOnly);
+
+    QDataStream s(&f);
+    s << *fontFaceViewModel_;
+    f.close();
+    documentPath_ = fileName;
+
+    qDebug() << "face saved to" << fileName;
 }
 
 void MainWindowModel::setActiveGlyphIndex(std::size_t index)

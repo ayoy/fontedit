@@ -205,13 +205,13 @@ Font::Face FontFaceViewModel::original_face() const noexcept
     return f;
 }
 
-static constexpr auto magic_number = 0x1c22f998;
-static constexpr auto version = 1;
+static constexpr auto fontfaceviewmodel_magic_number = 0x1c22f998;
+static constexpr auto fontfaceviewmodel_version = 1;
 
 QDataStream& operator<<(QDataStream& s, const FontFaceViewModel &vm)
 {
-    s << (quint32) magic_number;
-    s << (qint32) version;
+    s << (quint32) fontfaceviewmodel_magic_number;
+    s << (qint32) fontfaceviewmodel_version;
     s.setVersion(QDataStream::Qt_5_7);
 
     s << vm.face_;
@@ -226,7 +226,7 @@ QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm)
     quint32 magic_number;
     quint32 version;
     s >> magic_number >> version;
-    if (magic_number == std_optional_magic_number && version == std_optional_version) {
+    if (magic_number == fontfaceviewmodel_magic_number && version == fontfaceviewmodel_version) {
         s.setVersion(QDataStream::Qt_5_7);
 
         FontFaceViewModel viewModel;
