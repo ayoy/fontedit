@@ -115,7 +115,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face)
     std::size_t col { 0 };
     std::size_t glyph_id { 0 };
 
-    const auto width = face.glyph_size().width;
+    auto width = face.glyph_size().width;
 
     auto append_byte = [&](std::bitset<byte_size> &bits) {
         if (options_.invert_bits) {
