@@ -49,7 +49,7 @@ void MainWindowModel::restoreSession()
 {
     auto path = settings_.value(SettingsKey::documentPath).toString();
     if (!path.isNull()) {
-        loadFace(path);
+        openDocument(path, true);
     } else {
         updateDocumentTitle();
     }
@@ -143,27 +143,36 @@ void MainWindowModel::importFont(const QFont &font)
     updateDocumentTitle();
 }
 
-void MainWindowModel::loadFace(const QString &fileName)
+void MainWindowModel::openDocument(const QString &fileName)
 {
-    // TODO: error handling
-    QFile f(fileName);
-    f.open(QIODevice::ReadOnly);
-
-    QDataStream s(&f);
-    auto vm = std::make_unique<FontFaceViewModel>();
-    s >> *vm;
-    fontFaceViewModel_ = std::move(vm);
-    f.close();
-
-    qDebug() << "face loaded from" << fileName;
-
-    registerInputEvent(UserLoadedFace);
-    updateDocumentPath(fileName);
-    emit faceLoaded(fontFaceViewModel_->face());
-    updateDocumentTitle();
+    openDocument(fileName, false);
 }
 
-void MainWindowModel::saveFace(const QString& fileName)
+void MainWindowModel::openDocument(const QString &fileName, bool failSilently)
+{
+    try {
+        fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(fileName);
+
+        qDebug() << "face loaded from" << fileName;
+
+        registerInputEvent(UserLoadedFace);
+        updateDocumentPath(fileName);
+        updateDocumentTitle();
+        emit faceLoaded(fontFaceViewModel_->face());
+
+    } catch (std::runtime_error& e) {
+        updateDocumentPath({});
+        updateDocumentTitle();
+
+        if (failSilently) {
+            qCritical() << e.what();
+        } else {
+            emit faceLoadingError(QString::fromStdString(e.what()));
+        }
+    }
+}
+
+void MainWindowModel::saveDocument(const QString& fileName)
 {
     // TODO: error handling
     QFile f(fileName);

@@ -21,8 +21,9 @@ class FontFaceViewModel
 {
 public:
     explicit FontFaceViewModel() = default;
+    explicit FontFaceViewModel(const QString& documentPath);
     explicit FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept;
-    explicit FontFaceViewModel(const QFont &font);
+    explicit FontFaceViewModel(const QFont& font);
 
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
@@ -61,7 +62,7 @@ public:
 
     void modifyGlyph(std::size_t index, const Font::Glyph& new_glyph);
 
-    void modifyGlyph(std::size_t index, const BatchPixelChange &change,
+    void modifyGlyph(std::size_t index, const BatchPixelChange& change,
                       BatchPixelChange::ChangeType changeType = BatchPixelChange::ChangeType::Normal);
 
     bool isModified() const {

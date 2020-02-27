@@ -2,6 +2,8 @@
 #include "f2b.h"
 #include "f2b_qt_compat.h"
 
+#include <stdexcept>
+
 #include <QAbstractTextDocumentLayout>
 #include <QDebug>
 #include <QFontMetrics>
@@ -124,6 +126,19 @@ QString font_name(const QFont &font)
 }
 
 
+FontFaceViewModel::FontFaceViewModel(const QString& documentFilePath)
+{
+    QFile f(documentFilePath);
+    if (!f.exists() || !f.permissions().testFlag(QFileDevice::ReadUser)) {
+        throw std::runtime_error { "Unable to open file " + documentFilePath.toStdString() };
+    }
+
+    f.open(QIODevice::ReadOnly);
+    QDataStream s(&f);
+    s >> *this;
+    f.close();
+}
+
 FontFaceViewModel::FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept :
     face_ { face },
     name_ { name },
@@ -229,17 +244,14 @@ QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm)
     if (magic_number == fontfaceviewmodel_magic_number && version == fontfaceviewmodel_version) {
         s.setVersion(QDataStream::Qt_5_7);
 
-        FontFaceViewModel viewModel;
-        s >> viewModel.face_;
-        s >> viewModel.name_;
+        s >> vm.face_;
+        s >> vm.name_;
 
         quint32 top, bottom;
         s >> top >> bottom;
-        viewModel.originalMargins_ = { top, bottom };
-
-//        s >> viewModel.originalGlyphs_;
-
-        vm = viewModel;
+        vm.originalMargins_ = { top, bottom };
+        vm.originalGlyphs_ = {};
+        vm.activeGlyphIndex_ = {};
     }
 
     return s;

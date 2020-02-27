@@ -86,9 +86,11 @@ public:
 
 public slots:
     void importFont(const QFont& font);
-    void loadFace(const QString& fileName);
-    void saveFace(const QString& fileName);
+
+    void openDocument(const QString& fileName);
+    void saveDocument(const QString& fileName);
     void closeCurrentDocument();
+
     void setActiveGlyphIndex(std::size_t index);
     void prepareSourceCodeTab();
     void setInvertBits(bool enabled);
@@ -105,10 +107,12 @@ signals:
     void runnableFinished(const QString& result) const;
     void documentTitleChanged(const QString& title);
     void documentClosed();
+    void faceLoadingError(const QString& error);
 
 private:
     void reloadSourceCode();
     void updateDocumentPath(const std::optional<QString>& path);
+    void openDocument(const QString& fileName, bool failSilently);
 
     UIState uiState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_;

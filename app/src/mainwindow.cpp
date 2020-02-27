@@ -16,6 +16,7 @@
 #include <QElapsedTimer>
 
 #include <iostream>
+#include <stdexcept>
 
 #include <QFile>
 #include <QTextStream>
@@ -76,6 +77,7 @@ void MainWindow::connectViewModelOutputs()
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
+    connect(viewModel_.get(), &MainWindowModel::faceLoadingError, this, &MainWindow::displayError);
     connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
     connect(viewModel_.get(), &MainWindowModel::sourceCodeUpdating, [&]() {
 //        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
@@ -190,7 +192,7 @@ void MainWindow::showOpenFaceDialog()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Font file"), QString(), tr("FontEdit documents (*.fontedit)"));
     if (!fileName.isNull()) {
-        viewModel_->loadFace(fileName);
+        viewModel_->openDocument(fileName);
     }
 }
 
@@ -198,11 +200,18 @@ void MainWindow::saveOrSaveAs()
 {
     auto currentPath = viewModel_->currentDocumentPath();
     if (currentPath.has_value()) {
-        viewModel_->saveFace(currentPath.value());
+        viewModel_->saveDocument(currentPath.value());
     } else {
         QString fileName = QFileDialog::getSaveFileName(this, "Save");
-        viewModel_->saveFace(fileName);
+        viewModel_->saveDocument(fileName);
     }
+}
+
+void MainWindow::displayError(const QString &error)
+{
+//    if (isVisible()) {
+        QMessageBox::critical(this, tr("Error"), error, QMessageBox::StandardButton::Ok);
+//    }
 }
 
 void MainWindow::displayFace(const Font::Face& face)

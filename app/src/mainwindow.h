@@ -43,6 +43,7 @@ private:
 
     void exportSourceCode();
     void closeCurrentDocument();
+    void displayError(const QString& error);
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 
