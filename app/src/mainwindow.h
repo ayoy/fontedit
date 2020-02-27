@@ -20,6 +20,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
+protected:
+    virtual void closeEvent(QCloseEvent *event) override;
+
 private slots:
     void displayFace(const Font::Face& face);
 
@@ -45,6 +48,15 @@ private:
     void exportSourceCode();
     void closeCurrentDocument();
     void displayError(const QString& error);
+
+    enum SavePromptButton {
+        Save,
+        DontSave,
+        Cancel
+    };
+
+    SavePromptButton promptToSaveDirtyDocument();
+
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 

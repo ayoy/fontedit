@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <QKeySequence>
 #include <QElapsedTimer>
+#include <QStandardPaths>
 
 #include <iostream>
 #include <stdexcept>
@@ -23,6 +24,7 @@
 
 static constexpr auto editTabIndex = 0;
 static constexpr auto codeTabIndex = 1;
+static constexpr auto fileFilter = "FontEdit documents (*.fontedit)";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -52,7 +54,7 @@ void MainWindow::connectUIInputs()
     connect(ui_->actionExport, &QAction::triggered, this, &MainWindow::exportSourceCode);
     connect(ui_->exportButton, &QPushButton::clicked, this, &MainWindow::exportSourceCode);
 
-    connect(ui_->actionQuit, &QAction::triggered, &QApplication::quit);
+    connect(ui_->actionQuit, &QAction::triggered, this, &MainWindow::close);
     connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
         if (index == codeTabIndex) {
             viewModel_->prepareSourceCodeTab();
@@ -179,22 +181,42 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
 
 void MainWindow::showFontDialog()
 {
+    switch (promptToSaveDirtyDocument()) {
+    case Save:
+        save();
+    case DontSave:
+        break;
+    case Cancel:
+        return;
+    }
+
     bool ok;
     QFont f("Monaco", 24);
     f.setStyleHint(QFont::TypeWriter);
     f = QFontDialog::getFont(&ok, f, this, tr("Select Font"), QFontDialog::MonospacedFonts | QFontDialog::DontUseNativeDialog);
-    qDebug() << "selected font:" << f << "ok?" << ok;
 
-//    viewModel_->registerInputEvent(MainWindowModel::ActionImportFont);
-    viewModel_->importFont(f);
+    if (ok) {
+        qDebug() << "selected font:" << f;
+        viewModel_->importFont(f);
+//        viewModel_->registerInputEvent(MainWindowModel::ActionImportFont);
+    }
 }
 
 void MainWindow::showOpenFaceDialog()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Font file"), QString(), tr("FontEdit documents (*.fontedit)"));
-    if (!fileName.isNull()) {
-        viewModel_->openDocument(fileName);
+    switch (promptToSaveDirtyDocument()) {
+    case Save:
+        save();
+    case DontSave:
+        break;
+    case Cancel:
+        return;
     }
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Document"), QString(), tr(fileFilter));
+
+    if (!fileName.isNull())
+        viewModel_->openDocument(fileName);
 }
 
 void MainWindow::save()
@@ -209,13 +231,48 @@ void MainWindow::save()
 
 void MainWindow::saveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save");
-    viewModel_->saveDocument(fileName);
+    QString directoryPath;
+    if (viewModel_->currentDocumentPath().has_value()) {
+        directoryPath = QFileInfo(viewModel_->currentDocumentPath().value()).path();
+    } else {
+        directoryPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).last();
+    }
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Document"), directoryPath, tr(fileFilter));
+
+    if (!fileName.isNull())
+        viewModel_->saveDocument(fileName);
 }
 
 void MainWindow::displayError(const QString &error)
 {
     QMessageBox::critical(this, tr("Error"), error, QMessageBox::StandardButton::Ok);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    switch (promptToSaveDirtyDocument()) {
+    case Save:
+        save();
+    case DontSave:
+        event->accept();
+        break;
+    case Cancel:
+        event->ignore();
+    }
+}
+
+MainWindow::SavePromptButton MainWindow::promptToSaveDirtyDocument()
+{
+    if (!viewModel_->faceModel()->isModifiedSinceSave()) {
+        return DontSave; // ignore this dialog and move on
+    }
+
+    QStringList buttons { tr("Save"), tr("Don't Save"), tr("Cancel") };
+    auto ret = QMessageBox::information(this,
+                                        "",
+                                        tr("Do you want to save the changes you made? Your changes will be lost if you don't save them."),
+                                        buttons[0], buttons[1], buttons[2], 0, 2);
+    return static_cast<MainWindow::SavePromptButton>(ret);
 }
 
 void MainWindow::displayFace(const Font::Face& face)

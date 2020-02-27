@@ -224,6 +224,7 @@ void FontFaceViewModel::resetGlyph(std::size_t idx)
     }
     face_.set_glyph(originalGlyphs_.at(idx), idx);
     originalGlyphs_.erase(activeGlyphIndex_.value());
+    isDirty_ = true;
 }
 
 Font::Face FontFaceViewModel::originalFace() const noexcept
