@@ -151,7 +151,7 @@ FontFaceViewModel::FontFaceViewModel(const QFont &font) :
 {
 }
 
-void FontFaceViewModel::saveToFile(const QString &documentPath) const
+void FontFaceViewModel::saveToFile(const QString &documentPath)
 {
     QFile f(documentPath);
     if (!f.exists() || !f.permissions().testFlag(QFileDevice::WriteUser)) {
@@ -162,6 +162,7 @@ void FontFaceViewModel::saveToFile(const QString &documentPath) const
     QDataStream s(&f);
     s << *this;
     f.close();
+    isDirty_ = false;
 }
 
 FaceInfo FontFaceViewModel::faceInfo() const
@@ -202,6 +203,7 @@ void FontFaceViewModel::doModifyGlyph(std::size_t idx, std::function<void (Font:
     }
 
     change(glyph);
+    isDirty_ = true;
 
     // remove glyph from originals when restoring initial state
     if (!first_change && glyph == originalGlyphs_.at(idx)) {
@@ -245,7 +247,7 @@ QDataStream& operator<<(QDataStream& s, const FontFaceViewModel &vm)
     s << vm.face_;
     s << vm.name_;
     s << (quint32) vm.originalMargins_.top << (quint32) vm.originalMargins_.bottom;
-//    s << vm.originalGlyphs_;
+
     return s;
 }
 

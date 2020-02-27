@@ -25,7 +25,7 @@ public:
     explicit FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept;
     explicit FontFaceViewModel(const QFont& font);
 
-    void saveToFile(const QString& documentPath) const;
+    void saveToFile(const QString& documentPath);
 
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
@@ -76,6 +76,10 @@ public:
         return originalGlyphs_.count(idx) == 1;
     }
 
+    bool isModifiedSinceSave() const {
+        return isDirty_;
+    }
+
 private:
     void resetGlyph(std::size_t idx);
     void doModifyGlyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
@@ -88,6 +92,7 @@ private:
 
     // not persisted
     std::optional<std::size_t> activeGlyphIndex_;
+    bool isDirty_ { false };
 
     friend QDataStream& operator<<(QDataStream&, const FontFaceViewModel&);
     friend QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm);

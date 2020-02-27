@@ -123,7 +123,7 @@ void MainWindowModel::updateDocumentTitle()
     }
 
     if (auto faceModel = fontFaceViewModel_.get()) {
-        if (faceModel->isModified()) {
+        if (faceModel->isModifiedSinceSave()) {
             name += " - ";
             name += tr("Edited");
         }
