@@ -428,6 +428,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="actionExport"/>
+    <addaction name="actionClose"/>
     <addaction name="separator"/>
     <addaction name="actionPrint"/>
     <addaction name="separator"/>
@@ -580,6 +581,11 @@
   <action name="actionOpen_Recent">
    <property name="text">
     <string>Recent files</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
    </property>
   </action>
  </widget>

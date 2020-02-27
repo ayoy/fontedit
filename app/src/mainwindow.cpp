@@ -45,6 +45,7 @@ void MainWindow::connectUIInputs()
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
     connect(ui_->actionSave, &QAction::triggered, this, &MainWindow::saveOrSaveAs);
+    connect(ui_->actionClose, &QAction::triggered, viewModel_.get(), &MainWindowModel::closeCurrentDocument);
 
     connect(ui_->actionExport, &QAction::triggered, this, &MainWindow::exportSourceCode);
     connect(ui_->exportButton, &QPushButton::clicked, this, &MainWindow::exportSourceCode);
@@ -83,6 +84,7 @@ void MainWindow::connectViewModelOutputs()
         ui_->stackedWidget->setCurrentWidget(ui_->sourceCodeContainer);
         ui_->sourceCodeTextBrowser->setPlainText(text);
     });
+    connect(viewModel_.get(), &MainWindowModel::documentClosed, this, &MainWindow::closeCurrentDocument);
 }
 
 void MainWindow::initUI()
@@ -109,6 +111,22 @@ void MainWindow::initUI()
     QFont f("Monaco", 13);
     f.setStyleHint(QFont::TypeWriter);
     ui_->sourceCodeTextBrowser->setFont(f);
+}
+
+void MainWindow::closeCurrentDocument()
+{
+    ui_->faceInfoLabel->setVisible(false);
+
+    if (faceWidget_ != nullptr) {
+        faceScene_->removeItem(faceWidget_);
+        delete faceWidget_;
+        faceWidget_ = nullptr;
+    }
+
+    if (auto g = glyphWidget_.get()) {
+        ui_->glyphGraphicsView->scene()->removeItem(g);
+        glyphWidget_.release();
+    }
 }
 
 void MainWindow::setupActions()

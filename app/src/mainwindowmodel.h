@@ -88,6 +88,7 @@ public slots:
     void importFont(const QFont& font);
     void loadFace(const QString& fileName);
     void saveFace(const QString& fileName);
+    void closeCurrentDocument();
     void setActiveGlyphIndex(std::size_t index);
     void prepareSourceCodeTab();
     void setInvertBits(bool enabled);
@@ -103,6 +104,7 @@ signals:
     void sourceCodeChanged(const QString& sourceCode) const;
     void runnableFinished(const QString& result) const;
     void documentTitleChanged(const QString& title);
+    void documentClosed();
 
 private:
     void reloadSourceCode();

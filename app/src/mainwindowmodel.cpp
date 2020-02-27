@@ -178,6 +178,15 @@ void MainWindowModel::saveFace(const QString& fileName)
     qDebug() << "face saved to" << fileName;
 }
 
+void MainWindowModel::closeCurrentDocument()
+{
+    fontFaceViewModel_.release();
+    updateDocumentPath({});
+    updateDocumentTitle();
+    registerInputEvent(UserIdle);
+    emit documentClosed();
+}
+
 void MainWindowModel::setActiveGlyphIndex(std::size_t index)
 {
     if (fontFaceViewModel_->activeGlyphIndex().has_value() and

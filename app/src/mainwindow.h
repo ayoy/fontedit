@@ -42,6 +42,7 @@ private:
     void updateFaceInfoLabel(const FaceInfo& faceInfo);
 
     void exportSourceCode();
+    void closeCurrentDocument();
 
     std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
 
