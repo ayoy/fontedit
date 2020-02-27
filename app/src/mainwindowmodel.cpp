@@ -18,6 +18,7 @@ static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
 static const QString includeLineSpacing = "source_code_options/include_line_spacing";
 static const QString format = "source_code_options/format";
+static const QString documentPath = "source_code_options/document_path";
 }
 
 MainWindowModel::MainWindowModel(QObject *parent) :
@@ -42,6 +43,16 @@ MainWindowModel::MainWindowModel(QObject *parent) :
 
     qDebug() << "output format:" << currentFormat_;
     registerInputEvent(UserIdle);
+}
+
+void MainWindowModel::restoreSession()
+{
+    auto path = settings_.value(SettingsKey::documentPath).toString();
+    if (!path.isNull()) {
+        loadFace(path);
+    } else {
+        updateDocumentTitle();
+    }
 }
 
 void MainWindowModel::registerInputEvent(InputEvent e)
@@ -127,7 +138,7 @@ void MainWindowModel::importFont(const QFont &font)
 {
     fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
     registerInputEvent(UserLoadedFace);
-    documentPath_ = {};
+    updateDocumentPath({});
     emit faceLoaded(fontFaceViewModel_->face());
     updateDocumentTitle();
 }
@@ -147,7 +158,7 @@ void MainWindowModel::loadFace(const QString &fileName)
     qDebug() << "face loaded from" << fileName;
 
     registerInputEvent(UserLoadedFace);
-    documentPath_ = fileName;
+    updateDocumentPath(fileName);
     emit faceLoaded(fontFaceViewModel_->face());
     updateDocumentTitle();
 }
@@ -161,7 +172,7 @@ void MainWindowModel::saveFace(const QString& fileName)
     QDataStream s(&f);
     s << *fontFaceViewModel_;
     f.close();
-    documentPath_ = fileName;
+    updateDocumentPath(fileName);
 
     updateDocumentTitle();
     qDebug() << "face saved to" << fileName;
@@ -212,11 +223,21 @@ void MainWindowModel::setIncludeLineSpacing(bool enabled)
     reloadSourceCode();
 }
 
-void MainWindowModel::setOutputFormat(const QString &format)
+void MainWindowModel::setOutputFormat(const QString& format)
 {
     currentFormat_ = formats_.key(format, formats_.first());
     settings_.setValue(SettingsKey::format, currentFormat_);
     reloadSourceCode();
+}
+
+void MainWindowModel::updateDocumentPath(const std::optional<QString>& path)
+{
+    documentPath_ = path;
+    if (path.has_value()) {
+        settings_.setValue(SettingsKey::documentPath, path.value());
+    } else {
+        settings_.remove(SettingsKey::documentPath);
+    }
 }
 
 void MainWindowModel::reloadSourceCode()

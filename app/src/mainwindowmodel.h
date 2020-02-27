@@ -46,6 +46,7 @@ public:
     using InputEvent = std::variant<InterfaceAction,UserAction>;
 
     explicit MainWindowModel(QObject *parent = nullptr);
+    void restoreSession();
 
     FontFaceViewModel* faceModel() const {
         return fontFaceViewModel_.get();
@@ -105,6 +106,7 @@ signals:
 
 private:
     void reloadSourceCode();
+    void updateDocumentPath(const std::optional<QString>& path);
 
     UIState uiState_ { 1<<ActionImportFont };
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_;

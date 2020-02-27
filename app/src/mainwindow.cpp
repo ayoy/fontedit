@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connectUIInputs();
     connectViewModelOutputs();
-    viewModel_->updateDocumentTitle();
+    viewModel_->restoreSession();
 }
 
 void MainWindow::connectUIInputs()
@@ -70,7 +70,7 @@ void MainWindow::connectUIInputs()
 
 void MainWindow::connectViewModelOutputs()
 {
-    connect(viewModel_.get(), &MainWindowModel::documentTitleChanged, [&](const QString& title){
+    connect(viewModel_.get(), &MainWindowModel::documentTitleChanged, [&](const QString& title) {
         ui_->tabWidget->setTabText(editTabIndex, title);
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
@@ -101,8 +101,8 @@ void MainWindow::initUI()
     ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
     ui_->lineSpacingCheckBox->setCheckState(viewModel_->includeLineSpacing());
 
-    for (const auto &pair : viewModel_->outputFormats().toStdMap()) {
-        ui_->formatComboBox->addItem(pair.second, pair.first);
+    for (const auto &[identifier, name] : viewModel_->outputFormats().toStdMap()) {
+        ui_->formatComboBox->addItem(name, identifier);
     }
     ui_->formatComboBox->setCurrentText(viewModel_->outputFormat());
 
