@@ -42,7 +42,6 @@ MainWindowModel::MainWindowModel(QObject *parent) :
 
     qDebug() << "output format:" << currentFormat_;
     registerInputEvent(UserIdle);
-    updateDocumentTitle();
 }
 
 void MainWindowModel::registerInputEvent(InputEvent e)
@@ -164,6 +163,7 @@ void MainWindowModel::saveFace(const QString& fileName)
     f.close();
     documentPath_ = fileName;
 
+    updateDocumentTitle();
     qDebug() << "face saved to" << fileName;
 }
 
@@ -229,6 +229,7 @@ void MainWindowModel::reloadSourceCode()
     r->setCompletionHandler([&](const QString& output) {
         emit runnableFinished(output);
     });
+    r->setAutoDelete(true);
 
     QThreadPool::globalInstance()->start(r);
 }

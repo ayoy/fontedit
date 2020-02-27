@@ -70,7 +70,7 @@ public:
 
     bool isGlyphModified(std::size_t idx) const {
         // modified glyphs have their unmodified counterparts stored in originalGlyphs_.
-        return originalGlyphs_.find(idx) != originalGlyphs_.end();
+        return originalGlyphs_.count(idx) == 1;
     }
 
 private:

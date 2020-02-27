@@ -24,7 +24,9 @@ private slots:
     void displayFace(const Font::Face& face);
 
 private:
-    void setupUI();
+    void connectUIInputs();
+    void connectViewModelOutputs();
+    void initUI();
     void setupActions();
 
     void showFontDialog();
@@ -38,7 +40,6 @@ private:
     void switchActiveGlyph(std::size_t newIndex);
     void updateResetActions();
     void updateFaceInfoLabel(const FaceInfo& faceInfo);
-    void updateDocumentTitle(const QString& title);
 
     void exportSourceCode();
 

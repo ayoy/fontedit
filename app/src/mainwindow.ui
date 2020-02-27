@@ -422,7 +422,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionImport_Font"/>
     <addaction name="separator"/>
@@ -572,10 +571,15 @@
      <normaloff>:/toolbar/assets/open.svg</normaloff>:/toolbar/assets/open.svg</iconset>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>Open...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionOpen_Recent">
+   <property name="text">
+    <string>Recent files</string>
    </property>
   </action>
  </widget>

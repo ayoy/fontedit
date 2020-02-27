@@ -27,11 +27,18 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     ui_->setupUi(this);
-    setupUI();
-    setupActions();
 
+    initUI();
+    setupActions();
     updateUI(viewModel_->uiState());
 
+    connectUIInputs();
+    connectViewModelOutputs();
+    viewModel_->updateDocumentTitle();
+}
+
+void MainWindow::connectUIInputs()
+{
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionOpen, &QAction::triggered, this, &MainWindow::showOpenFaceDialog);
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
@@ -59,9 +66,13 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(ui_->formatComboBox, &QComboBox::currentTextChanged,
             viewModel_.get(), &MainWindowModel::setOutputFormat);
+}
 
-
-    connect(viewModel_.get(), &MainWindowModel::documentTitleChanged, this, &MainWindow::updateDocumentTitle);
+void MainWindow::connectViewModelOutputs()
+{
+    connect(viewModel_.get(), &MainWindowModel::documentTitleChanged, [&](const QString& title){
+        ui_->tabWidget->setTabText(editTabIndex, title);
+    });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
     connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
@@ -74,9 +85,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
 }
 
-void MainWindow::setupUI()
+void MainWindow::initUI()
 {
-    updateDocumentTitle(viewModel_->documentTitle());
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
@@ -210,11 +220,6 @@ void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
     ui_->faceInfoLabel->setText(lines.join("\n"));
 }
 
-void MainWindow::updateDocumentTitle(const QString &title)
-{
-    ui_->tabWidget->setTabText(editTabIndex, title);
-}
-
 void MainWindow::displayGlyph(const Font::Glyph& glyph)
 {
     auto margins = viewModel_->faceModel()->originalFaceMargins();
@@ -285,14 +290,14 @@ void MainWindow::resetCurrentGlyph()
 
     undoStack_->push(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
         viewModel_->faceModel()->modifyGlyph(glyphIndex, currentGlyphState);
+        viewModel_->updateDocumentTitle();
         displayGlyph(viewModel_->faceModel()->activeGlyph());
         faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());
-        viewModel_->updateDocumentTitle();
     }, [&, glyphIndex] {
         viewModel_->faceModel()->resetActiveGlyph();
+        viewModel_->updateDocumentTitle();
         displayGlyph(viewModel_->faceModel()->activeGlyph());
         faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());
-        viewModel_->updateDocumentTitle();
     }));
 }
 
@@ -302,6 +307,7 @@ void MainWindow::resetFont()
     auto result = QMessageBox::warning(this, tr("Reset Font"), message, QMessageBox::Reset, QMessageBox::Cancel);
     if (result == QMessageBox::Reset) {
         viewModel_->faceModel()->reset();
+        viewModel_->updateDocumentTitle();
         undoStack_->clear();
         updateResetActions();
         displayFace(viewModel_->faceModel()->face());

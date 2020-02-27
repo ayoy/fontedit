@@ -165,7 +165,7 @@ void FontFaceViewModel::doModifyGlyph(std::size_t idx, std::function<void (Font:
     Font::Glyph& glyph { face_.glyph_at(idx) };
     bool first_change = false;
 
-    if (originalGlyphs_.find(idx) == originalGlyphs_.end()) {
+    if (originalGlyphs_.count(idx) == 0) {
         qDebug() << "active_glyph non-const cache miss";
         originalGlyphs_.insert({ idx, glyph });
         first_change = true;
