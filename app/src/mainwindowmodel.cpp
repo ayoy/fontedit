@@ -113,7 +113,7 @@ void MainWindowModel::updateDocumentTitle()
     }
 
     if (auto faceModel = fontFaceViewModel_.get()) {
-        if (faceModel->is_modified()) {
+        if (faceModel->isModified()) {
             name += " - ";
             name += tr("Edited");
         }
@@ -169,17 +169,17 @@ void MainWindowModel::saveFace(const QString& fileName)
 
 void MainWindowModel::setActiveGlyphIndex(std::size_t index)
 {
-    if (fontFaceViewModel_->active_glyph_index().has_value() and
-            fontFaceViewModel_->active_glyph_index().value() == index)
+    if (fontFaceViewModel_->activeGlyphIndex().has_value() and
+            fontFaceViewModel_->activeGlyphIndex().value() == index)
     {
         return;
     }
 
     try {
-        fontFaceViewModel_->set_active_glyph_index(index);
+        fontFaceViewModel_->setActiveGlyphIndex(index);
         registerInputEvent(UserLoadedGlyph);
 
-        emit activeGlyphChanged(fontFaceViewModel_->active_glyph());
+        emit activeGlyphChanged(fontFaceViewModel_->activeGlyph());
     } catch (const std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
     }

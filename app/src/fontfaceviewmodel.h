@@ -29,62 +29,62 @@ public:
 
     FaceInfo faceInfo() const;
 
-    Font::Face original_face() const noexcept;
-    Font::Margins original_face_margins() const noexcept { return original_margins_; }
+    Font::Face originalFace() const noexcept;
+    Font::Margins originalFaceMargins() const noexcept { return originalMargins_; }
 
-    void set_active_glyph_index(std::size_t idx) {
+    void setActiveGlyphIndex(std::size_t idx) {
         if (idx >= face_.num_glyphs()) {
             throw std::out_of_range("Active glyph index higher than number of glyphs.");
         }
-        active_glyph_index_ = idx;
+        activeGlyphIndex_ = idx;
     }
 
-    std::optional<std::size_t> active_glyph_index() const noexcept {
-        return active_glyph_index_;
+    std::optional<std::size_t> activeGlyphIndex() const noexcept {
+        return activeGlyphIndex_;
     }
 
-    const Font::Glyph& active_glyph() const {
-        if (!active_glyph_index_.has_value()) {
-             throw std::logic_error("No active glyph. Call set_active_glyph_index() first");
+    const Font::Glyph& activeGlyph() const {
+        if (!activeGlyphIndex_.has_value()) {
+             throw std::logic_error("No active glyph. Call setActiveGlyphIndex() first");
         }
-        return face_.glyph_at(active_glyph_index_.value());
+        return face_.glyph_at(activeGlyphIndex_.value());
     }
 
-    void reset_active_glyph() {
-        if (!active_glyph_index_.has_value()) {
+    void resetActiveGlyph() {
+        if (!activeGlyphIndex_.has_value()) {
             return;
         }
-        reset_glyph(active_glyph_index_.value());
+        resetGlyph(activeGlyphIndex_.value());
     }
 
     void reset();
 
-    void modify_glyph(std::size_t index, const Font::Glyph& new_glyph);
+    void modifyGlyph(std::size_t index, const Font::Glyph& new_glyph);
 
-    void modify_glyph(std::size_t index, const BatchPixelChange &change,
+    void modifyGlyph(std::size_t index, const BatchPixelChange &change,
                       BatchPixelChange::ChangeType changeType = BatchPixelChange::ChangeType::Normal);
 
-    bool is_modified() const {
+    bool isModified() const {
         return originalGlyphs_.size() > 0;
     }
 
-    bool is_glyph_modified(std::size_t idx) const {
+    bool isGlyphModified(std::size_t idx) const {
         // modified glyphs have their unmodified counterparts stored in originalGlyphs_.
         return originalGlyphs_.find(idx) != originalGlyphs_.end();
     }
 
 private:
-    void reset_glyph(std::size_t idx);
-    void do_modify_glyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
+    void resetGlyph(std::size_t idx);
+    void doModifyGlyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
 
     Font::Face face_;
     std::optional<QString> name_;
-    Font::Margins original_margins_;
+    Font::Margins originalMargins_;
     // this holds copies of unmodified glyphs once they are edited.
     std::unordered_map<std::size_t, Font::Glyph> originalGlyphs_;
 
     // not persisted
-    std::optional<std::size_t> active_glyph_index_;
+    std::optional<std::size_t> activeGlyphIndex_;
 
     friend QDataStream& operator<<(QDataStream&, const FontFaceViewModel&);
     friend QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm);

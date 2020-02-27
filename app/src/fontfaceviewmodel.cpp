@@ -127,7 +127,7 @@ QString font_name(const QFont &font)
 FontFaceViewModel::FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept :
     face_ { face },
     name_ { name },
-    original_margins_ { face.calculate_margins() }
+    originalMargins_ { face.calculate_margins() }
 {
 }
 
@@ -140,27 +140,27 @@ FaceInfo FontFaceViewModel::faceInfo() const
 {
     auto fontName = name_.has_value() ? name_.value() : "Custom font";
     auto size = face_.glyph_size();
-    size.height -= original_margins_.top + original_margins_.bottom;
+    size.height -= originalMargins_.top + originalMargins_.bottom;
     return { fontName, face_.glyph_size(), size, face_.num_glyphs() };
 }
 
-void FontFaceViewModel::modify_glyph(std::size_t index, const Font::Glyph &new_glyph)
+void FontFaceViewModel::modifyGlyph(std::size_t index, const Font::Glyph &new_glyph)
 {
-    do_modify_glyph(index, [&](Font::Glyph &glyph) {
+    doModifyGlyph(index, [&](Font::Glyph &glyph) {
         glyph = new_glyph;
     });
 }
 
-void FontFaceViewModel::modify_glyph(std::size_t index,
+void FontFaceViewModel::modifyGlyph(std::size_t index,
                                      const BatchPixelChange &change,
                                      BatchPixelChange::ChangeType changeType)
 {
-    do_modify_glyph(index, [&](Font::Glyph& glyph) {
+    doModifyGlyph(index, [&](Font::Glyph& glyph) {
         change.apply(glyph, changeType);
     });
 }
 
-void FontFaceViewModel::do_modify_glyph(std::size_t idx, std::function<void (Font::Glyph&)> change)
+void FontFaceViewModel::doModifyGlyph(std::size_t idx, std::function<void (Font::Glyph&)> change)
 {
     Font::Glyph& glyph { face_.glyph_at(idx) };
     bool first_change = false;
@@ -183,20 +183,20 @@ void FontFaceViewModel::do_modify_glyph(std::size_t idx, std::function<void (Fon
 
 void FontFaceViewModel::reset()
 {
-    face_ = original_face();
+    face_ = originalFace();
     originalGlyphs_.clear();
 }
 
-void FontFaceViewModel::reset_glyph(std::size_t idx)
+void FontFaceViewModel::resetGlyph(std::size_t idx)
 {
-    if (!is_glyph_modified(idx)) {
+    if (!isGlyphModified(idx)) {
         throw std::logic_error { "Can't reset unmodified glyph" };
     }
     face_.set_glyph(originalGlyphs_.at(idx), idx);
-    originalGlyphs_.erase(active_glyph_index_.value());
+    originalGlyphs_.erase(activeGlyphIndex_.value());
 }
 
-Font::Face FontFaceViewModel::original_face() const noexcept
+Font::Face FontFaceViewModel::originalFace() const noexcept
 {
     Font::Face f = face_;
     for (const auto& pair : originalGlyphs_) {
@@ -216,7 +216,7 @@ QDataStream& operator<<(QDataStream& s, const FontFaceViewModel &vm)
 
     s << vm.face_;
     s << vm.name_;
-    s << (quint32) vm.original_margins_.top << (quint32) vm.original_margins_.bottom;
+    s << (quint32) vm.originalMargins_.top << (quint32) vm.originalMargins_.bottom;
 //    s << vm.originalGlyphs_;
     return s;
 }
@@ -235,7 +235,7 @@ QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm)
 
         quint32 top, bottom;
         s >> top >> bottom;
-        viewModel.original_margins_ = { top, bottom };
+        viewModel.originalMargins_ = { top, bottom };
 
 //        s >> viewModel.originalGlyphs_;
 
