@@ -61,17 +61,11 @@ void MainWindowModel::registerInputEvent(InputEvent e)
     if (std::holds_alternative<InterfaceAction>(e)) {
         auto action = std::get<InterfaceAction>(e);
         switch (action) {
-        case ActionImportFont:
-        case ActionOpen:
         case ActionAddGlyph:
         case ActionSave:
             break;
         case ActionCopy:
         case ActionPaste:
-        case ActionUndo:
-        case ActionRedo:
-//        case ActionResetGlyph:
-//        case ActionResetFont:
         case ActionPrint:
         case ActionExport:
         case ActionTabCode:
@@ -83,25 +77,18 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         switch (action) {
         case UserIdle:
             state.reset();
-            state.set(ActionImportFont);
-            state.set(ActionOpen);
             break;
         case UserLoadedFace:
             state.reset();
-            state.set(ActionImportFont);
-            state.set(ActionOpen);
             state.set(ActionAddGlyph);
             state.set(ActionSave);
+            state.set(ActionClose);
             state.set(ActionPrint);
             state.set(ActionExport);
             state.set(ActionTabCode);
             break;
         case UserLoadedGlyph:
             state.set(ActionCopy);
-            break;
-        case UserEditedGlyph:
-//            state.set(ActionResetGlyph);
-//            state.set(ActionResetFont);
             break;
         }
     }

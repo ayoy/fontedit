@@ -164,17 +164,12 @@ void MainWindow::setupActions()
 void MainWindow::updateUI(MainWindowModel::UIState uiState)
 {
     ui_->tabWidget->setTabEnabled(1, uiState[MainWindowModel::InterfaceAction::ActionTabCode]);
-    ui_->actionImport_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionImportFont]);
-    ui_->actionOpen->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionOpen]);
     ui_->actionAdd_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionAddGlyph]);
     ui_->actionSave->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
     ui_->actionSave_As->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
+    ui_->actionClose->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionClose]);
     ui_->actionCopy_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionCopy]);
     ui_->actionPaste_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPaste]);
-//    ui_->undoButton->defaultAction()->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionUndo]);
-//    ui_->redoButton->defaultAction()->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionRedo]);
-//    ui_->actionReset_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetGlyph]);
-//    ui_->actionReset_Font->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionResetFont]);
     ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
     ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
 }
@@ -198,7 +193,6 @@ void MainWindow::showFontDialog()
     if (ok) {
         qDebug() << "selected font:" << f;
         viewModel_->importFont(f);
-//        viewModel_->registerInputEvent(MainWindowModel::ActionImportFont);
     }
 }
 
@@ -263,7 +257,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 MainWindow::SavePromptButton MainWindow::promptToSaveDirtyDocument()
 {
-    if (!viewModel_->faceModel()->isModifiedSinceSave()) {
+    if (viewModel_->faceModel() == nullptr || !viewModel_->faceModel()->isModifiedSinceSave()) {
         return DontSave; // ignore this dialog and move on
     }
 
@@ -342,8 +336,6 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
         undoStack_->push(new Command(tr("Edit Glyph"),
                                      applyChange(BatchPixelChange::ChangeType::Reverse),
                                      applyChange(BatchPixelChange::ChangeType::Normal)));
-
-        viewModel_->registerInputEvent(MainWindowModel::UserEditedGlyph);
     }
 }
 

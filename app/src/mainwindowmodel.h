@@ -18,28 +18,22 @@ class MainWindowModel: public QObject
 
 public:
     enum InterfaceAction {
-        ActionImportFont = 0,
-        ActionOpen,
-        ActionAddGlyph,
+        ActionAddGlyph = 0,
         ActionSave,
+        ActionClose,
         ActionCopy,
         ActionPaste,
-        ActionUndo,
-        ActionRedo,
-//        ActionResetGlyph,
-//        ActionResetFont,
         ActionPrint,
         ActionExport,
         ActionTabCode,
         ActionCount,
-        ActionFirst = ActionImportFont
+        ActionFirst = ActionAddGlyph
     };
 
     enum UserAction {
         UserIdle = 0,
         UserLoadedFace,
-        UserLoadedGlyph,
-        UserEditedGlyph
+        UserLoadedGlyph
     };
 
     using UIState = std::bitset<ActionCount>;
@@ -114,7 +108,7 @@ private:
     void updateDocumentPath(const std::optional<QString>& path);
     void openDocument(const QString& fileName, bool failSilently);
 
-    UIState uiState_ { 1<<ActionImportFont };
+    UIState uiState_ {};
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_;
     std::optional<QString> documentPath_;
     QString documentTitle_;
