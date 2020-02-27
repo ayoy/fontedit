@@ -31,7 +31,8 @@ private:
 
     void showFontDialog();
     void showOpenFaceDialog();
-    void saveOrSaveAs();
+    void save();
+    void saveAs();
     void resetCurrentGlyph();
     void resetFont();
     void displayGlyph(const Font::Glyph& glyph);

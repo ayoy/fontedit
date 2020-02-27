@@ -107,7 +107,7 @@ signals:
     void runnableFinished(const QString& result) const;
     void documentTitleChanged(const QString& title);
     void documentClosed();
-    void faceLoadingError(const QString& error);
+    void documentError(const QString& error);
 
 private:
     void reloadSourceCode();

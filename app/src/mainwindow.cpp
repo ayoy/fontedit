@@ -45,7 +45,8 @@ void MainWindow::connectUIInputs()
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
-    connect(ui_->actionSave, &QAction::triggered, this, &MainWindow::saveOrSaveAs);
+    connect(ui_->actionSave, &QAction::triggered, this, &MainWindow::save);
+    connect(ui_->actionSave_As, &QAction::triggered, this, &MainWindow::saveAs);
     connect(ui_->actionClose, &QAction::triggered, viewModel_.get(), &MainWindowModel::closeCurrentDocument);
 
     connect(ui_->actionExport, &QAction::triggered, this, &MainWindow::exportSourceCode);
@@ -77,7 +78,7 @@ void MainWindow::connectViewModelOutputs()
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
-    connect(viewModel_.get(), &MainWindowModel::faceLoadingError, this, &MainWindow::displayError);
+    connect(viewModel_.get(), &MainWindowModel::documentError, this, &MainWindow::displayError);
     connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
     connect(viewModel_.get(), &MainWindowModel::sourceCodeUpdating, [&]() {
 //        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
@@ -196,22 +197,25 @@ void MainWindow::showOpenFaceDialog()
     }
 }
 
-void MainWindow::saveOrSaveAs()
+void MainWindow::save()
 {
     auto currentPath = viewModel_->currentDocumentPath();
     if (currentPath.has_value()) {
         viewModel_->saveDocument(currentPath.value());
     } else {
-        QString fileName = QFileDialog::getSaveFileName(this, "Save");
-        viewModel_->saveDocument(fileName);
+        saveAs();
     }
+}
+
+void MainWindow::saveAs()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "Save");
+    viewModel_->saveDocument(fileName);
 }
 
 void MainWindow::displayError(const QString &error)
 {
-//    if (isVisible()) {
-        QMessageBox::critical(this, tr("Error"), error, QMessageBox::StandardButton::Ok);
-//    }
+    QMessageBox::critical(this, tr("Error"), error, QMessageBox::StandardButton::Ok);
 }
 
 void MainWindow::displayFace(const Font::Face& face)

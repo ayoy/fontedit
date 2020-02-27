@@ -151,6 +151,19 @@ FontFaceViewModel::FontFaceViewModel(const QFont &font) :
 {
 }
 
+void FontFaceViewModel::saveToFile(const QString &documentPath) const
+{
+    QFile f(documentPath);
+    if (!f.exists() || !f.permissions().testFlag(QFileDevice::WriteUser)) {
+        throw std::runtime_error { "Unable to write to file: " + documentPath.toStdString() };
+    }
+
+    f.open(QIODevice::WriteOnly);
+    QDataStream s(&f);
+    s << *this;
+    f.close();
+}
+
 FaceInfo FontFaceViewModel::faceInfo() const
 {
     auto fontName = name_.has_value() ? name_.value() : "Custom font";

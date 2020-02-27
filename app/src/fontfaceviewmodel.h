@@ -25,6 +25,8 @@ public:
     explicit FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept;
     explicit FontFaceViewModel(const QFont& font);
 
+    void saveToFile(const QString& documentPath) const;
+
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
 

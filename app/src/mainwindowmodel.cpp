@@ -167,24 +167,23 @@ void MainWindowModel::openDocument(const QString &fileName, bool failSilently)
         if (failSilently) {
             qCritical() << e.what();
         } else {
-            emit faceLoadingError(QString::fromStdString(e.what()));
+            emit documentError(QString::fromStdString(e.what()));
         }
     }
 }
 
 void MainWindowModel::saveDocument(const QString& fileName)
 {
-    // TODO: error handling
-    QFile f(fileName);
-    f.open(QIODevice::WriteOnly);
+    try {
+        fontFaceViewModel_->saveToFile(fileName);
 
-    QDataStream s(&f);
-    s << *fontFaceViewModel_;
-    f.close();
-    updateDocumentPath(fileName);
+        qDebug() << "face saved to" << fileName;
 
-    updateDocumentTitle();
-    qDebug() << "face saved to" << fileName;
+        updateDocumentPath(fileName);
+        updateDocumentTitle();
+    } catch (std::runtime_error& e) {
+        emit documentError(QString::fromStdString(e.what()));
+    }
 }
 
 void MainWindowModel::closeCurrentDocument()
