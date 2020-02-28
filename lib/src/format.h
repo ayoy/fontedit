@@ -43,9 +43,6 @@ struct C
     static std::ostream& append(std::ostream& o, const Element::String<I>& e)
     {
         switch (I) {
-        case Idiom::IdiomBegin:
-            o << "//\n// Font Data\n// Created: " << e.arg << "\n//\n";
-            break;
         case Idiom::IdiomBeginArray:
             o << "\n\nconst unsigned char " << e.arg << "[] = {\n";
             break;
@@ -56,6 +53,13 @@ struct C
             break;
         }
 
+        return o;
+    }
+
+    template<Idiom I>
+    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
+    {
+        o << "//\n// " << e.arg1 << ".c\n// Created: " << e.arg2 << "\n//\n";
         return o;
     }
 
@@ -91,13 +95,17 @@ struct Arduino
     }
 
     template<Idiom I>
+    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
+    {
+        C::append(o, e);
+        o << "\n#include <Arduino.h>\n";
+        return o;
+    }
+
+    template<Idiom I>
     static std::ostream& append(std::ostream& o, const Element::String<I>& e)
     {
         switch (I) {
-        case Idiom::IdiomBegin:
-            C::append(o, e);
-            o << "\n#include <Arduino.h>\n";
-            break;
         case Idiom::IdiomBeginArray:
             o << "\n\nconst uint8_t " << e.arg << "[] PROGMEM = {\n";
             break;
@@ -134,9 +142,6 @@ struct PythonList
     static std::ostream& append(std::ostream& o, const Element::String<I>& e)
     {
         switch (I) {
-        case Idiom::IdiomBegin:
-            o << "#\n# Font Data\n# Created: " << e.arg << "\n#\n";
-            break;
         case Idiom::IdiomBeginArray:
             o << "\n\n" << e.arg << " = [\n";
             break;
@@ -147,6 +152,13 @@ struct PythonList
             break;
         }
 
+        return o;
+    }
+
+    template<Idiom I>
+    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
+    {
+        o << "#\n# " << e.arg1 << ".py\n# Created: " << e.arg2 << "\n#\n";
         return o;
     }
 
@@ -201,6 +213,12 @@ struct PythonBytes
         }
 
         return o;
+    }
+
+    template<Idiom I>
+    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
+    {
+        return PythonList::append(o, e);
     }
 
     template<Idiom I>

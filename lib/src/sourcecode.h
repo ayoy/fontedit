@@ -25,9 +25,12 @@ struct needs_byte_arg<I, std::enable_if_t<(I == Idiom::IdiomByte)>> : std::true_
 template<Idiom I, typename = void>
 struct needs_string_arg : std::false_type {};
 template<Idiom I>
-struct needs_string_arg<I, std::enable_if_t<(
-        I == Idiom::IdiomBegin || I == Idiom::IdiomBeginArray || I == Idiom::IdiomComment
-        )>> : std::true_type {};
+struct needs_string_arg<I, std::enable_if_t<(I == Idiom::IdiomBeginArray || I == Idiom::IdiomComment)>> : std::true_type {};
+
+template<Idiom I, typename = void>
+struct needs_two_string_args : std::false_type {};
+template<Idiom I>
+struct needs_two_string_args<I, std::enable_if_t<(I == Idiom::IdiomBegin)>> : std::true_type {};
 
 
 template<Idiom I, typename Enable = void>
@@ -36,7 +39,9 @@ struct Elem
 };
 
 template<Idiom I>
-struct Elem<I, typename std::enable_if_t<(!needs_byte_arg<I>::value && !needs_string_arg<I>::value)>>
+struct Elem<I, typename std::enable_if_t<(
+        !needs_byte_arg<I>::value && !needs_string_arg<I>::value && !needs_two_string_args<I>::value
+        )>>
 {
 };
 
@@ -56,16 +61,28 @@ struct Elem<I, typename std::enable_if_t<needs_string_arg<I>::value>>
     Elem(const std::string& arg) : arg { arg } {};
 };
 
+template<Idiom I>
+struct Elem<I, typename std::enable_if_t<needs_two_string_args<I>::value>>
+{
+    std::string arg1;
+    std::string arg2;
+
+    Elem(const std::string& arg1, const std::string& arg2) : arg1 { arg1 }, arg2 { arg2 } {};
+};
+
 namespace Element {
 
 template<Idiom I>
-using Bare = struct Elem<I, typename std::enable_if_t<(!needs_byte_arg<I>::value && !needs_string_arg<I>::value)>>;
+using Bare = struct Elem<I, typename std::enable_if_t<(!needs_byte_arg<I>::value && !needs_string_arg<I>::value && !needs_two_string_args<I>::value)>>;
 
 template<Idiom I>
 using Byte = struct Elem<I, typename std::enable_if_t<needs_byte_arg<I>::value>>;
 
 template<Idiom I>
 using String = struct Elem<I, typename std::enable_if_t<needs_string_arg<I>::value>>;
+
+template<Idiom I>
+using TwoStrings = struct Elem<I, typename std::enable_if_t<needs_two_string_args<I>::value>>;
 }
 
 }

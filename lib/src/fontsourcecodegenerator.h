@@ -107,7 +107,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
     using namespace SourceCode;
 
     std::ostringstream s;
-    T::append(s, Elem<Idiom::IdiomBegin> { current_timestamp() });
+    T::append(s, Elem<Idiom::IdiomBegin> { font_name, current_timestamp() });
     T::append(s, Elem<Idiom::IdiomBeginArray> { std::move(font_name) });
 
     std::bitset<byte_size> bits;
