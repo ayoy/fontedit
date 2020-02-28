@@ -12,6 +12,7 @@
 #include <QPalette>
 #include <QTextDocument>
 #include <QTextFrame>
+#include <QFileInfo>
 
 static constexpr std::string_view ascii_glyphs
         { " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" };
@@ -133,7 +134,7 @@ FontFaceViewModel::FontFaceViewModel(const QString& documentFilePath)
         throw std::runtime_error { "Unable to open file " + documentFilePath.toStdString() };
     }
 
-    f.open(QIODevice::ReadOnly);
+    assert(f.open(QIODevice::ReadOnly));
     QDataStream s(&f);
     s >> *this;
     f.close();
@@ -154,11 +155,15 @@ FontFaceViewModel::FontFaceViewModel(const QFont &font) :
 void FontFaceViewModel::saveToFile(const QString &documentPath)
 {
     QFile f(documentPath);
-    if (!f.exists() || !f.permissions().testFlag(QFileDevice::WriteUser)) {
+    QFile directory(QFileInfo(documentPath).path());
+
+    if (!directory.permissions().testFlag(QFileDevice::WriteUser) ||
+            (f.exists() && !f.permissions().testFlag(QFileDevice::WriteUser)))
+    {
         throw std::runtime_error { "Unable to write to file: " + documentPath.toStdString() };
     }
 
-    f.open(QIODevice::WriteOnly);
+    assert(f.open(QIODevice::WriteOnly));
     QDataStream s(&f);
     s << *this;
     f.close();
