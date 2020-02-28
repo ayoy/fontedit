@@ -1,9 +1,13 @@
 #include "sourcecoderunnable.h"
+#include <QElapsedTimer>
+#include <QDebug>
 
 void SourceCodeRunnable::run()
 {
     QString output;
 
+    QElapsedTimer timer;
+    timer.start();
     if (format_ == Format::Arduino::identifier) {
         output = QString::fromStdString(generator_.generate<Format::Arduino>(face_, fontArrayName_));
     } else if (format_ == Format::C::identifier) {
@@ -13,6 +17,7 @@ void SourceCodeRunnable::run()
     } else if (format_ == Format::PythonBytes::identifier) {
         output = QString::fromStdString(generator_.generate<Format::PythonBytes>(face_, fontArrayName_));
     }
+    qDebug() << QString("Generation finished in %1 ms").arg(QString::number(timer.elapsed()));
 
     setFinished(true);
     if (!isCanceled()) {
