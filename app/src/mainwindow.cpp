@@ -76,7 +76,8 @@ void MainWindow::connectUIInputs()
 void MainWindow::connectViewModelOutputs()
 {
     connect(viewModel_.get(), &MainWindowModel::documentTitleChanged, [&](const QString& title) {
-        ui_->tabWidget->setTabText(editTabIndex, title);
+//        ui_->tabWidget->setTabText(editTabIndex, title);
+        setWindowTitle(QString("FontEdit (%1)").arg(title));
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
     connect(viewModel_.get(), &MainWindowModel::faceLoaded, this, &MainWindow::displayFace);
@@ -118,7 +119,7 @@ void MainWindow::initUI()
     }
     ui_->formatComboBox->setCurrentText(viewModel_->outputFormat());
 
-    QFont f("Monaco", 13);
+    QFont f("Monaco", 12);
     f.setStyleHint(QFont::TypeWriter);
     ui_->sourceCodeTextBrowser->setFont(f);
 }

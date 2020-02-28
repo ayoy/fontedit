@@ -104,9 +104,9 @@ void MainWindowModel::updateDocumentTitle()
     QString name;
     if (documentPath_.has_value()) {
         QFileInfo fileInfo {documentPath_.value()};
-        name = fileInfo.baseName();
+        name = fileInfo.fileName();
     } else {
-        name = tr("New Font");
+        name = tr("New Document");
     }
 
     if (auto faceModel = fontFaceViewModel_.get()) {
