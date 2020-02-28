@@ -97,10 +97,12 @@ void MainWindow::connectViewModelOutputs()
 
 void MainWindow::initUI()
 {
+    // hide not implemented UI
     ui_->actionCopy_Glyph->setVisible(false);
     ui_->actionPaste_Glyph->setVisible(false);
     ui_->copyButton->setVisible(false);
     ui_->pasteButton->setVisible(false);
+    ui_->printButton->setVisible(false);
 
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
