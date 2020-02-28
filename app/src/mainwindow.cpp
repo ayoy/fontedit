@@ -445,11 +445,33 @@ void MainWindow::debounceFontNameChanged(const QString &fontName)
 
 void MainWindow::exportSourceCode()
 {
-    auto fileName = QFileDialog::getSaveFileName(this, tr("Save file"));
-
-    QFile output(fileName);
-    if (output.open(QFile::WriteOnly | QFile::Truncate)) {
-        output.write(ui_->sourceCodeTextBrowser->document()->toPlainText().toUtf8());
-        output.close();
+    QString directoryPath;
+    if (viewModel_->currentDocumentPath().has_value()) {
+        directoryPath = QFileInfo(viewModel_->currentDocumentPath().value()).path();
+    } else {
+        directoryPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).last();
     }
+
+    auto dialog = std::make_shared<QFileDialog>(this, tr("Save Source Code"), directoryPath);
+    dialog->setAcceptMode(QFileDialog::AcceptSave);
+    dialog->setFileMode(QFileDialog::AnyFile);
+
+    connect(dialog.get(), &QFileDialog::finished, [=](int) {
+        dialog->setParent(nullptr);
+        auto files = dialog->selectedFiles();
+        if (!files.isEmpty()) {
+            auto fileName = files.first();
+            if (!fileName.isNull()) {
+                QFile output(fileName);
+                if (output.open(QFile::WriteOnly | QFile::Truncate)) {
+                    output.write(ui_->sourceCodeTextBrowser->document()->toPlainText().toUtf8());
+                    output.close();
+                } else {
+                    displayError("Unable to write to file: " + fileName);
+                }
+            }
+        }
+    });
+
+    dialog->open();
 }
