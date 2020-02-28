@@ -8,8 +8,14 @@
 #include <sstream>
 #include <bitset>
 #include <algorithm>
+#include <variant>
 
 static constexpr auto byte_size = 8;
+
+struct Tab {};
+struct Space { std::size_t num_spaces; };
+
+using TabWidth = std::variant<Tab,Space>;
 
 struct SourceCodeOptions
 {
@@ -18,6 +24,7 @@ struct SourceCodeOptions
     BitNumbering bit_numbering { LSB };
     bool invert_bits { false };
     bool include_line_spacing { false };
+    TabWidth tab_width { Tab {} };
 };
 
 std::string current_timestamp();
