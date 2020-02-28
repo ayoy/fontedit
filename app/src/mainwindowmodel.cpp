@@ -29,6 +29,7 @@ MainWindowModel::MainWindowModel(QObject *parent) :
                 settings_.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
                 );
     sourceCodeOptions_.invert_bits = settings_.value(SettingsKey::invertBits, false).toBool();
+    sourceCodeOptions_.include_line_spacing = settings_.value(SettingsKey::includeLineSpacing, false).toBool();
 
     formats_.insert(QString::fromStdString(std::string(Format::C::identifier)), "C/C++");
     formats_.insert(QString::fromStdString(std::string(Format::Arduino::identifier)), "Arduino");
@@ -223,7 +224,7 @@ void MainWindowModel::setMSBEnabled(bool enabled)
 void MainWindowModel::setIncludeLineSpacing(bool enabled)
 {
     sourceCodeOptions_.include_line_spacing = enabled;
-    settings_.setValue(SettingsKey::invertBits, enabled);
+    settings_.setValue(SettingsKey::includeLineSpacing, enabled);
     reloadSourceCode();
 }
 
@@ -247,10 +248,9 @@ void MainWindowModel::updateDocumentPath(const std::optional<QString>& path)
 void MainWindowModel::reloadSourceCode()
 {
     /// WIP :)
-
     emit sourceCodeUpdating();
 
-    auto r = new SourceCodeRunnable { faceModel()->face(), sourceCodeOptions_, currentFormat_ };
+    auto r = new SourceCodeRunnable { faceModel()->face(), sourceCodeOptions_, currentFormat_, fontArrayName_ };
     r->setCompletionHandler([&](const QString& output) {
         emit runnableFinished(output);
     });

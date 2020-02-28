@@ -78,6 +78,13 @@ public:
     QString documentTitle() const { return documentTitle_; }
     void updateDocumentTitle();
 
+    void setFontArrayName(const QString& fontArrayName) {
+        if (fontArrayName_ != fontArrayName) {
+            fontArrayName_ = fontArrayName;
+            reloadSourceCode();
+        }
+    }
+
 public slots:
     void importFont(const QFont& font);
 
@@ -112,6 +119,7 @@ private:
     std::unique_ptr<FontFaceViewModel> fontFaceViewModel_;
     std::optional<QString> documentPath_;
     QString documentTitle_;
+    QString fontArrayName_;
     SourceCodeOptions sourceCodeOptions_;
 
     QMap<QString, QString> formats_; // identifier <-> human-readable

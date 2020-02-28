@@ -95,20 +95,20 @@ public:
     {}
 
     template<typename T>
-    std::string generate(const Font::Face &face);
+    std::string generate(const Font::Face &face, std::string font_name = "font");
 
 private:
     SourceCodeOptions options_;
 };
 
 template<typename T>
-std::string FontSourceCodeGenerator::generate(const Font::Face &face)
+std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::string font_name)
 {
     using namespace SourceCode;
 
     std::ostringstream s;
     T::append(s, Elem<Idiom::IdiomBegin> { current_timestamp() });
-    T::append(s, Elem<Idiom::IdiomBeginArray> { "font" });
+    T::append(s, Elem<Idiom::IdiomBeginArray> { std::move(font_name) });
 
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };

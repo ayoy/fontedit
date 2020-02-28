@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QUndoStack>
+#include <QTimer>
 
 #include "./ui_mainwindow.h"
 #include "mainwindowmodel.h"
@@ -44,10 +45,13 @@ private:
     void switchActiveGlyph(std::size_t newIndex);
     void updateResetActions();
     void updateFaceInfoLabel(const FaceInfo& faceInfo);
+    void updateDefaultFontName(const FaceInfo& faceInfo);
 
     void exportSourceCode();
     void closeCurrentDocument();
     void displayError(const QString& error);
+
+    void debounceFontNameChanged(const QString& fontName);
 
     enum SavePromptButton {
         Save,
@@ -65,6 +69,7 @@ private:
     std::unique_ptr<MainWindowModel> viewModel_ { std::make_unique<MainWindowModel>() };
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
     std::unique_ptr<QUndoStack> undoStack_ { std::make_unique<QUndoStack>() };
+    std::unique_ptr<QTimer> fontNameDebounceTimer_ {};
 };
 
 #endif // MAINWINDOW_H

@@ -22,7 +22,6 @@
 #include <QFile>
 #include <QTextStream>
 
-static constexpr auto editTabIndex = 0;
 static constexpr auto codeTabIndex = 1;
 static constexpr auto fileFilter = "FontEdit documents (*.fontedit)";
 
@@ -71,12 +70,15 @@ void MainWindow::connectUIInputs()
     });
     connect(ui_->formatComboBox, &QComboBox::currentTextChanged,
             viewModel_.get(), &MainWindowModel::setOutputFormat);
+    connect(ui_->fontArrayNameEdit, &QLineEdit::textChanged, [&](const QString& fontArrayName) {
+        auto fontName = fontArrayName.isEmpty() ? ui_->fontArrayNameEdit->placeholderText() : std::move(fontArrayName);
+        debounceFontNameChanged(fontName);
+    });
 }
 
 void MainWindow::connectViewModelOutputs()
 {
     connect(viewModel_.get(), &MainWindowModel::documentTitleChanged, [&](const QString& title) {
-//        ui_->tabWidget->setTabText(editTabIndex, title);
         setWindowTitle(QString("FontEdit (%1)").arg(title));
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
@@ -287,7 +289,10 @@ void MainWindow::displayFace(const Font::Face& face)
 
     auto margins = viewModel_->faceModel()->originalFaceMargins();
     faceWidget_->load(face, margins);
-    updateFaceInfoLabel(viewModel_->faceModel()->faceInfo());
+
+    auto faceInfo = viewModel_->faceModel()->faceInfo();
+    updateFaceInfoLabel(faceInfo);
+    updateDefaultFontName(faceInfo);
     ui_->faceInfoLabel->setVisible(true);
 
     if (viewModel_->faceModel()->activeGlyphIndex().has_value()) {
@@ -306,6 +311,14 @@ void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
     lines << tr("Size (adjusted): %1x%2px").arg(faceInfo.sizeWithoutMargins.width).arg(faceInfo.sizeWithoutMargins.height);
     lines << tr("%n Glyph(s)", "", faceInfo.numberOfGlyphs);
     ui_->faceInfoLabel->setText(lines.join("\n"));
+}
+
+void MainWindow::updateDefaultFontName(const FaceInfo &faceInfo)
+{
+    auto fontName = faceInfo.fontName.toLower();
+    fontName.remove(',');
+    fontName.replace(' ', '_');
+    ui_->fontArrayNameEdit->setText(fontName);
 }
 
 void MainWindow::displayGlyph(const Font::Glyph& glyph)
@@ -409,6 +422,25 @@ void MainWindow::updateResetActions()
         ui_->actionReset_Glyph->setEnabled(false);
     }
     ui_->actionReset_Font->setEnabled(viewModel_->faceModel()->isModified());
+}
+
+void MainWindow::debounceFontNameChanged(const QString &fontName)
+{
+    if (fontNameDebounceTimer_ == nullptr) {
+        fontNameDebounceTimer_ = std::make_unique<QTimer>();
+        fontNameDebounceTimer_->setInterval(300);
+        fontNameDebounceTimer_->setSingleShot(true);
+    } else {
+        fontNameDebounceTimer_->stop();
+        fontNameDebounceTimer_->disconnect();
+    }
+
+    connect(fontNameDebounceTimer_.get(), &QTimer::timeout, [&, fontName] {
+        viewModel_->setFontArrayName(fontName);
+    });
+
+    fontNameDebounceTimer_->start();
+
 }
 
 void MainWindow::exportSourceCode()
