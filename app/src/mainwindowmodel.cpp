@@ -152,9 +152,9 @@ void MainWindowModel::openDocument(const QString &fileName, bool failSilently)
         updateDocumentPath({});
         updateDocumentTitle();
 
-        if (failSilently) {
-            qCritical() << e.what();
-        } else {
+        qCritical() << e.what();
+
+        if (!failSilently) {
             emit documentError(QString::fromStdString(e.what()));
         }
     }
@@ -170,6 +170,7 @@ void MainWindowModel::saveDocument(const QString& fileName)
         updateDocumentPath(fileName);
         updateDocumentTitle();
     } catch (std::runtime_error& e) {
+        qCritical() << e.what();
         emit documentError(QString::fromStdString(e.what()));
     }
 }
@@ -197,7 +198,7 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
 
         emit activeGlyphChanged(fontFaceViewModel_->activeGlyph());
     } catch (const std::exception& e) {
-        std::cerr << "ERROR: " << e.what() << std::endl;
+        qCritical() << e.what();
     }
 }
 
