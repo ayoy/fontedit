@@ -3,6 +3,7 @@
 
 #include "fontdata.h"
 #include "sourcecode.h"
+#include "format.h"
 
 #include <string>
 #include <sstream>
@@ -114,8 +115,8 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
     using namespace SourceCode;
 
     std::ostringstream s;
-    T::append(s, Elem<Idiom::IdiomBegin> { font_name, current_timestamp() });
-    T::append(s, Elem<Idiom::IdiomBeginArray> { std::move(font_name) });
+    s << Idiom::Begin<T> { font_name, current_timestamp() };
+    s << Idiom::BeginArray<T> { std::move(font_name) };
 
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };
@@ -129,7 +130,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
             bits.flip();
         }
         auto byte = static_cast<uint8_t>(bits.to_ulong());
-        T::append(s, Elem<Idiom::IdiomByte> { byte });
+        s << Idiom::Byte<T> { std::move(byte) };
         bits.reset();
     };
 
@@ -142,7 +143,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
     }();
 
     for (const auto& glyph : face.glyphs()) {
-        T::append(s, Elem<Idiom::IdiomBeginArrayRow> {});
+        s << Idiom::BeginArrayRow<T> {};
 
         std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
                       [&](auto pixel) {
@@ -168,14 +169,14 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
             }
         });
 
-        T::append(s, Elem<Idiom::IdiomComment> { comment_for_glyph(glyph_id) });
-        T::append(s, Elem<Idiom::IdiomLineBreak> {});
+        s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
+        s << Idiom::LineBreak<T> {};
 
         ++glyph_id;
     }
 
-    T::append(s, Elem<Idiom::IdiomEndArray> {});
-    T::append(s, Elem<Idiom::IdiomEnd> {});
+    s << Idiom::EndArray<T> {};
+    s << Idiom::End<T> {};
 
     return s.str();
 }

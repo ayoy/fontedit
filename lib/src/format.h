@@ -12,227 +12,33 @@ namespace Format
 
 using namespace SourceCode;
 
+struct c_based {};
+struct python_based {};
+
 struct C
 {
+    using lang = c_based;
     static constexpr std::string_view identifier = "c";
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Bare<I>&)
-    {
-        switch (I) {
-        case Idiom::IdiomBeginArrayRow:
-            o << "\t";
-            break;
-        case Idiom::IdiomLineBreak:
-            o << "\n";
-            break;
-        case Idiom::IdiomEndArray:
-            o << "};\n";
-            break;
-        case Idiom::IdiomEnd:
-            o << "\n\n";
-            break;
-        default:
-            break;
-        }
-
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::String<I>& e)
-    {
-        switch (I) {
-        case Idiom::IdiomBeginArray:
-            o << "\n\nconst unsigned char " << e.arg << "[] = {\n";
-            break;
-        case Idiom::IdiomComment:
-            o << " // " << e.arg;
-            break;
-        default:
-            break;
-        }
-
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
-    {
-        o << "//\n// " << e.arg1 << ".c\n// Created: " << e.arg2 << "\n//\n";
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Byte<I>& e)
-    {
-        o << "0x"
-          << std::setw(2)
-          << std::setfill('0')
-          << std::uppercase
-          << std::hex
-          << static_cast<uint>(e.byte)
-          << ",";
-
-        return o;
-    }
 };
 
 struct Arduino
 {
+    using lang = c_based;
     static constexpr std::string_view identifier = "arduino";
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Byte<I>& e)
-    {
-        return C::append(o, e);
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Bare<I>& e)
-    {
-        return C::append(o, e);
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
-    {
-        C::append(o, e);
-        o << "\n#include <Arduino.h>\n";
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::String<I>& e)
-    {
-        switch (I) {
-        case Idiom::IdiomBeginArray:
-            o << "\n\nconst uint8_t " << e.arg << "[] PROGMEM = {\n";
-            break;
-        default:
-            C::append(o, e);
-            break;
-        }
-
-        return o;
-    }
 };
 
 
 struct PythonList
 {
+    using lang = python_based;
     static constexpr std::string_view identifier = "python-list";
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Bare<I>& e)
-    {
-        switch (I) {
-        case Idiom::IdiomEndArray:
-            o << "\n]\n";
-            break;
-        default:
-            C::append(o, e);
-            break;
-        }
-
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::String<I>& e)
-    {
-        switch (I) {
-        case Idiom::IdiomBeginArray:
-            o << "\n\n" << e.arg << " = [\n";
-            break;
-        case Idiom::IdiomComment:
-            o << " # " << e.arg;
-            break;
-        default:
-            break;
-        }
-
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
-    {
-        o << "#\n# " << e.arg1 << ".py\n# Created: " << e.arg2 << "\n#\n";
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Byte<I>& e)
-    {
-        return C::append(o, e);
-    }
 };
 
 
 struct PythonBytes
 {
+    using lang = python_based;
     static constexpr std::string_view identifier = "python-bytes";
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Bare<I>&)
-    {
-        switch (I) {
-        case Idiom::IdiomBeginArrayRow:
-            o << "\tb'";
-            break;
-        case Idiom::IdiomLineBreak:
-            o << "' \\\n";
-            break;
-        case Idiom::IdiomEndArray:
-            break;
-        case Idiom::IdiomEnd:
-            o << "\n\n";
-            break;
-        default:
-            break;
-        }
-
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::String<I>& e)
-    {
-        switch (I) {
-        case Idiom::IdiomBegin:
-            o << "#\n# Font Data\n# Created: " << e.arg << "\n#\n";
-            break;
-        case Idiom::IdiomBeginArray:
-            o << "\n\n" << e.arg << " = b'' \\\n";
-            break;
-        case Idiom::IdiomComment:
-            break;
-        default:
-            break;
-        }
-
-        return o;
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::TwoStrings<I>& e)
-    {
-        return PythonList::append(o, e);
-    }
-
-    template<Idiom I>
-    static std::ostream& append(std::ostream& o, const Element::Byte<I>& e)
-    {
-        o << "\\x"
-          << std::setw(2)
-          << std::setfill('0')
-          << std::uppercase
-          << std::hex
-          << static_cast<uint>(e.byte);
-
-        return o;
-    }
 };
 
 
@@ -244,5 +50,153 @@ constexpr auto available_formats = {
 };
 
 }
+
+
+template<typename T, typename = void>
+struct is_c_based : std::false_type {};
+template<typename T>
+struct is_c_based<T, std::enable_if_t<std::is_same<typename T::lang, Format::c_based>::value>> : std::true_type {};
+
+template<typename T, typename = void>
+struct is_python_based : std::false_type {};
+template<typename T>
+struct is_python_based<T, std::enable_if_t<std::is_same<typename T::lang, Format::python_based>::value>> : std::true_type {};
+
+static_assert (is_c_based<Format::C>::value, "***");
+static_assert (is_c_based<Format::Arduino>::value, "***");
+static_assert (!is_c_based<Format::PythonList>::value, "***");
+static_assert (!is_c_based<Format::PythonBytes>::value, "***");
+
+static_assert (!is_python_based<Format::C>::value, "***");
+static_assert (!is_python_based<Format::Arduino>::value, "***");
+static_assert (is_python_based<Format::PythonList>::value, "***");
+static_assert (is_python_based<Format::PythonBytes>::value, "***");
+
+
+// Begin
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Begin<T> b)
+{
+    if constexpr (is_c_based<T>::value) {
+        s << "//\n// " << b.font_name << ".c\n// Created: " << b.timestamp << "\n//\n";
+        if constexpr (std::is_same<T, Format::Arduino>::value) {
+            s << "\n#include <Arduino.h>\n";
+        }
+    } else if constexpr (is_python_based<T>::value) {
+        s << "#\n# " << b.font_name << ".py\n# Created: " << b.timestamp << "\n#\n";
+    }
+    return s;
+}
+
+
+// BeginArray
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T> b)
+{
+    if constexpr (std::is_same<T, Format::C>::value) {
+        s << "\n\nconst unsigned char " << b.array_name << "[] = {\n";
+    } else if constexpr (std::is_same<T, Format::Arduino>::value) {
+        s << "\n\nconst uint8_t " << b.array_name << "[] PROGMEM = {\n";
+    } else if constexpr (std::is_same<T, Format::PythonList>::value) {
+        s << "\n\n" << b.array_name << " = [\n";
+    } else if constexpr (std::is_same<T, Format::PythonBytes>::value) {
+        s << "\n\n" << b.array_name << " = b'' \\\n";
+    }
+    return s;
+}
+
+
+// BeginArrayRow
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArrayRow<T>)
+{
+    if constexpr (std::is_same<T, Format::PythonBytes>::value) {
+        s << "\tb'";
+    } else {
+        s << "\t";
+    }
+    return s;
+}
+
+
+// Byte
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Byte<T> b)
+{
+    if constexpr (std::is_same<T, Format::PythonBytes>::value) {
+        s << "\\x"
+          << std::setw(2)
+          << std::setfill('0')
+          << std::uppercase
+          << std::hex
+          << static_cast<uint>(b.byte);
+    } else {
+        s << "0x"
+          << std::setw(2)
+          << std::setfill('0')
+          << std::uppercase
+          << std::hex
+          << static_cast<uint>(b.byte)
+          << ",";
+    }
+    return s;
+}
+
+
+// Comment
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Comment<T> b)
+{
+    if constexpr (is_c_based<T>::value) {
+        s << " // " << b.comment;
+    } else if constexpr (std::is_same<T, Format::PythonList>::value) {
+        s << " # " << b.comment;
+    }
+    return s;
+}
+
+
+// LineBreak
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::LineBreak<T>)
+{
+    if constexpr (std::is_same<T, Format::PythonBytes>::value) {
+        s << "' \\\n";
+    } else {
+        s << "\n";
+    }
+    return s;
+}
+
+
+// EndArray
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::EndArray<T>)
+{
+    if constexpr (is_c_based<T>::value) {
+        s << "};\n";
+    } else if constexpr (std::is_same<T, Format::PythonList>::value) {
+        s << "]\n";
+    }
+    return s;
+}
+
+
+// End
+
+template<typename T>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::End<T>)
+{
+    s << "\n\n";
+    return s;
+}
+
 
 #endif // FORMAT_H
