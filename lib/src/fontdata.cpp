@@ -67,7 +67,7 @@ std::vector<Glyph> Face::read_glyphs(const FaceReader &data)
 
 Margins Face::calculate_margins() const noexcept
 {
-    Margins m;
+    Margins m {sz_.height, sz_.height};
 
     std::for_each(glyphs_.begin(), glyphs_.end(), [&](const Font::Glyph& g) {
         m.top = std::min(m.top, g.top_margin());

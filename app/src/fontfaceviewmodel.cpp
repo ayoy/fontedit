@@ -3,6 +3,7 @@
 #include "f2b_qt_compat.h"
 
 #include <stdexcept>
+#include <cassert>
 
 #include <QAbstractTextDocumentLayout>
 #include <QDebug>
