@@ -13,11 +13,7 @@
 #include <QMap>
 #include <QSettings>
 
-class MainWindowModel: public QObject
-{
-    Q_OBJECT
-
-public:
+struct UIState {
     enum InterfaceAction {
         ActionAddGlyph = 0,
         ActionSave,
@@ -26,6 +22,7 @@ public:
         ActionPaste,
         ActionPrint,
         ActionExport,
+        ActionTabEdit,
         ActionTabCode,
         ActionCount,
         ActionFirst = ActionAddGlyph
@@ -37,8 +34,24 @@ public:
         UserLoadedGlyph
     };
 
-    using UIState = std::bitset<ActionCount>;
-    using InputEvent = std::variant<InterfaceAction,UserAction>;
+    enum Tab {
+        TabEdit,
+        TabCode
+    };
+
+    std::bitset<ActionCount> actions;
+    UserAction lastUserAction;
+    Tab selectedTab;
+};
+
+
+class MainWindowModel: public QObject
+{
+    Q_OBJECT
+
+public:
+
+    using InputEvent = std::variant<UIState::InterfaceAction,UIState::UserAction>;
 
     explicit MainWindowModel(QObject *parent = nullptr);
     void restoreSession();
@@ -105,7 +118,6 @@ public slots:
     void closeCurrentDocument();
 
     void setActiveGlyphIndex(std::size_t index);
-    void prepareSourceCodeTab();
     void setInvertBits(bool enabled);
     void setMSBEnabled(bool enabled);
     void setIncludeLineSpacing(bool enabled);

@@ -28,7 +28,8 @@ static constexpr auto fileFilter = "FontEdit documents (*.fontedit)";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      ui_ { new Ui::MainWindow }
+      ui_ { new Ui::MainWindow },
+      statusLabel_ { new QLabel() }
 {
     ui_->setupUi(this);
 
@@ -39,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
     connectUIInputs();
     connectViewModelOutputs();
     viewModel_->restoreSession();
+
+    ui_->statusBar->addPermanentWidget(statusLabel_);
 }
 
 MainWindow::~MainWindow()
@@ -63,7 +66,9 @@ void MainWindow::connectUIInputs()
     connect(ui_->actionQuit, &QAction::triggered, this, &MainWindow::close);
     connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
         if (index == codeTabIndex) {
-            viewModel_->prepareSourceCodeTab();
+            viewModel_->registerInputEvent(UIState::InterfaceAction::ActionTabCode);
+        } else {
+            viewModel_->registerInputEvent(UIState::InterfaceAction::ActionTabEdit);
         }
     });
     connect(ui_->invertBitsCheckBox, &QCheckBox::stateChanged, [&](int state) {
@@ -112,6 +117,8 @@ void MainWindow::initUI()
     ui_->copyButton->setVisible(false);
     ui_->pasteButton->setVisible(false);
     ui_->printButton->setVisible(false);
+    ui_->actionPrint->setVisible(false);
+    ui_->actionNew->setVisible(false);
 
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
@@ -185,17 +192,37 @@ void MainWindow::setupActions()
     ui_->menuEdit->insertAction(ui_->actionCopy_Glyph, redo);
 }
 
-void MainWindow::updateUI(MainWindowModel::UIState uiState)
+void MainWindow::updateUI(UIState uiState)
 {
-    ui_->tabWidget->setTabEnabled(1, uiState[MainWindowModel::InterfaceAction::ActionTabCode]);
-    ui_->actionAdd_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionAddGlyph]);
-    ui_->actionSave->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
-    ui_->actionSave_As->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionSave]);
-    ui_->actionClose->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionClose]);
-    ui_->actionCopy_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionCopy]);
-    ui_->actionPaste_Glyph->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPaste]);
-    ui_->actionExport->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionExport]);
-    ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
+    ui_->tabWidget->setTabEnabled(1, uiState.actions[UIState::InterfaceAction::ActionTabCode]);
+    ui_->actionAdd_Glyph->setEnabled(uiState.actions[UIState::InterfaceAction::ActionAddGlyph]);
+    ui_->actionSave->setEnabled(uiState.actions[UIState::InterfaceAction::ActionSave]);
+    ui_->actionSave_As->setEnabled(uiState.actions[UIState::InterfaceAction::ActionSave]);
+    ui_->actionClose->setEnabled(uiState.actions[UIState::InterfaceAction::ActionClose]);
+    ui_->actionCopy_Glyph->setEnabled(uiState.actions[UIState::InterfaceAction::ActionCopy]);
+    ui_->actionPaste_Glyph->setEnabled(uiState.actions[UIState::InterfaceAction::ActionPaste]);
+    ui_->actionExport->setEnabled(uiState.actions[UIState::InterfaceAction::ActionExport]);
+    ui_->actionPrint->setEnabled(uiState.actions[UIState::InterfaceAction::ActionPrint]);
+
+    switch (uiState.lastUserAction) {
+    case UIState::UserIdle:
+        statusLabel_->setText(tr("Start by importing a system font or opening an existing document"));
+        break;
+    case UIState::UserLoadedFace:
+        statusLabel_->setText(tr("Select a glyph on the right to edit it"));
+        break;
+    case UIState::UserLoadedGlyph:
+        statusLabel_->setText(tr("Click and drag to paint, hold Alt or Ctrl to erase."));
+        break;
+    }
+
+
+    if (ui_->tabWidget->currentIndex() == codeTabIndex) {
+        statusLabel_->setVisible(false);
+    } else {
+        statusLabel_->setVisible(true);
+    }
+    ui_->statusBar->clearMessage();
 }
 
 QString MainWindow::defaultDialogDirectory() const
@@ -459,11 +486,12 @@ void MainWindow::debounceFontNameChanged(const QString &fontName)
     });
 
     fontNameDebounceTimer_->start();
-
 }
 
 void MainWindow::exportSourceCode()
 {
+    ui_->statusBar->clearMessage();
+
     QString directoryPath = viewModel_->lastSourceCodeDirectory();
     if (directoryPath.isNull()) {
         directoryPath = defaultDialogDirectory();
@@ -484,8 +512,9 @@ void MainWindow::exportSourceCode()
                     output.write(ui_->sourceCodeTextBrowser->document()->toPlainText().toUtf8());
                     output.close();
                     viewModel_->setLastSourceCodeDirectory(filePath);
+                    ui_->statusBar->showMessage(tr("Source code successfully exported."), 5000);
                 } else {
-                    displayError("Unable to write to file: " + filePath);
+                    displayError(tr("Unable to write to file: ") + filePath);
                 }
             }
         }

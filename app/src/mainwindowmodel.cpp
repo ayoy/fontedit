@@ -25,6 +25,18 @@ static const QString lastDocumentDirectory = "source_code_options/last_document_
 static const QString lastSourceCodeDirectory = "source_code_options/last_source_code_directory";
 }
 
+bool operator==(const UIState& lhs, const UIState& rhs)
+{
+    return lhs.actions == rhs.actions &&
+            lhs.lastUserAction == rhs.lastUserAction &&
+            lhs.selectedTab == rhs.selectedTab;
+}
+
+bool operator!=(const UIState& lhs, const UIState& rhs)
+{
+    return !(lhs == rhs);
+}
+
 MainWindowModel::MainWindowModel(QObject *parent) :
     QObject(parent)
 {
@@ -53,7 +65,6 @@ MainWindowModel::MainWindowModel(QObject *parent) :
             Qt::BlockingQueuedConnection);
 
     qDebug() << "output format:" << currentFormat_;
-    registerInputEvent(UserIdle);
 }
 
 void MainWindowModel::restoreSession()
@@ -69,39 +80,39 @@ void MainWindowModel::restoreSession()
 void MainWindowModel::registerInputEvent(InputEvent e)
 {
     auto state { uiState_ };
-    if (std::holds_alternative<InterfaceAction>(e)) {
-        auto action = std::get<InterfaceAction>(e);
+    if (std::holds_alternative<UIState::InterfaceAction>(e)) {
+        auto action = std::get<UIState::InterfaceAction>(e);
         switch (action) {
-        case ActionAddGlyph:
-        case ActionSave:
+        case UIState::ActionTabEdit:
+            state.selectedTab = UIState::TabEdit;
             break;
-        case ActionCopy:
-        case ActionPaste:
-        case ActionPrint:
-        case ActionExport:
-        case ActionTabCode:
+        case UIState::ActionTabCode:
+            state.selectedTab = UIState::TabCode;
+            break;
         default:
             break;
         }
-    } else if (std::holds_alternative<UserAction>(e)) {
-        auto action = std::get<UserAction>(e);
+    } else if (std::holds_alternative<UIState::UserAction>(e)) {
+        auto action = std::get<UIState::UserAction>(e);
+        state.lastUserAction = action;
         switch (action) {
-        case UserIdle:
-            state.reset();
+        case UIState::UserIdle:
+            state.actions.reset();
             break;
-        case UserLoadedFace:
-            state.reset();
-            state.set(ActionAddGlyph);
-            state.set(ActionSave);
-            state.set(ActionClose);
-            state.set(ActionPrint);
-            state.set(ActionExport);
-            state.set(ActionTabCode);
+        case UIState::UserLoadedFace:
+            state.actions.reset();
+            state.actions.set(UIState::ActionAddGlyph);
+            state.actions.set(UIState::ActionSave);
+            state.actions.set(UIState::ActionClose);
+            state.actions.set(UIState::ActionPrint);
+            state.actions.set(UIState::ActionExport);
+            state.actions.set(UIState::ActionTabCode);
             break;
-        case UserLoadedGlyph:
-            state.set(ActionCopy);
+        case UIState::UserLoadedGlyph:
+            state.actions.set(UIState::ActionCopy);
             break;
         }
+        state.actions.set(UIState::ActionTabEdit);
     }
 
     if (state != uiState_) {
@@ -135,7 +146,7 @@ void MainWindowModel::updateDocumentTitle()
 void MainWindowModel::importFont(const QFont &font)
 {
     fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
-    registerInputEvent(UserLoadedFace);
+    registerInputEvent(UIState::UserLoadedFace);
     setDocumentPath({});
     emit faceLoaded(fontFaceViewModel_->face());
     updateDocumentTitle();
@@ -153,7 +164,7 @@ void MainWindowModel::openDocument(const QString &fileName, bool failSilently)
 
         qDebug() << "face loaded from" << fileName;
 
-        registerInputEvent(UserLoadedFace);
+        registerInputEvent(UIState::UserLoadedFace);
         setDocumentPath(fileName);
         updateDocumentTitle();
         emit faceLoaded(fontFaceViewModel_->face());
@@ -190,7 +201,7 @@ void MainWindowModel::closeCurrentDocument()
     fontFaceViewModel_.release();
     setDocumentPath({});
     updateDocumentTitle();
-    registerInputEvent(UserIdle);
+    registerInputEvent(UIState::UserIdle);
     emit documentClosed();
 }
 
@@ -204,17 +215,12 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
 
     try {
         fontFaceViewModel_->setActiveGlyphIndex(index);
-        registerInputEvent(UserLoadedGlyph);
+        registerInputEvent(UIState::UserLoadedGlyph);
 
         emit activeGlyphChanged(fontFaceViewModel_->activeGlyph());
     } catch (const std::exception& e) {
         qCritical() << e.what();
     }
-}
-
-void MainWindowModel::prepareSourceCodeTab()
-{
-    reloadSourceCode();
 }
 
 void MainWindowModel::setInvertBits(bool enabled)

@@ -17,6 +17,8 @@ namespace Ui {
 class MainWindow;
 }
 
+class QLabel;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -43,7 +45,7 @@ private:
     void resetCurrentGlyph();
     void resetFont();
     void displayGlyph(const Font::Glyph& glyph);
-    void updateUI(MainWindowModel::UIState uiState);
+    void updateUI(UIState uiState);
     void editGlyph(const BatchPixelChange& change);
     void switchActiveGlyph(std::size_t newIndex);
     void updateResetActions();
@@ -70,6 +72,7 @@ private:
 
     std::unique_ptr<GlyphWidget> glyphWidget_ {};
     FaceWidget *faceWidget_ { nullptr };
+    QLabel *statusLabel_;
     std::unique_ptr<MainWindowModel> viewModel_ { std::make_unique<MainWindowModel>() };
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
     std::unique_ptr<QUndoStack> undoStack_ { std::make_unique<QUndoStack>() };
