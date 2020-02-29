@@ -1,5 +1,6 @@
 #include "mainwindowmodel.h"
 #include "sourcecoderunnable.h"
+#include "f2b_qt_compat.h"
 #include <f2b.h>
 
 #include <QDebug>
@@ -13,11 +14,13 @@
 
 Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
 
+
 namespace SettingsKey {
 static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
 static const QString includeLineSpacing = "source_code_options/include_line_spacing";
 static const QString format = "source_code_options/format";
+static const QString indentation = "source_code_options/indentation";
 static const QString documentPath = "source_code_options/document_path";
 }
 
@@ -30,6 +33,7 @@ MainWindowModel::MainWindowModel(QObject *parent) :
                 );
     sourceCodeOptions_.invert_bits = settings_.value(SettingsKey::invertBits, false).toBool();
     sourceCodeOptions_.include_line_spacing = settings_.value(SettingsKey::includeLineSpacing, false).toBool();
+    sourceCodeOptions_.indentation = from_qvariant(settings_.value(SettingsKey::indentation, to_qvariant(SourceCode::Tab {})));
 
     formats_.insert(QString::fromStdString(std::string(Format::C::identifier)), "C/C++");
     formats_.insert(QString::fromStdString(std::string(Format::Arduino::identifier)), "Arduino");
@@ -37,6 +41,11 @@ MainWindowModel::MainWindowModel(QObject *parent) :
     formats_.insert(QString::fromStdString(std::string(Format::PythonBytes::identifier)), "Python Bytes");
 
     currentFormat_ = settings_.value(SettingsKey::format, formats_.firstKey()).toString();
+
+    indentationStyles_.push_back({ SourceCode::Tab {}, tr("Tab") });
+    for (std::size_t i = 1; i <= 8; ++i) {
+        indentationStyles_.push_back({ SourceCode::Space {i}, tr("%n Space(s)", "", i) });
+    }
 
     connect(this, &MainWindowModel::runnableFinished,
             this, &MainWindowModel::sourceCodeChanged,
@@ -234,6 +243,29 @@ void MainWindowModel::setOutputFormat(const QString& format)
     currentFormat_ = formats_.key(format, formats_.first());
     settings_.setValue(SettingsKey::format, currentFormat_);
     reloadSourceCode();
+}
+
+void MainWindowModel::setIndentation(const QString &indentationLabel)
+{
+    auto i = std::find_if(indentationStyles_.cbegin(), indentationStyles_.cend(), [&](const auto& pair) -> bool {
+        return pair.second == indentationLabel;
+    });
+    if (i != indentationStyles_.end()) {
+        sourceCodeOptions_.indentation = i->first;
+        settings_.setValue(SettingsKey::indentation, to_qvariant(i->first));
+        reloadSourceCode();
+    }
+}
+
+QString MainWindowModel::indentationStyleCaption() const
+{
+    auto i = std::find_if(indentationStyles_.cbegin(), indentationStyles_.cend(), [&](const auto& pair) -> bool {
+        return pair.first == sourceCodeOptions_.indentation;
+    });
+    if (i != indentationStyles_.end()) {
+        return i->second;
+    }
+    return indentationStyles_.front().second;
 }
 
 void MainWindowModel::updateDocumentPath(const std::optional<QString>& path)

@@ -237,4 +237,8 @@ QDataStream& operator>>(QDataStream& s, Font::Glyph& glyph);
 QDataStream& operator<<(QDataStream& s, const Font::Face& face);
 QDataStream& operator>>(QDataStream& s, Font::Face& face);
 
+
+QVariant to_qvariant(const SourceCode::Indentation& i);
+SourceCode::Indentation from_qvariant(const QVariant& v);
+
 #endif // F2B_QT_COMPAT_H

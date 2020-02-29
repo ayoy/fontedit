@@ -77,6 +77,8 @@ void MainWindow::connectUIInputs()
     });
     connect(ui_->formatComboBox, &QComboBox::currentTextChanged,
             viewModel_.get(), &MainWindowModel::setOutputFormat);
+    connect(ui_->indentationComboBox, &QComboBox::currentTextChanged,
+            viewModel_.get(), &MainWindowModel::setIndentation);
     connect(ui_->fontArrayNameEdit, &QLineEdit::textChanged, [&](const QString& fontArrayName) {
         auto fontName = fontArrayName.isEmpty() ? ui_->fontArrayNameEdit->placeholderText() : std::move(fontArrayName);
         debounceFontNameChanged(fontName);
@@ -125,10 +127,15 @@ void MainWindow::initUI()
     ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
     ui_->lineSpacingCheckBox->setCheckState(viewModel_->includeLineSpacing());
 
-    for (const auto &[identifier, name] : viewModel_->outputFormats().toStdMap()) {
+    for (const auto& [identifier, name] : viewModel_->outputFormats().toStdMap()) {
         ui_->formatComboBox->addItem(name, identifier);
     }
+    for (const auto& [indent, name] : viewModel_->indentationStyles()) {
+        ui_->indentationComboBox->addItem(name);
+    }
+
     ui_->formatComboBox->setCurrentText(viewModel_->outputFormat());
+    ui_->indentationComboBox->setCurrentText(viewModel_->indentationStyleCaption());
 
     QFont f("Monaco", 12);
     f.setStyleHint(QFont::TypeWriter);

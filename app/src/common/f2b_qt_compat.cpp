@@ -69,3 +69,25 @@ QDataStream& operator>>(QDataStream& s, Font::Face& face)
 
     return s;
 }
+
+QVariant to_qvariant(const SourceCode::Indentation& i) {
+    if (std::holds_alternative<SourceCode::Tab>(i)) {
+        return QVariant(-1);
+    } else if (std::holds_alternative<SourceCode::Space>(i)) {
+        return QVariant((uint)std::get<SourceCode::Space>(i).num_spaces);
+    }
+    return QVariant();
+}
+
+SourceCode::Indentation from_qvariant(const QVariant& v) {
+    bool ok;
+    auto intValue = v.toInt(&ok);
+    if (ok && intValue == -1) {
+        return SourceCode::Tab {};
+    }
+    auto uintValue = v.toUInt(&ok);
+    if (ok) {
+        return SourceCode::Space { uintValue };
+    }
+    return SourceCode::Tab {};
+}

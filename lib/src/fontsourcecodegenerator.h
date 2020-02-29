@@ -19,7 +19,7 @@ struct SourceCodeOptions
     BitNumbering bit_numbering { LSB };
     bool invert_bits { false };
     bool include_line_spacing { false };
-    SourceCode::TabWidth tab_width { SourceCode::Tab {} };
+    SourceCode::Indentation indentation { SourceCode::Tab {} };
 };
 
 std::string current_timestamp();
@@ -137,7 +137,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
     }();
 
     for (const auto& glyph : face.glyphs()) {
-        s << Idiom::BeginArrayRow<T> { options_.tab_width };
+        s << Idiom::BeginArrayRow<T> { options_.indentation };
 
         std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
                       [&](auto pixel) {

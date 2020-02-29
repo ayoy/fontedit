@@ -8,6 +8,7 @@
 #include <optional>
 #include <bitset>
 #include <variant>
+#include <vector>
 
 #include <QMap>
 #include <QSettings>
@@ -69,6 +70,12 @@ public:
         return formats_.value(currentFormat_, formats_.first());
     }
 
+    const std::vector<std::pair<SourceCode::Indentation, QString>>& indentationStyles() const {
+        return indentationStyles_;
+    }
+
+    QString indentationStyleCaption() const;
+
     void registerInputEvent(InputEvent e);
 
     const std::optional<QString>& currentDocumentPath() const {
@@ -98,6 +105,7 @@ public slots:
     void setMSBEnabled(bool enabled);
     void setIncludeLineSpacing(bool enabled);
     void setOutputFormat(const QString &format); // human-readable
+    void setIndentation(const QString &indentationLabel); // human-readable
 
 signals:
     void uiStateChanged(UIState state) const;
@@ -124,6 +132,7 @@ private:
 
     QMap<QString, QString> formats_; // identifier <-> human-readable
     QString currentFormat_; // identifier
+    std::vector<std::pair<SourceCode::Indentation, QString>> indentationStyles_;
     QSettings settings_;
 };
 
