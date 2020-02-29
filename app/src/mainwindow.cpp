@@ -52,13 +52,13 @@ MainWindow::~MainWindow()
 void MainWindow::connectUIInputs()
 {
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
-    connect(ui_->actionOpen, &QAction::triggered, this, &MainWindow::showOpenFaceDialog);
+    connect(ui_->actionOpen, &QAction::triggered, this, &MainWindow::showOpenDocumentDialog);
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
     connect(ui_->actionSave, &QAction::triggered, this, &MainWindow::save);
     connect(ui_->actionSave_As, &QAction::triggered, this, &MainWindow::saveAs);
-    connect(ui_->actionClose, &QAction::triggered, viewModel_.get(), &MainWindowModel::closeCurrentDocument);
+    connect(ui_->actionClose, &QAction::triggered, this, &MainWindow::showCloseDocumentDialogIfNeeded);
 
     connect(ui_->actionExport, &QAction::triggered, this, &MainWindow::exportSourceCode);
     connect(ui_->exportButton, &QPushButton::clicked, this, &MainWindow::exportSourceCode);
@@ -112,8 +112,10 @@ void MainWindow::connectViewModelOutputs()
 void MainWindow::initUI()
 {
     // hide not implemented UI
+    ui_->actionAdd_Glyph->setVisible(false);
     ui_->actionCopy_Glyph->setVisible(false);
     ui_->actionPaste_Glyph->setVisible(false);
+    ui_->addGlyphButton->setVisible(false);
     ui_->copyButton->setVisible(false);
     ui_->pasteButton->setVisible(false);
     ui_->printButton->setVisible(false);
@@ -163,6 +165,9 @@ void MainWindow::closeCurrentDocument()
         ui_->glyphGraphicsView->scene()->removeItem(g);
         glyphWidget_.release();
     }
+
+    undoStack_->clear();
+    updateResetActions();
 }
 
 void MainWindow::setupActions()
@@ -216,7 +221,6 @@ void MainWindow::updateUI(UIState uiState)
         break;
     }
 
-
     if (ui_->tabWidget->currentIndex() == codeTabIndex) {
         statusLabel_->setVisible(false);
     } else {
@@ -256,7 +260,7 @@ void MainWindow::showFontDialog()
     }
 }
 
-void MainWindow::showOpenFaceDialog()
+void MainWindow::showOpenDocumentDialog()
 {
     switch (promptToSaveDirtyDocument()) {
     case Save:
@@ -271,6 +275,20 @@ void MainWindow::showOpenFaceDialog()
 
     if (!fileName.isNull())
         viewModel_->openDocument(fileName);
+}
+
+void MainWindow::showCloseDocumentDialogIfNeeded()
+{
+    switch (promptToSaveDirtyDocument()) {
+    case Save:
+        save();
+    case DontSave:
+        break;
+    case Cancel:
+        return;
+    }
+
+    viewModel_->closeCurrentDocument();
 }
 
 void MainWindow::save()
@@ -461,13 +479,18 @@ void MainWindow::resetFont()
 
 void MainWindow::updateResetActions()
 {
-    auto currentIndex = viewModel_->faceModel()->activeGlyphIndex();
-    if (currentIndex.has_value()) {
-        ui_->actionReset_Glyph->setEnabled(viewModel_->faceModel()->isGlyphModified(currentIndex.value()));
-    } else {
+    if (viewModel_->faceModel() == nullptr) {
         ui_->actionReset_Glyph->setEnabled(false);
+        ui_->actionReset_Font->setEnabled(false);
+    } else {
+        auto currentIndex = viewModel_->faceModel()->activeGlyphIndex();
+        if (currentIndex.has_value()) {
+            ui_->actionReset_Glyph->setEnabled(viewModel_->faceModel()->isGlyphModified(currentIndex.value()));
+        } else {
+            ui_->actionReset_Glyph->setEnabled(false);
+        }
+        ui_->actionReset_Font->setEnabled(viewModel_->faceModel()->isModified());
     }
-    ui_->actionReset_Font->setEnabled(viewModel_->faceModel()->isModified());
 }
 
 void MainWindow::debounceFontNameChanged(const QString &fontName)

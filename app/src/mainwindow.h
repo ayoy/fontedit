@@ -39,7 +39,8 @@ private:
     void setupActions();
 
     void showFontDialog();
-    void showOpenFaceDialog();
+    void showOpenDocumentDialog();
+    void showCloseDocumentDialogIfNeeded();
     void save();
     void saveAs();
     void resetCurrentGlyph();
