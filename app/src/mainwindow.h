@@ -6,7 +6,6 @@
 #include <QUndoStack>
 #include <QTimer>
 
-#include "./ui_mainwindow.h"
 #include "mainwindowmodel.h"
 #include "facewidget.h"
 #include "glyphwidget.h"
@@ -14,13 +13,17 @@
 
 #include <memory>
 
+namespace Ui {
+class MainWindow;
+}
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-
+    virtual ~MainWindow();
 protected:
     virtual void closeEvent(QCloseEvent *event) override;
 
@@ -61,8 +64,7 @@ private:
 
     SavePromptButton promptToSaveDirtyDocument();
 
-
-    std::unique_ptr<Ui::MainWindow> ui_ { std::make_unique<Ui::MainWindow>() };
+    Ui::MainWindow *ui_;
 
     std::unique_ptr<GlyphWidget> glyphWidget_ {};
     FaceWidget *faceWidget_ { nullptr };

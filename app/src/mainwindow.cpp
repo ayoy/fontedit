@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "./ui_mainwindow.h"
 #include "f2b.h"
 #include "facewidget.h"
 #include "fontfaceviewmodel.h"
@@ -26,7 +27,8 @@ static constexpr auto codeTabIndex = 1;
 static constexpr auto fileFilter = "FontEdit documents (*.fontedit)";
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+      ui_ { new Ui::MainWindow }
 {
     ui_->setupUi(this);
 
@@ -37,6 +39,11 @@ MainWindow::MainWindow(QWidget *parent)
     connectUIInputs();
     connectViewModelOutputs();
     viewModel_->restoreSession();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui_;
 }
 
 void MainWindow::connectUIInputs()
