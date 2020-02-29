@@ -21,7 +21,12 @@ TEST(SourceCodeGeneratorTest, Generator)
     auto faceFileName = asset("monaco8.fontedit");
     auto faceVM = std::make_unique<FontFaceViewModel>(faceFileName);
 
+    Font::Size expectedSize {5,11};
+    Font::Margins expectedMargins {1, 2};
+
     ASSERT_EQ(faceVM->face().num_glyphs(), 95);
+    ASSERT_EQ(faceVM->face().glyph_size(), expectedSize);
+    ASSERT_EQ(faceVM->face().calculate_margins(), expectedMargins);
 
     FontSourceCodeGenerator g(SourceCodeOptions{});
 
