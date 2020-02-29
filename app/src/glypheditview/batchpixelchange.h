@@ -1,7 +1,6 @@
 #ifndef GLYPHEDITCOMMAND_H
 #define GLYPHEDITCOMMAND_H
 
-#include <QUndoCommand>
 #include <unordered_map>
 #include <memory>
 #include <functional>
@@ -36,25 +35,5 @@ struct BatchPixelChange {
     }
 };
 
-
-class GlyphEditCommand : public QUndoCommand
-{
-public:
-    GlyphEditCommand(std::function<void()> undo,
-                     std::function<void()> redo,
-                     QUndoCommand *parent = nullptr);
-
-    void undo() override {
-        undo_();
-    }
-
-    void redo() override {
-        redo_();
-    }
-
-private:
-    std::function<void()> undo_;
-    std::function<void()> redo_;
-};
 
 #endif // GLYPHEDITCOMMAND_H

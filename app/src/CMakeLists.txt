@@ -22,19 +22,14 @@ add_subdirectory(common)
 add_subdirectory(glypheditview)
 add_subdirectory(facepreview)
 
-
 set(TS_FILES l10n/fontedit_en.ts)
 qt5_add_translation(QM_FILES ${TS_FILES})
 
 set(SRC_FILES
-    ${QM_FILES}
-    l10n/fontedit_en.ts
-    assets.qrc
     command.h
     fontfaceviewmodel.cpp
     fontfaceviewmodel.h
     global.h
-    main.cpp
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
@@ -44,14 +39,28 @@ set(SRC_FILES
     sourcecoderunnable.h
     )
 
+add_library(appbundle ${SRC_FILES})
+target_include_directories(appbundle PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} common glypheditview facepreview)
+target_link_libraries(appbundle PUBLIC Qt5::Widgets Qt5::Core common glypheditview facepreview font2bytes GSL)
+
 if (APPLE)
     message(STATUS "Building MacOS X Bundle")
-    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SRC_FILES})
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE
+        main.cpp
+        ${QM_FILES}
+        l10n/fontedit_en.ts
+        assets.qrc
+        )
     set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/macos/Info.plist)
 else()
-    add_executable(${PROJECT_NAME} ${SRC_FILES})
+    add_executable(${PROJECT_NAME}
+        main.cpp
+        ${QM_FILES}
+        l10n/fontedit_en.ts
+        assets.qrc
+        )
 endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE common glypheditview facepreview)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Core common glypheditview facepreview font2bytes GSL)
+target_include_directories(${PROJECT_NAME} PRIVATE appbundle)
+target_link_libraries(${PROJECT_NAME} PRIVATE appbundle)
