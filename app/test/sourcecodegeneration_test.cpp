@@ -2,6 +2,11 @@
 #include "fontsourcecodegenerator.h"
 #include "fontfaceviewmodel.h"
 
+#include <chrono>
+#include <iostream>
+#include <vector>
+#include <numeric>
+
 #include <QString>
 #include <QFile>
 
@@ -24,11 +29,12 @@ TEST(SourceCodeGeneratorTest, Generator)
     Font::Size expectedSize {5,11};
     Font::Margins expectedMargins {1, 2};
 
-    ASSERT_EQ(faceVM->face().num_glyphs(), 95);
-    ASSERT_EQ(faceVM->face().glyph_size(), expectedSize);
-    ASSERT_EQ(faceVM->face().calculate_margins(), expectedMargins);
+    EXPECT_EQ(faceVM->face().num_glyphs(), 95);
+    EXPECT_EQ(faceVM->face().glyph_size(), expectedSize);
+    EXPECT_EQ(faceVM->face().calculate_margins(), expectedMargins);
 
     FontSourceCodeGenerator g(SourceCodeOptions{});
+
 
     auto sourceCode = g.generate<Format::C>(faceVM->face());
 
@@ -46,9 +52,18 @@ TEST(SourceCodeGeneratorTest, GeneratorPerformance)
     auto faceFileName = asset("jetbrains260.fontedit");
     auto faceVM = std::make_unique<FontFaceViewModel>(faceFileName);
 
-    ASSERT_EQ(faceVM->face().num_glyphs(), 95);
-
     FontSourceCodeGenerator g(SourceCodeOptions{});
 
-    g.generate<Format::C>(faceVM->face());
+    std::vector<std::chrono::high_resolution_clock::rep> durations;
+    for (int i = 0; i < 5; ++i) {
+        auto start = std::chrono::high_resolution_clock::now();
+        g.generate<Format::C>(faceVM->face());
+        auto end = std::chrono::high_resolution_clock::now();
+        durations.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count());
+    }
+    for (auto& d : durations) {
+        std::cout << d << " ";
+    }
+    std::cout << "(mean: " << std::accumulate(durations.begin(), durations.end(), 0) / durations.size() << ")";
+    std::cout << std::endl;
 }
