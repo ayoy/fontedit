@@ -2,9 +2,16 @@
 #define SOURCECODE_H
 
 #include <string>
+#include <iostream>
+#include <variant>
 
 namespace SourceCode
 {
+
+struct Tab {};
+struct Space { std::size_t num_spaces; };
+
+using TabWidth = std::variant<Tab,Space>;
 
 namespace Idiom {
 
@@ -20,7 +27,9 @@ struct BeginArray {
 };
 
 template<typename T>
-struct BeginArrayRow {};
+struct BeginArrayRow {
+    TabWidth tab;
+};
 
 template<typename T>
 struct Byte {
@@ -43,6 +52,16 @@ struct End {};
 
 };
 
+}
+
+
+inline std::ostream& operator<<(std::ostream& o, const SourceCode::TabWidth& t) {
+    if (std::holds_alternative<SourceCode::Space>(t)) {
+        o << std::string(std::get<SourceCode::Space>(t).num_spaces, ' ');
+    } else {
+        o << "\t";
+    }
+    return o;
 }
 
 #endif // SOURCECODE_H

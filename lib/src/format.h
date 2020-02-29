@@ -111,12 +111,12 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T
 // BeginArrayRow
 
 template<typename T>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArrayRow<T>)
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArrayRow<T> b)
 {
     if constexpr (std::is_same<T, Format::PythonBytes>::value) {
-        s << "\tb'";
+        s << b.tab << "b'";
     } else {
-        s << "\t";
+        s << b.tab;
     }
     return s;
 }

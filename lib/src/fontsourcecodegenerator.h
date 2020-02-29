@@ -9,14 +9,8 @@
 #include <sstream>
 #include <bitset>
 #include <algorithm>
-#include <variant>
 
 static constexpr auto byte_size = 8;
-
-struct Tab {};
-struct Space { std::size_t num_spaces; };
-
-using TabWidth = std::variant<Tab,Space>;
 
 struct SourceCodeOptions
 {
@@ -25,7 +19,7 @@ struct SourceCodeOptions
     BitNumbering bit_numbering { LSB };
     bool invert_bits { false };
     bool include_line_spacing { false };
-    TabWidth tab_width { Tab {} };
+    SourceCode::TabWidth tab_width { SourceCode::Tab {} };
 };
 
 std::string current_timestamp();
@@ -143,7 +137,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
     }();
 
     for (const auto& glyph : face.glyphs()) {
-        s << Idiom::BeginArrayRow<T> {};
+        s << Idiom::BeginArrayRow<T> { options_.tab_width };
 
         std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
                       [&](auto pixel) {
