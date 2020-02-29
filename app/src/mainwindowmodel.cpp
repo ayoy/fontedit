@@ -14,7 +14,6 @@
 
 Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
 
-
 namespace SettingsKey {
 static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
@@ -22,6 +21,8 @@ static const QString includeLineSpacing = "source_code_options/include_line_spac
 static const QString format = "source_code_options/format";
 static const QString indentation = "source_code_options/indentation";
 static const QString documentPath = "source_code_options/document_path";
+static const QString lastDocumentDirectory = "source_code_options/last_document_directory";
+static const QString lastSourceCodeDirectory = "source_code_options/last_source_code_directory";
 }
 
 MainWindowModel::MainWindowModel(QObject *parent) :
@@ -135,7 +136,7 @@ void MainWindowModel::importFont(const QFont &font)
 {
     fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
     registerInputEvent(UserLoadedFace);
-    updateDocumentPath({});
+    setDocumentPath({});
     emit faceLoaded(fontFaceViewModel_->face());
     updateDocumentTitle();
 }
@@ -153,12 +154,12 @@ void MainWindowModel::openDocument(const QString &fileName, bool failSilently)
         qDebug() << "face loaded from" << fileName;
 
         registerInputEvent(UserLoadedFace);
-        updateDocumentPath(fileName);
+        setDocumentPath(fileName);
         updateDocumentTitle();
         emit faceLoaded(fontFaceViewModel_->face());
 
     } catch (std::runtime_error& e) {
-        updateDocumentPath({});
+        setDocumentPath({});
         updateDocumentTitle();
 
         qCritical() << e.what();
@@ -176,7 +177,7 @@ void MainWindowModel::saveDocument(const QString& fileName)
 
         qDebug() << "face saved to" << fileName;
 
-        updateDocumentPath(fileName);
+        setDocumentPath(fileName);
         updateDocumentTitle();
     } catch (std::runtime_error& e) {
         qCritical() << e.what();
@@ -187,7 +188,7 @@ void MainWindowModel::saveDocument(const QString& fileName)
 void MainWindowModel::closeCurrentDocument()
 {
     fontFaceViewModel_.release();
-    updateDocumentPath({});
+    setDocumentPath({});
     updateDocumentTitle();
     registerInputEvent(UserIdle);
     emit documentClosed();
@@ -268,14 +269,35 @@ QString MainWindowModel::indentationStyleCaption() const
     return indentationStyles_.front().second;
 }
 
-void MainWindowModel::updateDocumentPath(const std::optional<QString>& path)
+void MainWindowModel::setDocumentPath(const std::optional<QString>& path)
 {
     documentPath_ = path;
     if (path.has_value()) {
         settings_.setValue(SettingsKey::documentPath, path.value());
+        setLastVisitedDirectory(path.value());
     } else {
         settings_.remove(SettingsKey::documentPath);
     }
+}
+
+QString MainWindowModel::lastVisitedDirectory() const
+{
+    return settings_.value(SettingsKey::lastDocumentDirectory).toString();
+}
+
+void MainWindowModel::setLastVisitedDirectory(const QString& path)
+{
+    settings_.setValue(SettingsKey::lastDocumentDirectory, QFileInfo(path).path());
+}
+
+QString MainWindowModel::lastSourceCodeDirectory() const
+{
+    return settings_.value(SettingsKey::lastSourceCodeDirectory).toString();
+}
+
+void MainWindowModel::setLastSourceCodeDirectory(const QString& path)
+{
+    settings_.setValue(SettingsKey::lastSourceCodeDirectory, QFileInfo(path).path());
 }
 
 void MainWindowModel::reloadSourceCode()

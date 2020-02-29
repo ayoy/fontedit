@@ -92,6 +92,11 @@ public:
         }
     }
 
+    QString lastVisitedDirectory() const;
+
+    QString lastSourceCodeDirectory() const;
+    void setLastSourceCodeDirectory(const QString& path);
+
 public slots:
     void importFont(const QFont& font);
 
@@ -120,7 +125,8 @@ signals:
 
 private:
     void reloadSourceCode();
-    void updateDocumentPath(const std::optional<QString>& path);
+    void setDocumentPath(const std::optional<QString>& path);
+    void setLastVisitedDirectory(const QString& path);
     void openDocument(const QString& fileName, bool failSilently);
 
     UIState uiState_ {};

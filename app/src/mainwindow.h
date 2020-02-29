@@ -56,6 +56,8 @@ private:
 
     void debounceFontNameChanged(const QString& fontName);
 
+    QString defaultDialogDirectory() const;
+
     enum SavePromptButton {
         Save,
         DontSave,

@@ -198,6 +198,15 @@ void MainWindow::updateUI(MainWindowModel::UIState uiState)
     ui_->actionPrint->setEnabled(uiState[MainWindowModel::InterfaceAction::ActionPrint]);
 }
 
+QString MainWindow::defaultDialogDirectory() const
+{
+    QString directoryPath = viewModel_->lastVisitedDirectory();
+    if (directoryPath.isNull()) {
+        directoryPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).last();
+    }
+    return directoryPath;
+}
+
 void MainWindow::showFontDialog()
 {
     switch (promptToSaveDirtyDocument()) {
@@ -231,7 +240,7 @@ void MainWindow::showOpenFaceDialog()
         return;
     }
 
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Document"), QString(), tr(fileFilter));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Document"), std::move(defaultDialogDirectory()), tr(fileFilter));
 
     if (!fileName.isNull())
         viewModel_->openDocument(fileName);
@@ -249,13 +258,7 @@ void MainWindow::save()
 
 void MainWindow::saveAs()
 {
-    QString directoryPath;
-    if (viewModel_->currentDocumentPath().has_value()) {
-        directoryPath = QFileInfo(viewModel_->currentDocumentPath().value()).path();
-    } else {
-        directoryPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).last();
-    }
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Document"), directoryPath, tr(fileFilter));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Document"), std::move(defaultDialogDirectory()), tr(fileFilter));
 
     if (!fileName.isNull())
         viewModel_->saveDocument(fileName);
@@ -461,11 +464,9 @@ void MainWindow::debounceFontNameChanged(const QString &fontName)
 
 void MainWindow::exportSourceCode()
 {
-    QString directoryPath;
-    if (viewModel_->currentDocumentPath().has_value()) {
-        directoryPath = QFileInfo(viewModel_->currentDocumentPath().value()).path();
-    } else {
-        directoryPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).last();
+    QString directoryPath = viewModel_->lastSourceCodeDirectory();
+    if (directoryPath.isNull()) {
+        directoryPath = defaultDialogDirectory();
     }
 
     auto dialog = std::make_shared<QFileDialog>(this, tr("Save Source Code"), directoryPath);
@@ -476,14 +477,15 @@ void MainWindow::exportSourceCode()
         dialog->setParent(nullptr);
         auto files = dialog->selectedFiles();
         if (!files.isEmpty()) {
-            auto fileName = files.first();
-            if (!fileName.isNull()) {
-                QFile output(fileName);
+            auto filePath = files.first();
+            if (!filePath.isNull()) {
+                QFile output(filePath);
                 if (output.open(QFile::WriteOnly | QFile::Truncate)) {
                     output.write(ui_->sourceCodeTextBrowser->document()->toPlainText().toUtf8());
                     output.close();
+                    viewModel_->setLastSourceCodeDirectory(filePath);
                 } else {
-                    displayError("Unable to write to file: " + fileName);
+                    displayError("Unable to write to file: " + filePath);
                 }
             }
         }
