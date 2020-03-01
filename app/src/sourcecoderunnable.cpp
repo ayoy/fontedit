@@ -17,7 +17,7 @@ void SourceCodeRunnable::run()
     } else if (format_ == Format::PythonBytes::identifier) {
         output = QString::fromStdString(generator_.generate<Format::PythonBytes>(face_, fontArrayName_));
     }
-    qDebug() << QString("Generation finished in %1 ms").arg(QString::number(timer.elapsed()));
+    qDebug() << "Generation finished in" << timer.elapsed() << "ms";
 
     setFinished(true);
     if (!isCanceled()) {

@@ -104,7 +104,10 @@ void MainWindow::connectViewModelOutputs()
     });
     connect(viewModel_.get(), &MainWindowModel::sourceCodeChanged, [&](const QString& text) {
         ui_->stackedWidget->setCurrentWidget(ui_->sourceCodeContainer);
+        QElapsedTimer timer;
+        timer.start();
         ui_->sourceCodeTextBrowser->setPlainText(text);
+        qDebug() << "Displaying finished in" << timer.elapsed() << "ms";
     });
     connect(viewModel_.get(), &MainWindowModel::documentClosed, this, &MainWindow::closeCurrentDocument);
 }

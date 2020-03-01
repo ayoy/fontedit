@@ -323,6 +323,7 @@ void MainWindowModel::reloadSourceCode()
 
     auto r = new SourceCodeRunnable { faceModel()->face(), sourceCodeOptions_, currentFormat_, fontArrayName_ };
     r->setCompletionHandler([&](const QString& output) {
+        qDebug() << "Source code size:" << output.size() << "bytes";
         emit runnableFinished(output);
     });
     r->setAutoDelete(true);
