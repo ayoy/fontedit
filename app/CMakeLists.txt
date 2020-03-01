@@ -77,12 +77,3 @@ target_link_libraries(${PROJECT_NAME} PRIVATE appbundle)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION="${APP_VERSION}" BUILD="${APP_BUILD}" YEAR="${APP_YEAR}")
 target_compile_definitions(appbundle PRIVATE VERSION="${APP_VERSION}" BUILD="${APP_BUILD}" YEAR="${APP_YEAR}")
-
-install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION bundle)
-#install(TARGETS ${PROJECT_NAME}
-#        CONFIGURATIONS Release
-#        BUNDLE DESTINATION Release)
-
-include(CPack)
-set(CPACK_PACKAGE_VERSION ${APP_VERSION})
-set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION})
