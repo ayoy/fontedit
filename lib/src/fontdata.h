@@ -6,10 +6,36 @@
 
 namespace Font {
 
+
+struct Margins {
+    std::size_t top;
+    std::size_t bottom;
+};
+
+inline bool operator==(const Margins& lhs, const Margins& rhs) noexcept {
+    return lhs.top == rhs.top && lhs.bottom == rhs.bottom;
+}
+
+inline bool operator!=(const Margins& lhs, const Margins& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+
 struct Size
 {
     std::size_t width;
     std::size_t height;
+
+    Size with_margins(const Margins& m) {
+        Size size { width, height };
+        auto m_height = m.top + m.bottom;
+        if (m_height > height) {
+            size.height = 0;
+        } else {
+            size.height -= m_height;
+        }
+        return size;
+    }
 };
 
 inline bool operator==(const Size& lhs, const Size& rhs) noexcept {
@@ -33,20 +59,6 @@ inline bool operator==(const Point& lhs, const Point& rhs) noexcept {
 }
 
 inline bool operator!=(const Point& lhs, const Point& rhs) noexcept {
-    return !(lhs == rhs);
-}
-
-
-struct Margins {
-    std::size_t top;
-    std::size_t bottom;
-};
-
-inline bool operator==(const Margins& lhs, const Margins& rhs) noexcept {
-    return lhs.top == rhs.top && lhs.bottom == rhs.bottom;
-}
-
-inline bool operator!=(const Margins& lhs, const Margins& rhs) noexcept {
     return !(lhs == rhs);
 }
 

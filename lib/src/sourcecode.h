@@ -1,6 +1,7 @@
 #ifndef SOURCECODE_H
 #define SOURCECODE_H
 
+#include "fontdata.h"
 #include <string>
 #include <iostream>
 #include <variant>
@@ -18,6 +19,7 @@ namespace Idiom {
 template<typename T>
 struct Begin {
     std::string font_name;
+    Font::Size font_size;
     std::string timestamp;
 };
 

@@ -108,16 +108,23 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
 {
     using namespace SourceCode;
 
+    auto [size, margins] = [&] () -> std::pair<Font::Size, Font::Margins> {
+        if (options_.include_line_spacing) {
+            return { face.glyph_size(), {} };
+        }
+        auto line_margins = face.calculate_margins();
+        return { face.glyph_size().with_margins(line_margins),
+                    pixel_margins(line_margins, face.glyph_size()) };
+    }();
+
     std::ostringstream s;
-    s << Idiom::Begin<T> { font_name, current_timestamp() };
+    s << Idiom::Begin<T> { font_name, size, current_timestamp() };
     s << Idiom::BeginArray<T> { std::move(font_name) };
 
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };
     std::size_t col { 0 };
     std::size_t glyph_id { 0 };
-
-    auto width = face.glyph_size().width;
 
     auto append_byte = [&](std::bitset<byte_size> &bits) {
         if (options_.invert_bits) {
@@ -128,13 +135,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
         bits.reset();
     };
 
-
-    auto margins = [&] () -> Font::Margins {
-        if (options_.include_line_spacing) {
-            return {};
-        }
-        return pixel_margins(face.calculate_margins(), face.glyph_size());
-    }();
+    auto width = size.width;
 
     for (const auto& glyph : face.glyphs()) {
         s << Idiom::BeginArrayRow<T> { options_.indentation };

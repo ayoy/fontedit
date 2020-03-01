@@ -79,12 +79,16 @@ template<typename T>
 inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Begin<T> b)
 {
     if constexpr (is_c_based<T>::value) {
-        s << "//\n// " << b.font_name << ".c\n// Created: " << b.timestamp << "\n//\n";
+        s << "//\n// " << b.font_name << "\n"
+          << "// Font Size: " << b.font_size.width << "x" << b.font_size.height << "px\n"
+          << "// Created: " << b.timestamp << "\n//\n";
         if constexpr (std::is_same<T, Format::Arduino>::value) {
             s << "\n#include <Arduino.h>\n";
         }
     } else if constexpr (is_python_based<T>::value) {
-        s << "#\n# " << b.font_name << ".py\n# Created: " << b.timestamp << "\n#\n";
+        s << "#\n# " << b.font_name << "\n"
+          << "# Font Size: " << b.font_size.width << "x" << b.font_size.height << "px\n"
+          << "# Created: " << b.timestamp << "\n#\n";
     }
     return s;
 }
