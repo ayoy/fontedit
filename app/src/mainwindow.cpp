@@ -4,6 +4,7 @@
 #include "facewidget.h"
 #include "fontfaceviewmodel.h"
 #include "command.h"
+#include "aboutdialog.h"
 
 #include <QGraphicsGridLayout>
 #include <QGraphicsWidget>
@@ -51,6 +52,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::connectUIInputs()
 {
+    connect(ui_->actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionOpen, &QAction::triggered, this, &MainWindow::showOpenDocumentDialog);
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
@@ -239,6 +241,17 @@ QString MainWindow::defaultDialogDirectory() const
         directoryPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).last();
     }
     return directoryPath;
+}
+
+void MainWindow::showAboutDialog()
+{
+    auto about = new AboutDialog(this);
+    about->show();
+//    QMessageBox::about(this, tr("About FontEdit"),
+//                       tr("FontEdit is a tool to edit and prepare font files "
+//                          "for use in embedded systems' displays.\n\n"
+//                          "Copyright 2020 ® Dominik Kapusta\n"
+//                          "http://kapusta.cc"));
 }
 
 void MainWindow::showFontDialog()

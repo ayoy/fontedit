@@ -38,6 +38,7 @@ private:
     void initUI();
     void setupActions();
 
+    void showAboutDialog();
     void showFontDialog();
     void showOpenDocumentDialog();
     void showCloseDocumentDialogIfNeeded();

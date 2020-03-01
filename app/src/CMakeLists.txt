@@ -30,6 +30,9 @@ set(SRC_FILES
     fontfaceviewmodel.cpp
     fontfaceviewmodel.h
     global.h
+    aboutdialog.cpp
+    aboutdialog.h
+    aboutdialog.ui
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
@@ -51,7 +54,13 @@ if (APPLE)
         l10n/fontedit_en.ts
         assets.qrc
         )
+
     set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/macos/Info.plist)
+    set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE fontedit.icns)
+
+    set(RESOURCES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app/Contents/Resources)
+    file(MAKE_DIRECTORY ${RESOURCES_DIR})
+    file(COPY ${PROJECT_SOURCE_DIR}/macos/fontedit.icns DESTINATION ${RESOURCES_DIR})
 else()
     add_executable(${PROJECT_NAME}
         main.cpp

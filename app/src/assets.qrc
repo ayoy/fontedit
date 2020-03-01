@@ -15,4 +15,9 @@
         <file>assets/settings.svg</file>
         <file>assets/open.svg</file>
     </qresource>
+    <qresource prefix="/icon">
+        <file>assets/icon/fontedit256.png</file>
+        <file>assets/icon/fontedit96.png</file>
+        <file>assets/icon/fontedit96@2x.png</file>
+    </qresource>
 </RCC>
