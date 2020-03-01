@@ -40,9 +40,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QIcon icon(":/icon/assets/icon/fontedit96.png");
     ui->iconLabel->setPixmap(icon.pixmap(ui->iconLabel->size()));
     auto text = QString::fromStdString({about});
-    text.replace("##version##", "1.0.0");
-    text.replace("##build##", "1");
-    text.replace("##year##", "2020");
+    text.replace("##version##", VERSION);
+    text.replace("##build##", BUILD);
+    text.replace("##year##", YEAR);
 
     connect(ui->htmlLabel, &QLabel::linkActivated, [&](const QString& link) {
         QDesktopServices::openUrl(QUrl(link));

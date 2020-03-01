@@ -38,7 +38,7 @@ TEST(SourceCodeGeneratorTest, Generator)
 
     auto sourceCode = g.generate<Format::C>(faceVM->face());
 
-    auto sourceCodeFileName = asset("monaco8.c");
+    auto sourceCodeFileName = asset("monaco8.c-test");
     QFile f(sourceCodeFileName);
     f.open(QFileDevice::ReadOnly);
     auto referenceSourceCode = f.readAll().toStdString();

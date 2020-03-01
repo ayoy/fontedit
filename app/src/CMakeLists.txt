@@ -70,6 +70,11 @@ else()
         )
 endif()
 
-
 target_include_directories(${PROJECT_NAME} PRIVATE appbundle)
 target_link_libraries(${PROJECT_NAME} PRIVATE appbundle)
+
+set(APP_VERSION 1.0.0-rc1)
+set(APP_BUILD 1)
+set(APP_YEAR 2020)
+target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION="${APP_VERSION}" BUILD="${APP_BUILD}" YEAR="${APP_YEAR}")
+target_compile_definitions(appbundle PRIVATE VERSION="${APP_VERSION}" BUILD="${APP_BUILD}" YEAR="${APP_YEAR}")
