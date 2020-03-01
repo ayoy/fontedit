@@ -13,13 +13,12 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(Global::application_name);
     QApplication::setApplicationVersion(Global::application_version);
 
-    qDebug() << "high DPI?" << qApp->testAttribute(Qt::AA_UseHighDpiPixmaps);
-    a.setAttribute(Qt::AA_UseHighDpiPixmaps);
-    qDebug() << "high DPI?" << qApp->testAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QTranslator myappTranslator;
     myappTranslator.load("fontedit_en");
     a.installTranslator(&myappTranslator);
+
+    a.setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     MainWindow w;
     w.show();
