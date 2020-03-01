@@ -30,8 +30,16 @@ struct UIState {
 
     enum UserAction {
         UserIdle = 0,
-        UserLoadedFace,
-        UserLoadedGlyph
+        UserLoadedDocument,
+        UserLoadedGlyph,
+        UserModifiedGlyph,
+        UserSavedDocument
+    };
+
+    enum Message {
+        MessageIdle = 0,
+        MessageLoadedFace,
+        MessageLoadedGlyph
     };
 
     enum Tab {
@@ -41,6 +49,7 @@ struct UIState {
 
     std::bitset<ActionCount> actions;
     UserAction lastUserAction;
+    Message statusBarMessage;
     Tab selectedTab;
 };
 
@@ -109,6 +118,12 @@ public:
 
     QString lastSourceCodeDirectory() const;
     void setLastSourceCodeDirectory(const QString& path);
+
+    void resetGlyph(std::size_t index);
+    void modifyGlyph(std::size_t index, const Font::Glyph &new_glyph);
+    void modifyGlyph(std::size_t index,
+                     const BatchPixelChange &change,
+                     BatchPixelChange::ChangeType changeType);
 
 public slots:
     void importFont(const QFont& font);

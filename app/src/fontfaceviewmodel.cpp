@@ -223,14 +223,13 @@ void FontFaceViewModel::reset()
     originalGlyphs_.clear();
 }
 
-void FontFaceViewModel::resetGlyph(std::size_t idx)
+void FontFaceViewModel::resetGlyph(std::size_t index)
 {
-    if (!isGlyphModified(idx)) {
-        throw std::logic_error { "Can't reset unmodified glyph" };
+    if (isGlyphModified(index)) {
+        face_.set_glyph(originalGlyphs_.at(index), index);
+        originalGlyphs_.erase(activeGlyphIndex_.value());
+        isDirty_ = true;
     }
-    face_.set_glyph(originalGlyphs_.at(idx), idx);
-    originalGlyphs_.erase(activeGlyphIndex_.value());
-    isDirty_ = true;
 }
 
 Font::Face FontFaceViewModel::originalFace() const noexcept

@@ -209,14 +209,14 @@ void MainWindow::updateUI(UIState uiState)
     ui_->actionExport->setEnabled(uiState.actions[UIState::InterfaceAction::ActionExport]);
     ui_->actionPrint->setEnabled(uiState.actions[UIState::InterfaceAction::ActionPrint]);
 
-    switch (uiState.lastUserAction) {
-    case UIState::UserIdle:
+    switch (uiState.statusBarMessage) {
+    case UIState::MessageIdle:
         statusLabel_->setText(tr("Start by importing a system font or opening an existing document"));
         break;
-    case UIState::UserLoadedFace:
+    case UIState::MessageLoadedFace:
         statusLabel_->setText(tr("Select a glyph on the right to edit it"));
         break;
-    case UIState::UserLoadedGlyph:
+    case UIState::MessageLoadedGlyph:
         statusLabel_->setText(tr("Click and drag to paint, hold Alt or Ctrl to erase."));
         break;
     }
@@ -408,7 +408,7 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
 
         auto applyChange = [&, currentIndex, change](BatchPixelChange::ChangeType type) -> std::function<void()> {
             return [&, currentIndex, change, type] {
-                viewModel_->faceModel()->modifyGlyph(currentIndex.value(), change, type);
+                viewModel_->modifyGlyph(currentIndex.value(), change, type);
                 updateResetActions();
                 glyphWidget_->applyChange(change, type);
                 faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph());
@@ -452,12 +452,12 @@ void MainWindow::resetCurrentGlyph()
     auto glyphIndex = viewModel_->faceModel()->activeGlyphIndex().value();
 
     undoStack_->push(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
-        viewModel_->faceModel()->modifyGlyph(glyphIndex, currentGlyphState);
+        viewModel_->modifyGlyph(glyphIndex, currentGlyphState);
         viewModel_->updateDocumentTitle();
         displayGlyph(viewModel_->faceModel()->activeGlyph());
         faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());
     }, [&, glyphIndex] {
-        viewModel_->faceModel()->resetActiveGlyph();
+        viewModel_->resetGlyph(glyphIndex);
         viewModel_->updateDocumentTitle();
         displayGlyph(viewModel_->faceModel()->activeGlyph());
         faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());

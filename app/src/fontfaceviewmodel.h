@@ -62,8 +62,8 @@ public:
 
     void reset();
 
+    void resetGlyph(std::size_t index);
     void modifyGlyph(std::size_t index, const Font::Glyph& new_glyph);
-
     void modifyGlyph(std::size_t index, const BatchPixelChange& change,
                       BatchPixelChange::ChangeType changeType = BatchPixelChange::ChangeType::Normal);
 
@@ -81,7 +81,6 @@ public:
     }
 
 private:
-    void resetGlyph(std::size_t idx);
     void doModifyGlyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
 
     Font::Face face_;

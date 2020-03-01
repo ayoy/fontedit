@@ -28,6 +28,7 @@ static const QString lastSourceCodeDirectory = "source_code_options/last_source_
 bool operator==(const UIState& lhs, const UIState& rhs)
 {
     return lhs.actions == rhs.actions &&
+            lhs.statusBarMessage == rhs.statusBarMessage &&
             lhs.lastUserAction == rhs.lastUserAction &&
             lhs.selectedTab == rhs.selectedTab;
 }
@@ -97,19 +98,27 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         state.lastUserAction = action;
         switch (action) {
         case UIState::UserIdle:
+            state.statusBarMessage = UIState::MessageIdle;
             state.actions.reset();
             break;
-        case UIState::UserLoadedFace:
+        case UIState::UserLoadedDocument:
+            state.statusBarMessage = UIState::MessageLoadedFace;
             state.actions.reset();
             state.actions.set(UIState::ActionAddGlyph);
-            state.actions.set(UIState::ActionSave);
             state.actions.set(UIState::ActionClose);
             state.actions.set(UIState::ActionPrint);
             state.actions.set(UIState::ActionExport);
             state.actions.set(UIState::ActionTabCode);
             break;
         case UIState::UserLoadedGlyph:
+            state.statusBarMessage = UIState::MessageLoadedGlyph;
             state.actions.set(UIState::ActionCopy);
+            break;
+        case UIState::UserModifiedGlyph:
+            state.actions.set(UIState::ActionSave, faceModel()->isModifiedSinceSave());
+            break;
+        case UIState::UserSavedDocument:
+            state.actions.reset(UIState::ActionSave);
             break;
         }
         state.actions.set(UIState::ActionTabEdit);
@@ -146,7 +155,7 @@ void MainWindowModel::updateDocumentTitle()
 void MainWindowModel::importFont(const QFont &font)
 {
     fontFaceViewModel_ = std::make_unique<FontFaceViewModel>(font);
-    registerInputEvent(UIState::UserLoadedFace);
+    registerInputEvent(UIState::UserLoadedDocument);
     setDocumentPath({});
     emit faceLoaded(fontFaceViewModel_->face());
     updateDocumentTitle();
@@ -164,7 +173,7 @@ void MainWindowModel::openDocument(const QString &fileName, bool failSilently)
 
         qDebug() << "face loaded from" << fileName;
 
-        registerInputEvent(UIState::UserLoadedFace);
+        registerInputEvent(UIState::UserLoadedDocument);
         setDocumentPath(fileName);
         updateDocumentTitle();
         emit faceLoaded(fontFaceViewModel_->face());
@@ -188,6 +197,7 @@ void MainWindowModel::saveDocument(const QString& fileName)
 
         qDebug() << "face saved to" << fileName;
 
+        registerInputEvent(UIState::UserSavedDocument);
         setDocumentPath(fileName);
         updateDocumentTitle();
     } catch (std::runtime_error& e) {
@@ -318,4 +328,24 @@ void MainWindowModel::reloadSourceCode()
     r->setAutoDelete(true);
 
     QThreadPool::globalInstance()->start(r);
+}
+
+void MainWindowModel::resetGlyph(std::size_t index)
+{
+    fontFaceViewModel_->resetGlyph(index);
+    registerInputEvent(UIState::UserModifiedGlyph);
+}
+
+void MainWindowModel::modifyGlyph(std::size_t index, const Font::Glyph &new_glyph)
+{
+    fontFaceViewModel_->modifyGlyph(index, new_glyph);
+    registerInputEvent(UIState::UserModifiedGlyph);
+}
+
+void MainWindowModel::modifyGlyph(std::size_t index,
+                                     const BatchPixelChange &change,
+                                     BatchPixelChange::ChangeType changeType)
+{
+    fontFaceViewModel_->modifyGlyph(index, change, changeType);
+    registerInputEvent(UIState::UserModifiedGlyph);
 }
