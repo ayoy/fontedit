@@ -247,11 +247,6 @@ void MainWindow::showAboutDialog()
 {
     auto about = new AboutDialog(this);
     about->show();
-//    QMessageBox::about(this, tr("About FontEdit"),
-//                       tr("FontEdit is a tool to edit and prepare font files "
-//                          "for use in embedded systems' displays.\n\n"
-//                          "Copyright 2020 ® Dominik Kapusta\n"
-//                          "http://kapusta.cc"));
 }
 
 void MainWindow::showFontDialog()
@@ -381,6 +376,8 @@ void MainWindow::displayFace(const Font::Face& face)
         ui_->glyphGraphicsView->scene()->removeItem(g);
         glyphWidget_.release();
     }
+    undoStack_->clear();
+    updateResetActions();
 }
 
 void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
