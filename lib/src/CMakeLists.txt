@@ -13,24 +13,39 @@ set(HEADERS
     sourcecode.h
     )
 
-add_library(${PROJECT_NAME}
-    SHARED
-    ${HEADERS}
+set(SOURCES
     fontdata.cpp
     fontsourcecodegenerator.cpp
     )
+
+if (LIBFONTEDIT_STANDALONE_PROJECT)
+    add_library(${PROJECT_NAME}
+        SHARED
+        ${HEADERS}
+        ${SOURCES}
+        )
+    
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        SOVERSION 1.0.0
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+else ()
+    add_library(${PROJECT_NAME} ${HEADERS} ${SOURCES})
+endif ()
 
 target_link_libraries(${PROJECT_NAME} GSL)
 target_include_directories(${PROJECT_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        SOVERSION 1.0.0
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+if (UNIX AND NOT APPLE)
+    if (LIBFONTEDIT_STANDALONE_PROJECT)
+        INSTALL(FILES ${HEADERS} DESTINATION include/f2b)
+        INSTALL(FILES include/f2b.h DESTINATION include)
 
-INSTALL(FILES ${HEADERS} DESTINATION include/f2b)
-INSTALL(FILES include/f2b.h DESTINATION include)
-INSTALL(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib)
+        INSTALL(TARGETS ${PROJECT_NAME} 
+            LIBRARY DESTINATION lib
+            ARCHIVE DESTINATION lib)
+    endif ()
+endif ()
+

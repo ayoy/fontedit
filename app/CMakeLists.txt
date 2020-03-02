@@ -64,6 +64,11 @@ else()
         main.cpp
         assets.qrc
         )
+    if (UNIX)
+        install(TARGETS ${PROJECT_NAME}
+            RUNTIME DESTINATION bin
+            LIBRARY DESTINATION lib)
+    endif()
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE appbundle)
