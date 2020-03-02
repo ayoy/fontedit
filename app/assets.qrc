@@ -20,4 +20,7 @@
         <file>assets/icon/fontedit96.png</file>
         <file>assets/icon/fontedit96@2x.png</file>
     </qresource>
+    <qresource prefix="/l10n">
+        <file alias="fontedit_en.qm">l10n/fontedit_en.qm</file>
+    </qresource>
 </RCC>

@@ -24,15 +24,6 @@ add_subdirectory(common)
 add_subdirectory(glypheditview)
 add_subdirectory(facepreview)
 
-set(TS_FILES_BASENAMES
-    fontedit_en)
-
-foreach(NAME IN LISTS TS_FILES_BASENAMES)
-    list(APPEND TS_FILES "l10n/${NAME}.ts")
-endforeach()
-
-qt5_add_translation(QM_FILES ${TS_FILES})
-
 set(SRC_FILES
     command.h
     fontfaceviewmodel.cpp
@@ -58,8 +49,6 @@ if (APPLE)
     message(STATUS "Building MacOS X Bundle")
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE
         main.cpp
-        ${QM_FILES}
-        ${TS_FILES}
         assets.qrc
         )
 
@@ -70,24 +59,9 @@ if (APPLE)
     file(MAKE_DIRECTORY ${RESOURCES_DIR})
     file(COPY ${PROJECT_SOURCE_DIR}/macos/fontedit.icns DESTINATION ${RESOURCES_DIR})
 
-    foreach(NAME IN LISTS TS_FILES_BASENAMES)
-        list(APPEND QM_RESOURCES "${RESOURCES_DIR}/${NAME}.qm")
-    endforeach()
-
-    add_custom_command(OUTPUT ${QM_RESOURCES}
-        COMMAND cp
-        ARGS "-f" ${QM_FILES} ${RESOURCES_DIR}
-        MAIN_DEPENDENCY ${QM_FILES}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
-    add_custom_target(copy_translations ALL
-        DEPENDS ${QM_RESOURCES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app/Contents/MacOS/${PROJECT_NAME}
-        )
 else()
     add_executable(${PROJECT_NAME}
         main.cpp
-        ${QM_FILES}
-        ${TS_FILES}
         assets.qrc
         )
 endif()

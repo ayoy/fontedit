@@ -14,11 +14,7 @@ int main(int argc, char *argv[])
     QApplication::setApplicationVersion(Global::application_version);
 
     QTranslator myappTranslator;
-#if defined(Q_OS_MACOS)
-    myappTranslator.load("../Resources/fontedit_en");
-#else
-    myappTranslator.load("fontedit_en");
-#endif
+    myappTranslator.load(":/l10n/fontedit_en.qm");
     a.installTranslator(&myappTranslator);
 
     a.setAttribute(Qt::AA_UseHighDpiPixmaps);
