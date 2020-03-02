@@ -135,7 +135,7 @@ FontFaceViewModel::FontFaceViewModel(const QString& documentFilePath)
         throw std::runtime_error { "Unable to open file " + documentFilePath.toStdString() };
     }
 
-    assert(f.open(QIODevice::ReadOnly));
+    f.open(QIODevice::ReadOnly);
     QDataStream s(&f);
     s >> *this;
     f.close();
@@ -164,7 +164,7 @@ void FontFaceViewModel::saveToFile(const QString &documentPath)
         throw std::runtime_error { "Unable to write to file: " + documentPath.toStdString() };
     }
 
-    assert(f.open(QIODevice::WriteOnly));
+    f.open(QIODevice::WriteOnly);
     QDataStream s(&f);
     s << *this;
     f.close();
