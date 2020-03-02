@@ -37,3 +37,17 @@ if (APPLE)
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET_NAME}.dmg"
         )
 endif()
+
+
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_CONTACT "dominik@kapusta.cc")
+set(CPACK_PROJECT_HOMEPAGE_URL "https://kapusta.cc")
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_NAME "fontedit")
+set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt5-default (>= 5.9)")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION
+    "Edit and convert fonts to byte arrays suitable for use in embedded systems' displays")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_PREDEPENDS "cmake (>= 3.9), g++ (>= 7.4)")
+include(CPack)
