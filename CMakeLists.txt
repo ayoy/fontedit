@@ -16,10 +16,10 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 enable_testing()
 add_subdirectory(gsl EXCLUDE_FROM_ALL)
-add_subdirectory(lib EXCLUDE_FROM_ALL)
+add_subdirectory(lib)
 add_subdirectory(app)
 if(${BUILD_TESTS})
-    add_subdirectory(test EXCLUDE_FROM_ALL)
+    add_subdirectory(test)
 endif()
 
 # Download and unpack googletest at configure time

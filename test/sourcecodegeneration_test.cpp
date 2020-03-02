@@ -16,10 +16,15 @@ QString asset(const T& fileName)
     return QString("%1/%2").arg(ASSETS_DIR, fileName);
 }
 
-std::string current_timestamp()
+class TestSourceCodeGenerator : public FontSourceCodeGenerator
 {
-    return "<timestamp>";
-}
+public:
+    TestSourceCodeGenerator(SourceCodeOptions options): FontSourceCodeGenerator(options) {};
+
+    std::string current_timestamp() override {
+        return "<timestamp>";
+    }
+};
 
 TEST(SourceCodeGeneratorTest, Generator)
 {
@@ -33,7 +38,7 @@ TEST(SourceCodeGeneratorTest, Generator)
     EXPECT_EQ(faceVM->face().glyph_size(), expectedSize);
     EXPECT_EQ(faceVM->face().calculate_margins(), expectedMargins);
 
-    FontSourceCodeGenerator g(SourceCodeOptions{});
+    TestSourceCodeGenerator g(SourceCodeOptions{});
 
 
     auto sourceCode = g.generate<Format::C>(faceVM->face());

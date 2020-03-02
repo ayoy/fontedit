@@ -22,9 +22,6 @@ struct SourceCodeOptions
     SourceCode::Indentation indentation { SourceCode::Tab {} };
 };
 
-std::string current_timestamp();
-std::string comment_for_glyph(std::size_t index);
-
 /**
  * @brief Converts line margins to pixel margins.
  * @param line_margins - margins expressed in lines
@@ -32,6 +29,14 @@ std::string comment_for_glyph(std::size_t index);
  * @return Margins expressed in pixel offset for a given glyph size (width).
  */
 Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size);
+
+
+class FontSourceCodeGeneratorInterface
+{
+public:
+    virtual std::string current_timestamp() = 0;
+    virtual std::string comment_for_glyph(std::size_t index) = 0;
+};
 
 /**
  * @brief A simple converter which converts fixed-width fonts.
@@ -88,7 +93,7 @@ Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size);
  * This char will result in the byte sequence: 0x3c, 0x66, 0x66, ...
  *
  */
-class FontSourceCodeGenerator
+class FontSourceCodeGenerator : public FontSourceCodeGeneratorInterface
 {
 public:
 
@@ -98,6 +103,9 @@ public:
 
     template<typename T>
     std::string generate(const Font::Face &face, std::string font_name = "font");
+
+    std::string current_timestamp() override;
+    std::string comment_for_glyph(std::size_t index) override;
 
 private:
     SourceCodeOptions options_;

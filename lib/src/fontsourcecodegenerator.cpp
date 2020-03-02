@@ -1,7 +1,12 @@
 #include "fontsourcecodegenerator.h"
 #include <iomanip>
 
-std::string current_timestamp()
+Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size)
+{
+    return { line_margins.top * glyph_size.width, line_margins.bottom * glyph_size.width };
+}
+
+std::string FontSourceCodeGenerator::current_timestamp()
 {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
@@ -10,7 +15,7 @@ std::string current_timestamp()
     return s.str();
 }
 
-std::string comment_for_glyph(std::size_t index)
+std::string FontSourceCodeGenerator::comment_for_glyph(std::size_t index)
 {
     index += 32;
     std::ostringstream s;
@@ -20,9 +25,4 @@ std::string comment_for_glyph(std::size_t index)
       << static_cast<char>(index) << "')";
 
     return s.str();
-}
-
-Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size)
-{
-    return { line_margins.top * glyph_size.width, line_margins.bottom * glyph_size.width };
 }
