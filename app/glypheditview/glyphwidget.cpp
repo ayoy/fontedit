@@ -158,6 +158,7 @@ void GlyphWidget::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Alt:
     case Qt::Key_AltGr:
+    case Qt::Key_Control:
         penState_ = false;
         break;
     }
@@ -171,7 +172,10 @@ void GlyphWidget::keyReleaseEvent(QKeyEvent *event)
         return;
     }
 
-    if (event->key() == Qt::Key_Alt || event->key() == Qt::Key_AltGr) {
+    if (event->key() == Qt::Key_Alt
+            || event->key() == Qt::Key_AltGr
+            || event->key() == Qt::Key_Control)
+    {
         penState_ = true;
     }
 }
@@ -191,7 +195,8 @@ void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
     Font::Point currentPixel = pointForEvent(event);
     qDebug() << event << currentPixel.x << currentPixel.y;
 
-    penState_ = !event->modifiers().testFlag(Qt::AltModifier);
+    penState_ = !event->modifiers().testFlag(Qt::AltModifier)
+            && !event->modifiers().testFlag(Qt::ControlModifier);
     affectedPixels_.changes.clear();
     isDuringMouseMove_ = true;
 
