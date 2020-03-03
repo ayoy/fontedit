@@ -18,7 +18,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 enable_testing()
-add_subdirectory(gtest)
+add_subdirectory(gtest EXCLUDE_FROM_ALL)
 add_subdirectory(gsl EXCLUDE_FROM_ALL)
 add_subdirectory(lib)
 add_subdirectory(app)
