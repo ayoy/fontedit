@@ -9,22 +9,22 @@ set(APP_VERSION 1.0.0)
 set(APP_BUILD 1)
 set(APP_YEAR 2020)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(BUILD_TESTS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 enable_testing()
+add_subdirectory(gtest)
 add_subdirectory(gsl EXCLUDE_FROM_ALL)
 add_subdirectory(lib)
 add_subdirectory(app)
 if(${BUILD_TESTS})
     add_subdirectory(test)
 endif()
-
-# Download and unpack googletest at configure time
-
-include(googletest.cmake)
 
 if (APPLE)
     add_custom_command(OUTPUT "${APP_TARGET_NAME}.dmg"
