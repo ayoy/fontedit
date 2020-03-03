@@ -137,14 +137,14 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Byte<T> b)
           << std::setfill('0')
           << std::uppercase
           << std::hex
-          << static_cast<uint>(b.byte);
+          << static_cast<unsigned>(b.byte);
     } else {
         s << "0x"
           << std::setw(2)
           << std::setfill('0')
           << std::uppercase
           << std::hex
-          << static_cast<uint>(b.byte)
+          << static_cast<unsigned>(b.byte)
           << ",";
     }
     return s;
