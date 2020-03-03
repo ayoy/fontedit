@@ -5,6 +5,7 @@
 #include "fontfaceviewmodel.h"
 #include "command.h"
 #include "aboutdialog.h"
+#include "common.h"
 
 #include <QGraphicsGridLayout>
 #include <QGraphicsWidget>
@@ -151,7 +152,7 @@ void MainWindow::initUI()
     ui_->formatComboBox->setCurrentText(viewModel_->outputFormat());
     ui_->indentationComboBox->setCurrentText(viewModel_->indentationStyleCaption());
 
-    QFont f("Monaco", 12);
+    QFont f(consoleFontName, 12);
     f.setStyleHint(QFont::TypeWriter);
     ui_->sourceCodeTextBrowser->setFont(f);
 }
@@ -261,7 +262,7 @@ void MainWindow::showFontDialog()
     }
 
     bool ok;
-    QFont f("Monaco", 24);
+    QFont f(consoleFontName, 24);
     f.setStyleHint(QFont::TypeWriter);
     f = QFontDialog::getFont(&ok, f, this, tr("Select Font"), QFontDialog::MonospacedFonts | QFontDialog::DontUseNativeDialog);
 

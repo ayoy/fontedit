@@ -1,5 +1,6 @@
 #include "glyphinfowidget.h"
 #include "f2b_qt_compat.h"
+#include "common.h"
 
 #include <QPainter>
 #include <QDebug>
@@ -45,7 +46,7 @@ void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->setPen(pen);
     painter->drawRect(rect());
 
-    QFont f("Monaco");
+    QFont f(consoleFontName);
     f.setStyleHint(QFont::TypeWriter);
     f.setPixelSize(12);
     QRectF textRect(rect());
