@@ -27,6 +27,12 @@ inline QPoint qpoint_with_point(const Font::Point &p)
     return QPoint { static_cast<int>(p.x), static_cast<int>(p.y) };
 }
 
+inline Font::Size size_with_qsize(const QSize &s)
+{
+    return { static_cast<std::size_t>(qMax(0, s.width())),
+                static_cast<std::size_t>(qMax(0, s.height())) };
+}
+
 inline QSize qsize_with_size(const Font::Size &s)
 {
     return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };

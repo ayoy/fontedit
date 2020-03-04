@@ -193,7 +193,7 @@ void GlyphWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
 {
     Font::Point currentPixel = pointForEvent(event);
-    qDebug() << event << currentPixel.x << currentPixel.y;
+//    qDebug() << event << currentPixel.x << currentPixel.y;
 
     penState_ = !event->modifiers().testFlag(Qt::AltModifier)
             && !event->modifiers().testFlag(Qt::ControlModifier);

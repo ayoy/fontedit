@@ -2,6 +2,7 @@
 #include "f2b.h"
 #include "f2b_qt_compat.h"
 
+#include <utility>
 #include <stdexcept>
 #include <cassert>
 
@@ -37,7 +38,7 @@ public:
     virtual bool is_pixel_set(std::size_t glyph_id, Font::Point p) const override;
 
 private:
-    static std::unique_ptr<QImage> read_font(const QFont &font);
+    static std::pair<Font::Size, std::unique_ptr<QImage>> read_font(const QFont &font);
 
     Font::Size sz_ { 0, 0 };
     std::unique_ptr<QImage> font_image_ { nullptr };
@@ -47,9 +48,9 @@ private:
 QFontFaceReader::QFontFaceReader(const QFont &font) :
     Font::FaceReader()
 {
-    QFontMetrics fm(font);
-    font_image_ = read_font(font);
-    sz_ = { static_cast<std::size_t>(fm.maxWidth()), static_cast<std::size_t>(fm.lineSpacing()) };
+    auto result = read_font(font);
+    sz_ = result.first;
+    font_image_ = std::move(result.second);
 }
 
 bool QFontFaceReader::is_pixel_set(std::size_t glyph_id, Font::Point p) const
@@ -58,16 +59,17 @@ bool QFontFaceReader::is_pixel_set(std::size_t glyph_id, Font::Point p) const
     return font_image_->pixelColor(Font::qpoint_with_point(p)) == Qt::color1;
 }
 
-std::unique_ptr<QImage> QFontFaceReader::read_font(const QFont &font)
+std::pair<Font::Size, std::unique_ptr<QImage>> QFontFaceReader::read_font(const QFont &font)
 {
     QFontMetrics fm(font);
     qDebug() << font << fm.height() << fm.maxWidth() << fm.leading() << fm.lineSpacing();
 
-    auto img_size = QSize(fm.maxWidth(), fm.lineSpacing() * ascii_glyphs.length());
-    auto image = std::make_unique<QImage>(img_size, QImage::Format::Format_Mono);
+    auto width = fm.boundingRect(QRect(), Qt::AlignLeft, template_text).width();
+    QSize img_size(width, fm.lineSpacing() * ascii_glyphs.length());
 
 //    qDebug() << "img size" << img_size;
 
+    auto image = std::make_unique<QImage>(img_size, QImage::Format::Format_Mono);
     QPainter p(image.get());
     p.fillRect(QRect(QPoint(), img_size), QColor(Qt::color0));
 
@@ -97,7 +99,7 @@ std::unique_ptr<QImage> QFontFaceReader::read_font(const QFont &font)
 
 //    image->save("output.bmp");
 
-    return image;
+    return { Font::size_with_qsize(QSize(width, fm.lineSpacing())), std::move(image) };
 }
 
 

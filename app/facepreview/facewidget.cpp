@@ -109,7 +109,6 @@ bool FaceWidget::sceneEvent(QEvent *event)
             layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
             int row = static_cast<int>((mouseEvent->pos().y() - topMargin) / itemSize_.height());
             int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / itemSize_.width());
-            qDebug() << mouseEvent << row << col;
             auto item = layout_->itemAt(row, col);
             if (item != nullptr) {
                 setFocusForItem(item, true);
