@@ -58,7 +58,11 @@ if (APPLE)
     set(RESOURCES_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app/Contents/Resources)
     file(MAKE_DIRECTORY ${RESOURCES_DIR})
     file(COPY ${PROJECT_SOURCE_DIR}/macos/fontedit.icns DESTINATION ${RESOURCES_DIR})
-
+elseif(WIN32)
+    add_executable(${PROJECT_NAME} WIN32
+        main.cpp
+        assets.qrc
+        )
 else()
     add_executable(${PROJECT_NAME}
         main.cpp

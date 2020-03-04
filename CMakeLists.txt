@@ -36,7 +36,17 @@ if (APPLE)
     add_custom_target(dmg
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET_NAME}.dmg"
         )
-endif()
+elseif (WIN32)
+#    add_custom_command(OUTPUT "${APP_TARGET_NAME}.dmg"
+#        COMMAND macdeployqt
+#        ARGS "${APP_TARGET_NAME}.app" "-libpath=/lib" "-dmg"
+#        MAIN_DEPENDENCY ${APP_TARGET_NAME}.app
+#        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+
+#    add_custom_target(dmg
+#        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET_NAME}.dmg"
+#        )
+endif ()
 
 
 set(CPACK_PACKAGE_VERSION "1.0.0")
