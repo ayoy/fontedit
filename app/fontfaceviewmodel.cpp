@@ -141,6 +141,7 @@ FontFaceViewModel::FontFaceViewModel(const QString& documentFilePath)
     QDataStream s(&f);
     s >> *this;
     f.close();
+    isDirty_ = false;
 }
 
 FontFaceViewModel::FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept :
@@ -153,6 +154,7 @@ FontFaceViewModel::FontFaceViewModel(Font::Face face, std::optional<QString> nam
 FontFaceViewModel::FontFaceViewModel(const QFont &font) :
     FontFaceViewModel(import_face(font), font_name(font))
 {
+    isDirty_ = true;
 }
 
 void FontFaceViewModel::saveToFile(const QString &documentPath)

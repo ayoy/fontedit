@@ -105,6 +105,7 @@ void MainWindowModel::registerInputEvent(InputEvent e)
             state.statusBarMessage = UIState::MessageLoadedFace;
             state.actions.reset();
             state.actions.set(UIState::ActionAddGlyph);
+            state.actions.set(UIState::ActionSave);
             state.actions.set(UIState::ActionClose);
             state.actions.set(UIState::ActionPrint);
             state.actions.set(UIState::ActionExport);
@@ -113,12 +114,6 @@ void MainWindowModel::registerInputEvent(InputEvent e)
         case UIState::UserLoadedGlyph:
             state.statusBarMessage = UIState::MessageLoadedGlyph;
             state.actions.set(UIState::ActionCopy);
-            break;
-        case UIState::UserModifiedGlyph:
-            state.actions.set(UIState::ActionSave, faceModel()->isModifiedSinceSave());
-            break;
-        case UIState::UserSavedDocument:
-            state.actions.reset(UIState::ActionSave);
             break;
         }
         state.actions.set(UIState::ActionTabEdit);
@@ -197,7 +192,6 @@ void MainWindowModel::saveDocument(const QString& fileName)
 
         qDebug() << "face saved to" << fileName;
 
-        registerInputEvent(UIState::UserSavedDocument);
         setDocumentPath(fileName);
         updateDocumentTitle();
     } catch (std::runtime_error& e) {
@@ -334,13 +328,11 @@ void MainWindowModel::reloadSourceCode()
 void MainWindowModel::resetGlyph(std::size_t index)
 {
     fontFaceViewModel_->resetGlyph(index);
-    registerInputEvent(UIState::UserModifiedGlyph);
 }
 
 void MainWindowModel::modifyGlyph(std::size_t index, const Font::Glyph &new_glyph)
 {
     fontFaceViewModel_->modifyGlyph(index, new_glyph);
-    registerInputEvent(UIState::UserModifiedGlyph);
 }
 
 void MainWindowModel::modifyGlyph(std::size_t index,
@@ -348,5 +340,4 @@ void MainWindowModel::modifyGlyph(std::size_t index,
                                      BatchPixelChange::ChangeType changeType)
 {
     fontFaceViewModel_->modifyGlyph(index, change, changeType);
-    registerInputEvent(UIState::UserModifiedGlyph);
 }

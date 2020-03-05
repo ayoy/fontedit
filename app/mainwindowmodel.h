@@ -32,8 +32,6 @@ struct UIState {
         UserIdle = 0,
         UserLoadedDocument,
         UserLoadedGlyph,
-        UserModifiedGlyph,
-        UserSavedDocument
     };
 
     enum Message {
