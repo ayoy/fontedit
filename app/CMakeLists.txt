@@ -62,6 +62,7 @@ elseif(WIN32)
     add_executable(${PROJECT_NAME} WIN32
         main.cpp
         assets.qrc
+        win/fontedit.rc
         )
 else()
     add_executable(${PROJECT_NAME}
