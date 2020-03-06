@@ -35,8 +35,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\ayoy\build-fontedit-Desktop_Qt_5_14_1_MinGW_64_bit-Debug\output\FontEdit.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\ayoy\build-fontedit-Desktop_Qt_5_14_1_MinGW_64_bit-Debug\output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\ayoy\build-fontedit-Desktop_Qt_5_14_1_MinGW_64_bit-Release\FontEdit.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\ayoy\build-fontedit-Desktop_Qt_5_14_1_MinGW_64_bit-Release\win\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

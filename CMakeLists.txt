@@ -37,15 +37,15 @@ if (APPLE)
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET_NAME}.dmg"
         )
 elseif (WIN32)
-#    add_custom_command(OUTPUT "${APP_TARGET_NAME}.dmg"
-#        COMMAND macdeployqt
-#        ARGS "${APP_TARGET_NAME}.app" "-libpath=/lib" "-dmg"
-#        MAIN_DEPENDENCY ${APP_TARGET_NAME}.app
-#        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+    message(STATUS "ADDING WINDOWS INSTALLER TARGET")
+    add_custom_command(OUTPUT "win"
+        COMMAND windeployqt.exe
+        ARGS "${APP_TARGET_NAME}.exe" "--dir" "win"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
-#    add_custom_target(dmg
-#        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${APP_TARGET_NAME}.dmg"
-#        )
+    add_custom_target(installer
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/win"
+        )
 endif ()
 
 
