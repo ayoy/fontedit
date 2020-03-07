@@ -13,7 +13,7 @@ public:
     static constexpr auto cellMargin = 6.0;
     static constexpr auto descriptionHeight = 50.0;
 
-    GlyphInfoWidget(const Font::Glyph& glyph, char asciiCode, QSizeF imageSize,
+    GlyphInfoWidget(const Font::Glyph& glyph, unsigned char asciiCode, QSizeF imageSize,
                     Font::Margins margins = {}, QGraphicsItem *parent = nullptr);
 
     void updateGlyph(const Font::Glyph& glyph, std::optional<Font::Margins> margins = {});

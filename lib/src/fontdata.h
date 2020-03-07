@@ -118,6 +118,7 @@ public:
 
     const std::vector<Glyph>& glyphs() const { return glyphs_; }
     void set_glyph(Glyph g, std::size_t index) { glyphs_[index] = g; }
+    void append_glyph(Glyph g) { glyphs_.push_back(std::move(g)); }
 
     Glyph& operator[](char ascii) {
         if (ascii < ' ') {

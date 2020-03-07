@@ -25,6 +25,9 @@ add_subdirectory(glypheditview)
 add_subdirectory(facepreview)
 
 set(SRC_FILES
+    addglyphdialog.cpp
+    addglyphdialog.h
+    addglyphdialog.ui
     command.h
     fontfaceviewmodel.cpp
     fontfaceviewmodel.h

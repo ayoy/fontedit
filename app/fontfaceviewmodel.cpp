@@ -236,6 +236,12 @@ void FontFaceViewModel::resetGlyph(std::size_t index)
     }
 }
 
+void FontFaceViewModel::appendGlyph(Font::Glyph newGlyph)
+{
+    face_.append_glyph(std::move(newGlyph));
+    isDirty_ = true;
+}
+
 Font::Face FontFaceViewModel::originalFace() const noexcept
 {
     Font::Face f = face_;

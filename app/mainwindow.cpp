@@ -5,6 +5,7 @@
 #include "fontfaceviewmodel.h"
 #include "command.h"
 #include "aboutdialog.h"
+#include "addglyphdialog.h"
 #include "common.h"
 
 #include <QGraphicsGridLayout>
@@ -56,6 +57,7 @@ void MainWindow::connectUIInputs()
     connect(ui_->actionAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
     connect(ui_->actionImport_Font, &QAction::triggered, this, &MainWindow::showFontDialog);
     connect(ui_->actionOpen, &QAction::triggered, this, &MainWindow::showOpenDocumentDialog);
+    connect(ui_->actionAdd_Glyph, &QAction::triggered, this, &MainWindow::showAddGlyphDialog);
     connect(ui_->actionReset_Glyph, &QAction::triggered, this, &MainWindow::resetCurrentGlyph);
     connect(ui_->actionReset_Font, &QAction::triggered, this, &MainWindow::resetFont);
 
@@ -118,10 +120,8 @@ void MainWindow::connectViewModelOutputs()
 void MainWindow::initUI()
 {
     // hide not implemented UI
-    ui_->actionAdd_Glyph->setVisible(false);
     ui_->actionCopy_Glyph->setVisible(false);
     ui_->actionPaste_Glyph->setVisible(false);
-    ui_->addGlyphButton->setVisible(false);
     ui_->copyButton->setVisible(false);
     ui_->pasteButton->setVisible(false);
     ui_->printButton->setVisible(false);
@@ -301,6 +301,19 @@ void MainWindow::showCloseDocumentDialogIfNeeded()
     }
 
     viewModel_->closeCurrentDocument();
+}
+
+void MainWindow::showAddGlyphDialog()
+{
+    auto addGlyph = new AddGlyphDialog(viewModel_->faceModel()->face(), this);
+    addGlyph->show();
+
+    connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<Font::Glyph>& glyph) {
+        if (glyph.has_value()) {
+            viewModel_->faceModel()->appendGlyph(glyph.value());
+            displayFace(viewModel_->faceModel()->face());
+        }
+    });
 }
 
 void MainWindow::save()

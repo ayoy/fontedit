@@ -15,7 +15,7 @@ class FaceWidget : public QGraphicsWidget
 public:
     static constexpr auto cell_width = 80.0;
 
-    explicit FaceWidget(QGraphicsItem *parent = nullptr);
+    explicit FaceWidget(int columnCount = 3, QGraphicsItem *parent = nullptr);
 
     void load(const Font::Face& face, Font::Margins margins);
     void setCurrentGlyphIndex(std::size_t index);
@@ -34,6 +34,7 @@ private:
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
     std::unique_ptr<FocusWidget> focusWidget_ { nullptr };
     QSizeF itemSize_;
+    int columnCount_;
 };
 
 #endif // FACEWIDGET_H

@@ -8,16 +8,18 @@
 #include <sstream>
 #include <iomanip>
 
-static QString description(char asciiCode)
+static QString description(unsigned char asciiCode)
 {
     std::stringstream stream;
     stream << "hex: 0x" << std::setw(2) << std::setfill('0') << std::hex << static_cast<uint>(asciiCode) << std::endl;
     stream << "dec: " << std::setw(3) << std::dec << static_cast<uint>(asciiCode) << std::endl;
-    stream << "chr: '" << asciiCode << "'";
+    if (std::isprint(asciiCode)) {
+        stream << "chr: '" << asciiCode << "'";
+    }
     return QString::fromStdString(stream.str());
 }
 
-GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, char asciiCode, QSizeF imageSize,
+GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, unsigned char asciiCode, QSizeF imageSize,
                                  Font::Margins margins, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     description_ { description(asciiCode) },

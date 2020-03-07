@@ -4,14 +4,14 @@
 
 #include <QGraphicsSceneEvent>
 
-static constexpr auto col_count = 3;
 static constexpr auto printable_ascii_offset = ' ';
 static constexpr auto min_cell_height = 120.0;
 static constexpr auto min_image_height = min_cell_height - GlyphInfoWidget::descriptionHeight - 3 * GlyphInfoWidget::cellMargin;
 static constexpr auto max_image_width = FaceWidget::cell_width - 2 * GlyphInfoWidget::cellMargin;
 
-FaceWidget::FaceWidget(QGraphicsItem *parent) :
-    QGraphicsWidget(parent)
+FaceWidget::FaceWidget(int columnCount, QGraphicsItem *parent) :
+    QGraphicsWidget(parent),
+    columnCount_ { columnCount }
 {
     layout_->setSpacing(0);
     layout_->setContentsMargins(0, 0, 0, 0);
@@ -57,10 +57,10 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
         auto glyphWidget = new GlyphInfoWidget(g, printable_ascii_offset + index, imageSize, margins);
 
         // TODO: reduce number of these calls
-        layout_->setRowFixedHeight(index / col_count, itemSize_.height());
-        layout_->setColumnFixedWidth(index % col_count, itemSize_.width());
+        layout_->setRowFixedHeight(index / columnCount_, itemSize_.height());
+        layout_->setColumnFixedWidth(index % columnCount_, itemSize_.width());
 
-        layout_->addItem(glyphWidget, index / col_count, index % col_count, 1, 1);
+        layout_->addItem(glyphWidget, index / columnCount_, index % columnCount_, 1, 1);
         index += 1;
     }
 }
@@ -112,7 +112,7 @@ bool FaceWidget::sceneEvent(QEvent *event)
             auto item = layout_->itemAt(row, col);
             if (item != nullptr) {
                 setFocusForItem(item, true);
-                emit currentGlyphIndexChanged(row * 3 + col);
+                emit currentGlyphIndexChanged(row * columnCount_ + col);
             } else {
                 resetFocusWidget();
             }
