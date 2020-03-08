@@ -27,6 +27,8 @@ public:
 
     void saveToFile(const QString& documentPath);
 
+    std::optional<QFont> font() const noexcept { return font_; }
+
     const Font::Face& face() const noexcept { return face_; }
     Font::Face& face() noexcept { return face_; }
 
@@ -89,6 +91,7 @@ private:
     Font::Margins originalMargins_;
     // this holds copies of unmodified glyphs once they are edited.
     std::unordered_map<std::size_t, Font::Glyph> originalGlyphs_;
+    std::optional<QFont> font_;
 
     // not persisted
     std::optional<std::size_t> activeGlyphIndex_;

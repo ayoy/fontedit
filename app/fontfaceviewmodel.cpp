@@ -16,8 +16,10 @@
 #include <QTextFrame>
 #include <QFileInfo>
 
-static constexpr std::string_view ascii_glyphs
-        { " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" };
+using namespace std::literals::string_view_literals;
+
+static constexpr std::string_view ascii_glyphs =
+        " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"sv;
 
 static const QString template_text = []{
     std::stringstream stream;
@@ -177,7 +179,7 @@ void FontFaceViewModel::saveToFile(const QString &documentPath)
 
 FaceInfo FontFaceViewModel::faceInfo() const
 {
-    auto fontName = name_.has_value() ? name_.value() : "Custom font";
+    auto fontName = name_.has_value() ? name_.value() : QObject::tr("Custom font");
     auto size = face_.glyph_size();
     size.height -= originalMargins_.top + originalMargins_.bottom;
     return { fontName, face_.glyph_size(), size, face_.num_glyphs() };
@@ -252,7 +254,7 @@ Font::Face FontFaceViewModel::originalFace() const noexcept
 }
 
 static constexpr auto fontfaceviewmodel_magic_number = 0x1c22f998;
-static constexpr auto fontfaceviewmodel_version = 1;
+static constexpr auto fontfaceviewmodel_version = 2;
 
 QDataStream& operator<<(QDataStream& s, const FontFaceViewModel &vm)
 {
@@ -264,6 +266,7 @@ QDataStream& operator<<(QDataStream& s, const FontFaceViewModel &vm)
     s << vm.name_;
     s << (quint32) vm.originalMargins_.top << (quint32) vm.originalMargins_.bottom;
 
+    s << vm.font_;
     return s;
 }
 
@@ -272,7 +275,7 @@ QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm)
     quint32 magic_number;
     quint32 version;
     s >> magic_number >> version;
-    if (magic_number == fontfaceviewmodel_magic_number && version == fontfaceviewmodel_version) {
+    if (magic_number == fontfaceviewmodel_magic_number && version <= fontfaceviewmodel_version) {
         s.setVersion(QDataStream::Qt_5_7);
 
         s >> vm.face_;
@@ -283,6 +286,10 @@ QDataStream& operator>>(QDataStream& s, FontFaceViewModel& vm)
         vm.originalMargins_ = { top, bottom };
         vm.originalGlyphs_ = {};
         vm.activeGlyphIndex_ = {};
+
+        if (version <= 2) {
+            s >> vm.font_;
+        }
     }
 
     return s;
