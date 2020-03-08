@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <memory>
 #include <optional>
+#include "fontfaceviewmodel.h"
 #include "f2b.h"
 
 namespace Ui {
@@ -18,7 +19,7 @@ class AddGlyphDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddGlyphDialog(const Font::Face& face, QWidget *parent = nullptr);
+    explicit AddGlyphDialog(const FontFaceViewModel& faceViewModel, QWidget *parent = nullptr);
     ~AddGlyphDialog();
 
 signals:

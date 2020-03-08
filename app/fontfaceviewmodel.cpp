@@ -156,6 +156,7 @@ FontFaceViewModel::FontFaceViewModel(Font::Face face, std::optional<QString> nam
 FontFaceViewModel::FontFaceViewModel(const QFont &font) :
     FontFaceViewModel(import_face(font), font_name(font))
 {
+    font_ = font;
     isDirty_ = true;
 }
 

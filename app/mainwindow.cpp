@@ -305,7 +305,7 @@ void MainWindow::showCloseDocumentDialogIfNeeded()
 
 void MainWindow::showAddGlyphDialog()
 {
-    auto addGlyph = new AddGlyphDialog(viewModel_->faceModel()->face(), this);
+    auto addGlyph = new AddGlyphDialog(*viewModel_->faceModel(), this);
     addGlyph->show();
 
     connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<Font::Glyph>& glyph) {

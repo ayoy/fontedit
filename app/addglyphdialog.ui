@@ -24,7 +24,7 @@
     <number>8</number>
    </property>
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="titleLabel">
      <property name="text">
       <string>Adding Glyph for </string>
      </property>
@@ -57,7 +57,17 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLabel" name="characterErrorLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Current document font not found in system</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="characterLineEdit">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -117,7 +127,7 @@
  <tabstops>
   <tabstop>emptyRadio</tabstop>
   <tabstop>characterRadio</tabstop>
-  <tabstop>lineEdit</tabstop>
+  <tabstop>characterLineEdit</tabstop>
   <tabstop>copyRadio</tabstop>
   <tabstop>faceGraphicsView</tabstop>
  </tabstops>
@@ -156,7 +166,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>lineEdit</sender>
+   <sender>characterLineEdit</sender>
    <signal>textChanged(QString)</signal>
    <receiver>characterRadio</receiver>
    <slot>click()</slot>
