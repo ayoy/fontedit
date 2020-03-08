@@ -26,11 +26,13 @@ signals:
 
 protected:
     bool sceneEvent(QEvent *event) override;
+    void updateGeometry() override;
 
 private:
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
     void resetFocusWidget();
 
+    QGraphicsLayoutItem *focusedItem_ { nullptr };
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
     std::unique_ptr<FocusWidget> focusWidget_ { nullptr };
     QSizeF itemSize_;

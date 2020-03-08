@@ -3,6 +3,8 @@
 #include "f2b_qt_compat.h"
 
 #include <QGraphicsSceneEvent>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 static constexpr auto printable_ascii_offset = ' ';
 static constexpr auto min_cell_height = 120.0;
@@ -85,10 +87,17 @@ void FaceWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
 {
     if (focusWidget_ == nullptr) {
         focusWidget_ = std::make_unique<FocusWidget>(this);
+        focusWidget_->setZValue(1);
         focusWidget_->setColor(Qt::blue);
     }
 
+    focusedItem_ = item;
     focusWidget_->setFocus(item, isFocused);
+    if (isFocused) {
+        QGraphicsView *graphicsView = scene()->views().first();
+        if (graphicsView != nullptr)
+            graphicsView->ensureVisible(focusWidget_->geometry());
+    }
 }
 
 void FaceWidget::resetFocusWidget()
@@ -96,6 +105,7 @@ void FaceWidget::resetFocusWidget()
     if (focusWidget_ != nullptr) {
         focusWidget_->setFocus(nullptr);
     }
+    focusedItem_ = nullptr;
 }
 
 bool FaceWidget::sceneEvent(QEvent *event)
@@ -124,3 +134,10 @@ bool FaceWidget::sceneEvent(QEvent *event)
     return QGraphicsWidget::sceneEvent(event);
 }
 
+void FaceWidget::updateGeometry()
+{
+    QGraphicsWidget::updateGeometry();
+    if (auto fw = focusWidget_.get()) {
+        fw->setFocus(focusedItem_, true);
+    }
+}

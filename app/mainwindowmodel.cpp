@@ -113,6 +113,7 @@ void MainWindowModel::registerInputEvent(InputEvent e)
             break;
         case UIState::UserLoadedGlyph:
             state.statusBarMessage = UIState::MessageLoadedGlyph;
+            state.actions.set(UIState::ActionDeleteGlyph);
             state.actions.set(UIState::ActionCopy);
             break;
         }

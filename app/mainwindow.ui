@@ -61,16 +61,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="addGlyphButton">
-            <property name="iconSize">
-             <size>
-              <width>24</width>
-              <height>24</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QToolButton" name="saveButton">
             <property name="iconSize">
              <size>
@@ -98,6 +88,29 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="addGlyphButton">
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="deleteGlyphButton">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QToolButton" name="copyButton">
@@ -461,6 +474,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionAdd_Glyph"/>
+    <addaction name="actionDelete_Glyph"/>
     <addaction name="separator"/>
     <addaction name="actionCopy_Glyph"/>
     <addaction name="actionPaste_Glyph"/>
@@ -561,7 +575,7 @@
   <action name="actionAdd_Glyph">
    <property name="icon">
     <iconset resource="assets.qrc">
-     <normaloff>:/toolbar/assets/new.svg</normaloff>:/toolbar/assets/new.svg</iconset>
+     <normaloff>:/toolbar/assets/add-glyph.svg</normaloff>:/toolbar/assets/add-glyph.svg</iconset>
    </property>
    <property name="text">
     <string>Add Glyph</string>
@@ -621,6 +635,15 @@
   <action name="actionAbout">
    <property name="text">
     <string>About FontEdit</string>
+   </property>
+  </action>
+  <action name="actionDelete_Glyph">
+   <property name="icon">
+    <iconset resource="assets.qrc">
+     <normaloff>:/toolbar/assets/delete-glyph.svg</normaloff>:/toolbar/assets/delete-glyph.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Glyph</string>
    </property>
   </action>
  </widget>

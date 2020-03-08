@@ -188,6 +188,7 @@ void MainWindow::setupActions()
     ui_->openButton->setDefaultAction(ui_->actionOpen);
     ui_->importFontButton->setDefaultAction(ui_->actionImport_Font);
     ui_->addGlyphButton->setDefaultAction(ui_->actionAdd_Glyph);
+    ui_->deleteGlyphButton->setDefaultAction(ui_->actionDelete_Glyph);
     ui_->saveButton->setDefaultAction(ui_->actionSave);
     ui_->copyButton->setDefaultAction(ui_->actionCopy_Glyph);
     ui_->pasteButton->setDefaultAction(ui_->actionPaste_Glyph);
@@ -206,6 +207,7 @@ void MainWindow::updateUI(UIState uiState)
 {
     ui_->tabWidget->setTabEnabled(1, uiState.actions[UIState::InterfaceAction::ActionTabCode]);
     ui_->actionAdd_Glyph->setEnabled(uiState.actions[UIState::InterfaceAction::ActionAddGlyph]);
+    ui_->actionDelete_Glyph->setEnabled(uiState.actions[UIState::InterfaceAction::ActionDeleteGlyph]);
     ui_->actionSave->setEnabled(uiState.actions[UIState::InterfaceAction::ActionSave]);
     ui_->actionSave_As->setEnabled(uiState.actions[UIState::InterfaceAction::ActionSave]);
     ui_->actionClose->setEnabled(uiState.actions[UIState::InterfaceAction::ActionClose]);
@@ -310,6 +312,7 @@ void MainWindow::showAddGlyphDialog()
     connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<Font::Glyph>& glyph) {
         if (glyph.has_value()) {
             viewModel_->appendGlyph(glyph.value());
+            viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->face().num_glyphs()-1);
             displayFace(viewModel_->faceModel()->face());
         }
     });
@@ -385,6 +388,8 @@ void MainWindow::displayFace(const Font::Face& face)
 
     if (viewModel_->faceModel()->activeGlyphIndex().has_value()) {
         displayGlyph(viewModel_->faceModel()->activeGlyph());
+        faceWidget_->setCurrentGlyphIndex(viewModel_->faceModel()->activeGlyphIndex().value());
+        viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->activeGlyphIndex().value());
     } else if (auto g = glyphWidget_.get()) {
         ui_->glyphGraphicsView->scene()->removeItem(g);
         glyphWidget_.release();
@@ -468,6 +473,7 @@ void MainWindow::switchActiveGlyph(std::size_t newIndex)
                                      setGlyph(idx),
                                      setGlyph(newIndex)));
     } else {
+        faceWidget_->setCurrentGlyphIndex(newIndex);
         viewModel_->setActiveGlyphIndex(newIndex);
     }
 }

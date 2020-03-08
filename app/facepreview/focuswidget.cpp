@@ -1,6 +1,8 @@
 #include "focuswidget.h"
 #include <QPainter>
 #include <QDebug>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 FocusWidget::FocusWidget(QGraphicsItem *parent)
     : QGraphicsWidget(parent)
@@ -22,10 +24,18 @@ void FocusWidget::setFocus(QGraphicsLayoutItem *item, bool isFocused)
         if (isFocused) {
             setVisible(true);
             setGeometry(item->geometry());
+            ensureVisible();
         } else {
             setVisible(false);
         }
     } else {
         setVisible(false);
     }
+}
+
+void FocusWidget::ensureVisible()
+{
+    QGraphicsView *graphicsView = scene()->views().first();
+    if (graphicsView != nullptr)
+        graphicsView->ensureVisible(this);
 }

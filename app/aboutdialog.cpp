@@ -25,9 +25,12 @@ static constexpr auto about = R"(<html>
                     <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
                     General Public License v3</a>.
                 </p>
-                <p>Icons made by <a href="https://www.flaticon.com/authors/smashicons">Smashicons</a> and
+                <p>Icons from <a href="https://www.flaticon.com/">www.flaticon.com</a> made by:<br/>
+                    <a href="https://www.flaticon.com/authors/smashicons">Smashicons</a>
+                    •
                     <a href="https://www.flaticon.com/authors/freepik">Freepik</a>
-                    from <a href="https://www.flaticon.com/">www.flaticon.com</a>.
+                    •
+                    <a href="https://www.flaticon.com/authors/pixel-perfect">Pixel perfect</a>
                 </p>
              </body>
              </html>)";

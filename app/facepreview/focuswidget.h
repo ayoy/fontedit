@@ -19,6 +19,7 @@ public:
     void setColor(const QColor &color) { color_ = color; update(); }
 
 private:
+    void ensureVisible();
     QColor color_ { Qt::red };
 };
 

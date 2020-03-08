@@ -17,6 +17,7 @@
 struct UIState {
     enum InterfaceAction {
         ActionAddGlyph = 0,
+        ActionDeleteGlyph,
         ActionSave,
         ActionClose,
         ActionCopy,

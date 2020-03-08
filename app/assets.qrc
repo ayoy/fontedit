@@ -3,7 +3,6 @@
         <file>assets/code.svg</file>
         <file>assets/copy.svg</file>
         <file>assets/delete.svg</file>
-        <file>assets/new.svg</file>
         <file>assets/paste.svg</file>
         <file>assets/print.svg</file>
         <file>assets/redo.svg</file>
@@ -14,6 +13,8 @@
         <file>assets/clear.svg</file>
         <file>assets/settings.svg</file>
         <file>assets/open.svg</file>
+        <file>assets/add-glyph.svg</file>
+        <file>assets/delete-glyph.svg</file>
     </qresource>
     <qresource prefix="/icon">
         <file>assets/icon/fontedit256.png</file>
