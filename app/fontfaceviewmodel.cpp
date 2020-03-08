@@ -152,6 +152,19 @@ void FontFaceViewModel::appendGlyph(Font::Glyph newGlyph)
     isDirty_ = true;
 }
 
+void FontFaceViewModel::deleteGlyph(std::size_t index)
+{
+    if (index == face_.num_glyphs() - 1) {
+        if (activeGlyphIndex_.has_value() && activeGlyphIndex_.value() == face_.num_glyphs() - 1) {
+            activeGlyphIndex_ = face_.num_glyphs() - 2;
+        }
+        face_.delete_last_glyph();
+    } else {
+        face_.clear_glyph(index);
+    }
+    isDirty_ = true;
+}
+
 Font::Face FontFaceViewModel::originalFace() const noexcept
 {
     Font::Face f = face_;

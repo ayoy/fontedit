@@ -69,6 +69,7 @@ public:
     void modifyGlyph(std::size_t index, const BatchPixelChange& change,
                       BatchPixelChange::ChangeType changeType = BatchPixelChange::ChangeType::Normal);
     void appendGlyph(Font::Glyph newGlyph);
+    void deleteGlyph(std::size_t index);
 
     bool isModified() const {
         return originalGlyphs_.size() > 0;

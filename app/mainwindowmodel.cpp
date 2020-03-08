@@ -353,3 +353,15 @@ void MainWindowModel::appendGlyph(Font::Glyph glyph)
     fontFaceViewModel_->appendGlyph(std::move(glyph));
     reloadSourceCode();
 }
+
+void MainWindowModel::deleteGlyph(std::size_t index)
+{
+    fontFaceViewModel_->deleteGlyph(index);
+
+    if (index == fontFaceViewModel_->face().num_glyphs() - 1) {
+        fontFaceViewModel_->setActiveGlyphIndex(index - 1);
+        emit activeGlyphChanged(fontFaceViewModel_->activeGlyph());
+    }
+
+    reloadSourceCode();
+}

@@ -125,6 +125,7 @@ public:
                      const BatchPixelChange &change,
                      BatchPixelChange::ChangeType changeType);
     void appendGlyph(Font::Glyph glyph);
+    void deleteGlyph(std::size_t index);
 
     const QString& sourceCode() {
         std::scoped_lock { sourceCodeMutex_ };

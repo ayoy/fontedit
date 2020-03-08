@@ -17,6 +17,11 @@ Glyph::Glyph(Size sz, std::vector<bool> pixels) :
     }
 }
 
+void Glyph::clear()
+{
+    pixels_ = std::vector<bool>(size_.width * size_.height, false);
+}
+
 std::size_t Glyph::top_margin() const noexcept
 {
     auto first_set_pixel = std::find(pixels_.begin(), pixels_.end(), true);

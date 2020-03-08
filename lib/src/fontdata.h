@@ -72,6 +72,7 @@ public:
     Size size() const noexcept { return size_; }
     bool is_pixel_set(Point p) const { return pixels_[p.offset(size_)]; }
     void set_pixel_set(Point p, bool is_set) { pixels_[p.offset(size_)] = is_set; }
+    void clear();
 
     const std::vector<bool>& pixels() const noexcept { return pixels_; }
 
@@ -119,17 +120,24 @@ public:
     const std::vector<Glyph>& glyphs() const { return glyphs_; }
     void set_glyph(Glyph g, std::size_t index) { glyphs_[index] = g; }
     void append_glyph(Glyph g) { glyphs_.push_back(std::move(g)); }
+    void delete_last_glyph() { if (glyphs_.size() > 0) glyphs_.pop_back(); }
+    void clear_glyph(std::size_t index) {
+        if (index >= glyphs_.size()) {
+            throw std::out_of_range { "Glyph index out of range" };
+        }
+        glyphs_[index].clear();
+    }
 
     Glyph& operator[](char ascii) {
         if (ascii < ' ') {
-            throw std::out_of_range { "Glyphs for 0-31 ASCII range are not supported"};
+            throw std::out_of_range { "Glyphs for 0-31 ASCII range are not supported" };
         }
         return glyphs_[ascii-32];
     }
 
     const Glyph& operator[](char ascii) const {
         if (ascii < ' ') {
-            throw std::out_of_range { "Glyphs for 0-31 ASCII range are not supported"};
+            throw std::out_of_range { "Glyphs for 0-31 ASCII range are not supported" };
         }
         return glyphs_[ascii-32];
     }
