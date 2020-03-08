@@ -1,5 +1,6 @@
 #include "fontsourcecodegenerator.h"
 #include <iomanip>
+#include <string>
 
 Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size)
 {
@@ -21,8 +22,13 @@ std::string FontSourceCodeGenerator::comment_for_glyph(std::size_t index)
     std::ostringstream s;
     s << "Character 0x"
       << std::hex << std::setfill('0') << std::setw(2) << index
-      << std::dec << " (" << index << ": '"
-      << static_cast<char>(index) << "')";
+      << std::dec << " (" << index;
+
+    if (std::isprint(index)) {
+        s << ": '" << static_cast<char>(index) << "'";
+    }
+
+    s << ")";
 
     return s.str();
 }

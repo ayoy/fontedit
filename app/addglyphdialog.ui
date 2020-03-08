@@ -135,29 +135,13 @@
  <connections>
   <connection>
    <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>AddGlyphDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>254</x>
-     <y>375</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>AddGlyphDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>375</y>
+     <x>328</x>
+     <y>534</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -172,12 +156,28 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>79</y>
+     <x>583</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>179</x>
      <y>78</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>AddGlyphDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>522</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>8</x>
+     <y>344</y>
     </hint>
    </hints>
   </connection>

@@ -20,6 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(Qt5LinguistTools)
 
+add_subdirectory(utf8)
 add_subdirectory(common)
 add_subdirectory(glypheditview)
 add_subdirectory(facepreview)
@@ -40,12 +41,14 @@ set(SRC_FILES
     mainwindow.ui
     mainwindowmodel.cpp
     mainwindowmodel.h
+    qfontfacereader.cpp
+    qfontfacereader.h
     sourcecoderunnable.cpp
     sourcecoderunnable.h
     )
 
 add_library(appbundle ${SRC_FILES})
-target_include_directories(appbundle PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} common glypheditview facepreview)
+target_include_directories(appbundle PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} utf8 common glypheditview facepreview)
 target_link_libraries(appbundle PUBLIC Qt5::Widgets Qt5::Core common glypheditview facepreview font2bytes GSL)
 
 if (APPLE)

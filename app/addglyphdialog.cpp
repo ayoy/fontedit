@@ -1,6 +1,7 @@
 #include "addglyphdialog.h"
 #include "./ui_addglyphdialog.h"
 #include "facewidget.h"
+#include "qfontfacereader.h"
 
 AddGlyphDialog::AddGlyphDialog(const FontFaceViewModel& faceViewModel, QWidget *parent) :
     QDialog(parent),
@@ -21,7 +22,13 @@ AddGlyphDialog::AddGlyphDialog(const FontFaceViewModel& faceViewModel, QWidget *
     connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged, [&, faceViewModel](std::size_t index) {
         newGlyph_ = faceViewModel.face().glyph_at(index);
     });
-    connect(this, &AddGlyphDialog::accepted, [&]{
+    connect(ui_->buttonBox, &QDialogButtonBox::accepted, [&, faceViewModel] {
+        if (ui_->emptyRadio->isChecked()) {
+            newGlyph_ = Font::Glyph { faceViewModel.face().glyph_size() };
+        } else if (ui_->characterRadio->isChecked()) {
+            QFontFaceReader adapter { faceViewModel.font().value(), ui_->characterLineEdit->text().toStdString() };
+            newGlyph_ = Font::Face(adapter).glyph_at(0);
+        }
         emit glyphSelected(newGlyph_);
     });
 
