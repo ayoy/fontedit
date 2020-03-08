@@ -318,7 +318,9 @@ void MainWindowModel::reloadSourceCode()
     auto r = new SourceCodeRunnable { faceModel()->face(), sourceCodeOptions_, currentFormat_, fontArrayName_ };
     r->setCompletionHandler([&](const QString& output) {
         qDebug() << "Source code size:" << output.size() << "bytes";
-        emit runnableFinished(output);
+        std::scoped_lock { sourceCodeMutex_ };
+        sourceCode_ = std::move(output);
+        emit runnableFinished();
     });
     r->setAutoDelete(true);
 
@@ -328,11 +330,13 @@ void MainWindowModel::reloadSourceCode()
 void MainWindowModel::resetGlyph(std::size_t index)
 {
     fontFaceViewModel_->resetGlyph(index);
+    reloadSourceCode();
 }
 
 void MainWindowModel::modifyGlyph(std::size_t index, const Font::Glyph &new_glyph)
 {
     fontFaceViewModel_->modifyGlyph(index, new_glyph);
+    reloadSourceCode();
 }
 
 void MainWindowModel::modifyGlyph(std::size_t index,
@@ -340,4 +344,11 @@ void MainWindowModel::modifyGlyph(std::size_t index,
                                      BatchPixelChange::ChangeType changeType)
 {
     fontFaceViewModel_->modifyGlyph(index, change, changeType);
+    reloadSourceCode();
+}
+
+void MainWindowModel::appendGlyph(Font::Glyph glyph)
+{
+    fontFaceViewModel_->appendGlyph(std::move(glyph));
+    reloadSourceCode();
 }

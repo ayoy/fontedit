@@ -55,6 +55,7 @@ private:
     void updateFaceInfoLabel(const FaceInfo& faceInfo);
     void updateDefaultFontName(const FaceInfo& faceInfo);
 
+    void displaySourceCode();
     void exportSourceCode();
     void closeCurrentDocument();
     void displayError(const QString& error);

@@ -71,6 +71,7 @@ void MainWindow::connectUIInputs()
     connect(ui_->actionQuit, &QAction::triggered, this, &MainWindow::close);
     connect(ui_->tabWidget, &QTabWidget::currentChanged, [&](int index) {
         if (index == codeTabIndex) {
+            displaySourceCode();
             viewModel_->registerInputEvent(UIState::InterfaceAction::ActionTabCode);
         } else {
             viewModel_->registerInputEvent(UIState::InterfaceAction::ActionTabEdit);
@@ -107,12 +108,10 @@ void MainWindow::connectViewModelOutputs()
     connect(viewModel_.get(), &MainWindowModel::sourceCodeUpdating, [&]() {
 //        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
     });
-    connect(viewModel_.get(), &MainWindowModel::sourceCodeChanged, [&](const QString& text) {
-        ui_->stackedWidget->setCurrentWidget(ui_->sourceCodeContainer);
-        QElapsedTimer timer;
-        timer.start();
-        ui_->sourceCodeTextBrowser->setPlainText(text);
-        qDebug() << "Displaying finished in" << timer.elapsed() << "ms";
+    connect(viewModel_.get(), &MainWindowModel::sourceCodeChanged, [&]() {
+        if (ui_->tabWidget->currentIndex() == codeTabIndex) {
+            displaySourceCode();
+        }
     });
     connect(viewModel_.get(), &MainWindowModel::documentClosed, this, &MainWindow::closeCurrentDocument);
 }
@@ -310,7 +309,7 @@ void MainWindow::showAddGlyphDialog()
 
     connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<Font::Glyph>& glyph) {
         if (glyph.has_value()) {
-            viewModel_->faceModel()->appendGlyph(glyph.value());
+            viewModel_->appendGlyph(glyph.value());
             displayFace(viewModel_->faceModel()->face());
         }
     });
@@ -536,6 +535,15 @@ void MainWindow::debounceFontNameChanged(const QString &fontName)
     });
 
     fontNameDebounceTimer_->start();
+}
+
+void MainWindow::displaySourceCode()
+{
+    ui_->stackedWidget->setCurrentWidget(ui_->sourceCodeContainer);
+    QElapsedTimer timer;
+    timer.start();
+    ui_->sourceCodeTextBrowser->setPlainText(viewModel_->sourceCode());
+    qDebug() << "Displaying finished in" << timer.elapsed() << "ms";
 }
 
 void MainWindow::exportSourceCode()

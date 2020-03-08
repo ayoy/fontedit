@@ -9,6 +9,7 @@
 #include <bitset>
 #include <variant>
 #include <vector>
+#include <mutex>
 
 #include <QMap>
 #include <QSettings>
@@ -122,6 +123,12 @@ public:
     void modifyGlyph(std::size_t index,
                      const BatchPixelChange &change,
                      BatchPixelChange::ChangeType changeType);
+    void appendGlyph(Font::Glyph glyph);
+
+    const QString& sourceCode() {
+        std::scoped_lock { sourceCodeMutex_ };
+        return sourceCode_;
+    }
 
 public slots:
     void importFont(const QFont& font);
@@ -142,8 +149,8 @@ signals:
     void faceLoaded(const Font::Face& face) const;
     void activeGlyphChanged(const Font::Glyph& glyph) const;
     void sourceCodeUpdating() const;
-    void sourceCodeChanged(const QString& sourceCode) const;
-    void runnableFinished(const QString& result) const;
+    void sourceCodeChanged() const;
+    void runnableFinished() const;
     void documentTitleChanged(const QString& title);
     void documentClosed();
     void documentError(const QString& error);
@@ -160,6 +167,9 @@ private:
     QString documentTitle_;
     QString fontArrayName_;
     SourceCodeOptions sourceCodeOptions_;
+
+    QString sourceCode_;
+    std::mutex sourceCodeMutex_;
 
     QMap<QString, QString> formats_; // identifier <-> human-readable
     QString currentFormat_; // identifier
