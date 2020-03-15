@@ -22,8 +22,7 @@ find_package(Qt5LinguistTools)
 
 add_subdirectory(utf8)
 add_subdirectory(common)
-add_subdirectory(glypheditview)
-add_subdirectory(facepreview)
+add_subdirectory(ui)
 
 set(SRC_FILES
     addglyphdialog.cpp
@@ -33,9 +32,6 @@ set(SRC_FILES
     fontfaceviewmodel.cpp
     fontfaceviewmodel.h
     global.h
-    aboutdialog.cpp
-    aboutdialog.h
-    aboutdialog.ui
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
@@ -48,8 +44,8 @@ set(SRC_FILES
     )
 
 add_library(appbundle ${SRC_FILES})
-target_include_directories(appbundle PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} utf8 common glypheditview facepreview)
-target_link_libraries(appbundle PUBLIC Qt5::Widgets Qt5::Core common glypheditview facepreview font2bytes GSL)
+target_include_directories(appbundle PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} utf8 common ui)
+target_link_libraries(appbundle PUBLIC Qt5::Widgets Qt5::Core common ui font2bytes GSL)
 
 if (APPLE)
     message(STATUS "Building MacOS X Bundle")
@@ -101,3 +97,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE appbundle)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION="${APP_VERSION}" BUILD="${APP_BUILD}" YEAR="${APP_YEAR}")
 target_compile_definitions(appbundle PRIVATE VERSION="${APP_VERSION}" BUILD="${APP_BUILD}" YEAR="${APP_YEAR}")
+target_compile_definitions(ui PRIVATE VERSION="${APP_VERSION}" BUILD="${APP_BUILD}" YEAR="${APP_YEAR}")
