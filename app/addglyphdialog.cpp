@@ -26,7 +26,11 @@ AddGlyphDialog::AddGlyphDialog(const FontFaceViewModel& faceViewModel, QWidget *
         if (ui_->emptyRadio->isChecked()) {
             newGlyph_ = Font::Glyph { faceViewModel.face().glyph_size() };
         } else if (ui_->characterRadio->isChecked()) {
-            QFontFaceReader adapter { faceViewModel.font().value(), ui_->characterLineEdit->text().toStdString() };
+            QFontFaceReader adapter {
+                faceViewModel.font().value(),
+                ui_->characterLineEdit->text().toStdString(),
+                faceViewModel.face().glyph_size()
+            };
             newGlyph_ = Font::Face(adapter).glyph_at(0);
         }
         emit glyphSelected(newGlyph_);

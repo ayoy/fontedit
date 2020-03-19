@@ -10,7 +10,7 @@
 class QFontFaceReader : public Font::FaceReader
 {
 public:
-    explicit QFontFaceReader(const QFont &font, std::string text = {});
+    explicit QFontFaceReader(const QFont &font, std::string text = {}, std::optional<Font::Size> forced_size = {});
     virtual ~QFontFaceReader() override = default;
 
     virtual Font::Size font_size() const override { return sz_; }
@@ -19,7 +19,8 @@ public:
 
 private:
     static QString template_text(std::string text);
-    static std::pair<Font::Size, std::unique_ptr<QImage>> read_font(const QFont &font, std::string text);
+    static std::pair<Font::Size, std::unique_ptr<QImage>> read_font(
+            const QFont &font, std::string text, std::optional<Font::Size> forcedSize);
 
     Font::Size sz_ { 0, 0 };
     std::unique_ptr<QImage> font_image_ { nullptr };

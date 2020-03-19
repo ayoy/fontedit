@@ -14,13 +14,13 @@ using namespace std::literals::string_view_literals;
 static constexpr std::string_view ascii_glyphs =
         " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"sv;
 
-QFontFaceReader::QFontFaceReader(const QFont &font, std::string text) :
+QFontFaceReader::QFontFaceReader(const QFont &font, std::string text, std::optional<Font::Size> forced_size) :
     Font::FaceReader()
 {
     std::string source_text { text.empty() ? ascii_glyphs : std::move(text) };
     num_glyphs_ = source_text.length();
 
-    auto result = read_font(font, std::move(source_text));
+    auto result = read_font(font, std::move(source_text), forced_size);
     sz_ = result.first;
     font_image_ = std::move(result.second);
 }
@@ -39,15 +39,18 @@ QString QFontFaceReader::template_text(std::string text)
     utf8::iterator end(text.end(), text.begin(), text.end());
 
     while (i != end) {
-        auto utf8Begin = i;
-        auto utf8End = ++i;
-        stream << std::string(utf8Begin.base(), utf8End.base()) << "\n";
+        auto utf8_begin = i;
+        auto utf8_end = ++i;
+        stream << std::string(utf8_begin.base(), utf8_end.base()) << "\n";
     }
 
     return QString::fromStdString(stream.str());
 }
 
-std::pair<Font::Size, std::unique_ptr<QImage>> QFontFaceReader::read_font(const QFont &font, std::string text)
+std::pair<Font::Size, std::unique_ptr<QImage>> QFontFaceReader::read_font(
+            const QFont &font,
+            std::string text,
+            std::optional<Font::Size> forced_size)
 {
     auto text_length = text.length();
     auto template_text = QFontFaceReader::template_text(std::move(text));
@@ -55,8 +58,20 @@ std::pair<Font::Size, std::unique_ptr<QImage>> QFontFaceReader::read_font(const 
     QFontMetrics fm(font);
     qDebug() << font << fm.height() << fm.maxWidth() << fm.leading() << fm.lineSpacing();
 
-    auto width = fm.boundingRect(QRect(), Qt::AlignLeft, template_text).width();
-    QSize img_size(width, fm.lineSpacing() * text_length);
+    int width = [&] {
+        if (forced_size.has_value()) {
+            return static_cast<int>(forced_size.value().width);
+        }
+        return fm.boundingRect(QRect(), Qt::AlignLeft, template_text).width();
+    }();
+    int height = [&] {
+        if (forced_size.has_value()) {
+            return static_cast<int>(forced_size.value().height);
+        }
+        return fm.lineSpacing();
+    }();
+
+    QSize img_size(width, height * text_length);
 
 //    qDebug() << "img size" << img_size;
 
