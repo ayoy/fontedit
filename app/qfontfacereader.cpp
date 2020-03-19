@@ -39,7 +39,9 @@ QString QFontFaceReader::template_text(std::string text)
     utf8::iterator end(text.end(), text.begin(), text.end());
 
     while (i != end) {
-        stream << std::string(i.base(), (++i).base()) << "\n";
+        auto utf8Begin = i;
+        auto utf8End = ++i;
+        stream << std::string(utf8Begin.base(), utf8End.base()) << "\n";
     }
 
     return QString::fromStdString(stream.str());
