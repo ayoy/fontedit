@@ -102,3 +102,7 @@ Please report bugs and feature requests via [GitHub Issues](https://github.com/a
 © 2020 Dominik Kapusta
 
 This app is distributed in accordance with GPL v3. See [LICENSE](https://github.com/ayoy/fontedit/blob/master/LICENSE) for details.
+The app uses icons from [www.flaticon.com](https://www.flaticon.com) made by
+[Smashicons](https://www.flaticon.com/authors/smashicons),
+[Freepik](https://www.flaticon.com/authors/freepik) and
+[Pixel perfect](https://www.flaticon.com/authors/pixel-perfect).
