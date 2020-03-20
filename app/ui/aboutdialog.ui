@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutDialog</class>
+ <widget class="QDialog" name="AboutDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>425</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>About FontEdit</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,100">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="iconLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>96</width>
+           <height>96</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="assets.qrc">:/icon/assets/icon/fontedit96.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="htmlLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;FontEdit &lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt;v##version## build ##build##&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt;Copyright ##year## Dominik Kapusta&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;https://github.com/ayoy/fontedit&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:400; text-decoration: underline; color:#0068da;&quot;&gt;Get Source Code&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt;•&lt;/span&gt;&lt;a href=&quot;https://github.com/ayoy/fontedit/issues&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:400; text-decoration: underline; color:#0068da;&quot;&gt;Report a Bug&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt;This program is distributed under the terms of &lt;/span&gt;&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.en.html&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:400; text-decoration: underline; color:#0068da;&quot;&gt;General Public License v3&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt;&lt;br/&gt;Icons made by &lt;/span&gt;&lt;a href=&quot;https://www.flaticon.com/authors/smashicons&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:400; text-decoration: underline; color:#0068da;&quot;&gt;Smashicons&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt; and &lt;/span&gt;&lt;a href=&quot;https://www.flaticon.com/authors/freepik&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:400; text-decoration: underline; color:#0068da;&quot;&gt;Freepik&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt; from &lt;/span&gt;&lt;a href=&quot;https://www.flaticon.com/&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:400; text-decoration: underline; color:#0068da;&quot;&gt;www.flaticon.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:13pt; font-weight:400;&quot;&gt;.&lt;/span&gt;&lt;a href=&quot;https://www.flaticon.com/&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:400; text-decoration: underline; color:#0068da;&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="assets.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>AboutDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>AboutDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

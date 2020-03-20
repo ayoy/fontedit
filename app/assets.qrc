@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/toolbar">
+        <file>assets/code.svg</file>
+        <file>assets/copy.svg</file>
+        <file>assets/delete.svg</file>
+        <file>assets/paste.svg</file>
+        <file>assets/print.svg</file>
+        <file>assets/redo.svg</file>
+        <file>assets/reset.svg</file>
+        <file>assets/save.svg</file>
+        <file>assets/undo.svg</file>
+        <file>assets/font.svg</file>
+        <file>assets/clear.svg</file>
+        <file>assets/settings.svg</file>
+        <file>assets/open.svg</file>
+        <file>assets/add-glyph.svg</file>
+        <file>assets/delete-glyph.svg</file>
+    </qresource>
+    <qresource prefix="/icon">
+        <file>assets/icon/fontedit256.png</file>
+        <file>assets/icon/fontedit96.png</file>
+        <file>assets/icon/fontedit96@2x.png</file>
+    </qresource>
+    <qresource prefix="/l10n">
+        <file alias="fontedit_en.qm">l10n/fontedit_en.qm</file>
+    </qresource>
+</RCC>

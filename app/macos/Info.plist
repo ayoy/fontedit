@@ -5,13 +5,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>qgraphicstest</string>
+	<string>FontEdit</string>
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>fontedit.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string></string>
+	<string>cc.kapusta.FontEdit</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
@@ -21,11 +21,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string></string>
+	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string></string>
+	<string>1</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
@@ -34,5 +34,7 @@
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
 	<string>True</string>
+    <key>NSRequiresAquaSystemAppearance</key>
+    <true/>
 </dict>
 </plist>

@@ -3,15 +3,21 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
-#include "fontfaceimporter.h"
-#include <optional>
+#include <QUndoStack>
+#include <QTimer>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include "mainwindowmodel.h"
+#include "facewidget.h"
+#include "glyphwidget.h"
+#include "batchpixelchange.h"
 
-class GlyphWidget;
-class FaceWidget;
+#include <memory>
+
+namespace Ui {
+class MainWindow;
+}
+
+class QLabel;
 
 class MainWindow : public QMainWindow
 {
@@ -19,21 +25,63 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
-
+    virtual ~MainWindow();
 protected:
+    virtual void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void updatePixel(Font::Point pos, bool isSelected);
+    void displayFace(const Font::Face& face);
 
 private:
-    void displayGlyph(const Font::Glyph &glyph);
+    void connectUIInputs();
+    void connectViewModelOutputs();
+    void initUI();
+    void setupActions();
 
-    Ui::MainWindow *ui;
+    void showAboutDialog();
+    void showFontDialog();
+    void showOpenDocumentDialog();
+    void showCloseDocumentDialogIfNeeded();
+    void showAddGlyphDialog();
+    void showDeleteGlyphDialog();
+    void save();
+    void saveAs();
+    void resetCurrentGlyph();
+    void resetFont();
+    void displayGlyph(const Font::Glyph& glyph);
+    void updateUI(UIState uiState);
+    void editGlyph(const BatchPixelChange& change);
+    void switchActiveGlyph(std::size_t newIndex);
+    void updateResetActions();
+    void updateFaceInfoLabel(const FaceInfo& faceInfo);
+    void updateDefaultFontName(const FaceInfo& faceInfo);
 
-    GlyphWidget *glyphWidget_ { nullptr };
+    void displaySourceCode();
+    void exportSourceCode();
+    void closeCurrentDocument();
+    void displayError(const QString& error);
+
+    void debounceFontNameChanged(const QString& fontName);
+
+    QString defaultDialogDirectory() const;
+
+    enum SavePromptButton {
+        Save,
+        DontSave,
+        Cancel
+    };
+
+    SavePromptButton promptToSaveDirtyDocument();
+
+    Ui::MainWindow *ui_;
+
+    std::unique_ptr<GlyphWidget> glyphWidget_ {};
     FaceWidget *faceWidget_ { nullptr };
-    std::optional<Font::Glyph> glyph_ { std::nullopt };
+    QLabel *statusLabel_;
+    std::unique_ptr<MainWindowModel> viewModel_ { std::make_unique<MainWindowModel>() };
+    std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
+    std::unique_ptr<QUndoStack> undoStack_ { std::make_unique<QUndoStack>() };
+    std::unique_ptr<QTimer> fontNameDebounceTimer_ {};
 };
 
 #endif // MAINWINDOW_H

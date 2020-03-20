@@ -1,0 +1,9 @@
+[Desktop Entry]
+Exec=fontedit
+Name=FontEdit
+Icon=fontedit
+Type=Application
+Categories=Qt;Development;
+Comment=Font image to bytes converter
+GenericName=Font to Source Code Converter
+Terminal=false
