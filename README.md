@@ -6,7 +6,7 @@ use in embedded systems displays.
 
 It's written in C++ with Qt UI and was tested on Windows, Linux and MacOS.
 
-![FontEdit](https://kapusta.cc/assets/fontedit/import_font.png)
+![FontEdit](https://kapusta.cc/assets/fontedit/imported_font.png)
 
 ## Getting FontEdit
 
