@@ -6,6 +6,8 @@ use in embedded systems displays.
 
 It's written in C++ with Qt UI and was tested on Windows, Linux and MacOS.
 
+Read more about it in [the blog post](https://kapusta.cc/2019/03/20/fontedit/).
+
 ![FontEdit](https://kapusta.cc/assets/fontedit/imported_font.png)
 
 ## Getting FontEdit
