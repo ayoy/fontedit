@@ -22,13 +22,13 @@ void Glyph::clear()
     pixels_ = std::vector<bool>(size_.width * size_.height, false);
 }
 
-std::size_t Glyph::top_margin() const noexcept
+std::size_t Glyph::top_margin() const
 {
     auto first_set_pixel = std::find(pixels_.begin(), pixels_.end(), true);
     return static_cast<std::size_t>(std::distance(pixels_.begin(), first_set_pixel)) / size_.width;
 }
 
-std::size_t Glyph::bottom_margin() const noexcept
+std::size_t Glyph::bottom_margin() const
 {
     auto last_set_pixel = std::find(pixels_.rbegin(), pixels_.rend(), true);
     return static_cast<std::size_t>(std::distance(pixels_.rbegin(), last_set_pixel)) / size_.width;

@@ -6,7 +6,10 @@
 
 namespace Font {
 
-
+/**
+ * @brief A struct that describes font top and bottom margins
+ *        (lines where no glyphs are drawn).
+ */
 struct Margins {
     std::size_t top;
     std::size_t bottom;
@@ -21,6 +24,9 @@ inline bool operator!=(const Margins& lhs, const Margins& rhs) noexcept {
 }
 
 
+/**
+ * @brief A struct that describes font size (glyph size) in pixels.
+ */
 struct Size
 {
     std::size_t width;
@@ -46,6 +52,9 @@ inline bool operator!=(const Size& lhs, const Size& rhs) noexcept {
 }
 
 
+/**
+ * @brief A struct that describes a point in font glyph coordinates.
+ */
 struct Point
 {
     std::size_t x;
@@ -62,7 +71,11 @@ inline bool operator!=(const Point& lhs, const Point& rhs) noexcept {
     return !(lhs == rhs);
 }
 
-
+/**
+ * @brief A class that describes a single Font Glyph.
+ *
+ * A Glyph is represented by a std::vector<bool> of a fixed size.
+ */
 class Glyph
 {
 public:
@@ -76,8 +89,8 @@ public:
 
     const std::vector<bool>& pixels() const noexcept { return pixels_; }
 
-    std::size_t top_margin() const noexcept;
-    std::size_t bottom_margin() const noexcept;
+    std::size_t top_margin() const;
+    std::size_t bottom_margin() const;
 
 private:
     Size size_;
@@ -93,6 +106,11 @@ inline bool operator!=(const Glyph& lhs, const Glyph& rhs) noexcept {
 }
 
 
+/**
+ * @brief An abstract class defining an interface for a font face reader.
+ *
+ * FaceReader instance can be passed as a "data source" for the Face constructor.
+ */
 class FaceReader
 {
 public:
@@ -104,11 +122,21 @@ public:
 };
 
 
+/**
+ * @brief A class describing a font face (a set of glyphs for a specific
+ *        combination of font family, pixel size and weight).
+ */
 class Face
 {
 public:
+
+    /// The default constructor intializing an empty face
     explicit Face() = default;
+
+    /// The constructor reading a face using face reader.
     explicit Face(const FaceReader &data);
+
+    /// The constructor initializing a face with a given size and vector of glyphs.
     explicit Face(Size size, const std::vector<Glyph> glyphs);
 
     Size glyph_size() const noexcept { return sz_; }
@@ -142,6 +170,12 @@ public:
         return glyphs_[ascii-32];
     }
 
+    /**
+     * Calculcates margins of a face.
+     *
+     * This method analyzes all glyphs and takes the maximum common empty areas
+     * on the top and bottom.
+     */
     Margins calculate_margins() const noexcept;
 
 private:

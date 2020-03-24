@@ -9,11 +9,33 @@
 namespace SourceCode
 {
 
+/// A struct representing a Tabulation character
 struct Tab {};
+
+/// A struct representing a repeated space character (used instead of tabulator)
 struct Space { std::size_t num_spaces; };
 
+/// Indentation can be either a Tab, or multiple Spaces.
 using Indentation = std::variant<Tab,Space>;
 
+/**
+ * This namespace gathers building blocks for a source code generator:
+ * - begin (source code file)
+ * - begin array
+ * - begin array row
+ * - byte
+ * - comment
+ * - line break
+ * - end array
+ * - end (source code file).
+ *
+ * All the structs in this namespace are templates taking Source Code Format
+ * as a template parameter. They also take parameters as necessary (e.g.
+ * \c array_name for \c BeginArray).
+ * All the structs define the \c operator<< which outputs the relevant source
+ * code idiom to the given output stream. \c FontSourceCodeGenerator uses them
+ * with an \c std::stringstream to output the resulting source code of the font face.
+ */
 namespace Idiom {
 
 template<typename T>

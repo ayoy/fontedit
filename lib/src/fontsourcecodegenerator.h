@@ -101,13 +101,24 @@ public:
         options_ { options }
     {}
 
+    /**
+     * A template method that generates source code for a given \c face.
+     *
+     * The source code format is defined as a template parameter,
+     * and the optional \c font_name parameter allows for customising
+     * the font byte array parameter.
+     *
+     * The generator builds the source code out of building blocks -
+     * structs from \c SourceCode::Idiom namespace.
+     *
+     * @see SourceCode::Idiom
+     */
     template<typename T>
     std::string generate(const Font::Face &face, std::string font_name = "font");
 
+private:
     std::string current_timestamp() override;
     std::string comment_for_glyph(std::size_t index) override;
-
-private:
     SourceCodeOptions options_;
 };
 

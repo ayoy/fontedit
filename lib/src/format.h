@@ -7,37 +7,42 @@
 #include "sourcecode.h"
 
 
+/// This namespace defines available source code formats
 namespace Format
 {
 
 using namespace SourceCode;
 
+/// A type that identifies C-based language format.
 struct c_based {};
-struct python_based {};
+/// A type that identifies Python language format.
+struct python {};
 
+/// C-style code (suitable also for C++)
 struct C
 {
     using lang = c_based;
     static constexpr std::string_view identifier = "c";
 };
 
+/// Arduino-flavoured C-style code
 struct Arduino
 {
     using lang = c_based;
     static constexpr std::string_view identifier = "arduino";
 };
 
-
+/// Python code format for List object
 struct PythonList
 {
-    using lang = python_based;
+    using lang = python;
     static constexpr std::string_view identifier = "python-list";
 };
 
-
+/// Python code format for Bytes object
 struct PythonBytes
 {
-    using lang = python_based;
+    using lang = python;
     static constexpr std::string_view identifier = "python-bytes";
 };
 
@@ -51,27 +56,35 @@ constexpr auto available_formats = {
 
 }
 
-
+/// Type trait that is true for C-based language formats
 template<typename T, typename = void>
 struct is_c_based : std::false_type {};
 template<typename T>
 struct is_c_based<T, std::enable_if_t<std::is_same<typename T::lang, Format::c_based>::value>> : std::true_type {};
 
+/// Type trait that is true for Python language formats
 template<typename T, typename = void>
-struct is_python_based : std::false_type {};
+struct is_python : std::false_type {};
 template<typename T>
-struct is_python_based<T, std::enable_if_t<std::is_same<typename T::lang, Format::python_based>::value>> : std::true_type {};
+struct is_python<T, std::enable_if_t<std::is_same<typename T::lang, Format::python>::value>> : std::true_type {};
 
 static_assert (is_c_based<Format::C>::value, "***");
 static_assert (is_c_based<Format::Arduino>::value, "***");
 static_assert (!is_c_based<Format::PythonList>::value, "***");
 static_assert (!is_c_based<Format::PythonBytes>::value, "***");
 
-static_assert (!is_python_based<Format::C>::value, "***");
-static_assert (!is_python_based<Format::Arduino>::value, "***");
-static_assert (is_python_based<Format::PythonList>::value, "***");
-static_assert (is_python_based<Format::PythonBytes>::value, "***");
+static_assert (!is_python<Format::C>::value, "***");
+static_assert (!is_python<Format::Arduino>::value, "***");
+static_assert (is_python<Format::PythonList>::value, "***");
+static_assert (is_python<Format::PythonBytes>::value, "***");
 
+
+//
+// The code below defines operator<< for all structs from the
+// SourceCode::Idiom namespace. These functions use type traits
+// and compile-time ifs and to improve source code generation
+// performance.
+//
 
 // Begin
 
@@ -85,7 +98,7 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Begin<T> b)
         if constexpr (std::is_same<T, Format::Arduino>::value) {
             s << "\n#include <Arduino.h>\n";
         }
-    } else if constexpr (is_python_based<T>::value) {
+    } else if constexpr (is_python<T>::value) {
         s << "#\n# " << b.font_name << "\n"
           << "# Font Size: " << b.font_size.width << "x" << b.font_size.height << "px\n"
           << "# Created: " << b.timestamp << "\n#\n";
