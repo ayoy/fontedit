@@ -20,7 +20,7 @@ FaceWidget::FaceWidget(int columnCount, QGraphicsItem *parent) :
     setLayout(layout_);
 }
 
-void FaceWidget::load(const Font::Face &face, Font::Margins margins)
+void FaceWidget::reset()
 {
     // TODO: Reuse items instead of deleting them all
     for (auto& item : childItems()) {
@@ -30,14 +30,15 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
     }
 
     resetFocusWidget();
+}
 
-    qDebug() << childItems().count() << "child item(s)";
-
+QSizeF FaceWidget::calculateImageSize(Font::Size glyph_size)
+{
     // height: 6 + desc.height + 6 + img.height + 6
     // width: 6 + img.width + 6
     // max image width: 80 - 2*6 = 68
 
-    QSizeF imageSize { Font::qsize_with_size(face.glyph_size()) };
+    QSizeF imageSize { Font::qsize_with_size(glyph_size) };
     if (imageSize.width() > max_image_width) {
         imageSize.scale(max_image_width, qInf(), Qt::KeepAspectRatio);
     } else if (imageSize.height() < min_image_height) {
@@ -51,12 +52,48 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
     size.rwidth() = qMax(size.width(), cell_width);
 
     itemSize_ = size;
-
     qDebug() << "NEW ITEM SIZE:" << itemSize_;
+
+    return imageSize;
+}
+
+void FaceWidget::load(const Font::Face &face, Font::Margins margins)
+{
+    reset();
+    auto imageSize = calculateImageSize(face.glyph_size());
 
     auto index = 0;
     for (const auto& g : face.glyphs()) {
         auto glyphWidget = new GlyphInfoWidget(g, true, printable_ascii_offset + index, imageSize, margins);
+        glyphWidget->setIsExportedAdjustable(false);
+
+        // TODO: reduce number of these calls
+        layout_->setRowFixedHeight(index / columnCount_, itemSize_.height());
+        layout_->setColumnFixedWidth(index % columnCount_, itemSize_.width());
+
+        layout_->addItem(glyphWidget, index / columnCount_, index % columnCount_, 1, 1);
+        index += 1;
+    }
+}
+
+void FaceWidget::load(Font::Face &face, Font::Margins margins)
+{
+    reset();
+    auto imageSize = calculateImageSize(face.glyph_size());
+
+    auto index = 0;
+    auto exportedGlyphIDs = face.exported_glyph_ids();
+    for (const auto& g : face.glyphs()) {
+        auto isExported = exportedGlyphIDs.find(index) != exportedGlyphIDs.end();
+        auto glyphWidget = new GlyphInfoWidget(g, isExported, printable_ascii_offset + index, imageSize, margins);
+
+        connect(glyphWidget, &GlyphInfoWidget::isExportedChanged, [&, index](bool isExported) {
+            if (isExported) {
+                face.exported_glyph_ids().insert(index);
+            } else {
+                face.exported_glyph_ids().erase(index);
+            }
+        });
 
         // TODO: reduce number of these calls
         layout_->setRowFixedHeight(index / columnCount_, itemSize_.height());

@@ -18,6 +18,7 @@ public:
     explicit FaceWidget(int columnCount = 3, QGraphicsItem *parent = nullptr);
 
     void load(const Font::Face& face, Font::Margins margins);
+    void load(Font::Face& face, Font::Margins margins);
     void setCurrentGlyphIndex(std::size_t index);
     void updateGlyphPreview(std::size_t index, const Font::Glyph& glyph);
 
@@ -29,6 +30,8 @@ protected:
     void updateGeometry() override;
 
 private:
+    void reset();
+    QSizeF calculateImageSize(Font::Size glyph_size);
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
     void resetFocusWidget();
 

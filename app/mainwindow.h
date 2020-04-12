@@ -30,7 +30,7 @@ protected:
     virtual void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void displayFace(const Font::Face& face);
+    void displayFace(Font::Face& face);
 
 private:
     void connectUIInputs();

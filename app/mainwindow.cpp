@@ -103,7 +103,7 @@ void MainWindow::connectViewModelOutputs()
         setWindowTitle(QString("FontEdit (%1)").arg(title));
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
-    connect(viewModel_.get(), &MainWindowModel::faceLoaded, [&](const Font::Face& face) {
+    connect(viewModel_.get(), &MainWindowModel::faceLoaded, [&](Font::Face& face) {
         undoStack_->clear();
         displayFace(face);
     });
@@ -420,7 +420,7 @@ MainWindow::SavePromptButton MainWindow::promptToSaveDirtyDocument()
     return static_cast<MainWindow::SavePromptButton>(ret);
 }
 
-void MainWindow::displayFace(const Font::Face& face)
+void MainWindow::displayFace(Font::Face& face)
 {
     if (faceWidget_ == nullptr) {
         faceWidget_ = new FaceWidget();

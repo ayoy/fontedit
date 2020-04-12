@@ -65,13 +65,15 @@ QDataStream& operator>>(QDataStream& s, Font::Face& face)
         std::vector<Font::Glyph> glyphs;
         s >> glyphs;
 
+        std::set<std::size_t> exported_glyph_ids;
         if (version < 2) {
-            face = Font::Face({width, height}, glyphs);
+            for (std::size_t i = 0; i < glyphs.size(); i++) {
+                exported_glyph_ids.insert(i);
+            }
         } else {
-            std::set<std::size_t> exported_glyph_ids;
             s >> exported_glyph_ids;
-            face = Font::Face({width, height}, glyphs, exported_glyph_ids);
         }
+        face = Font::Face({width, height}, glyphs, exported_glyph_ids);
     }
 
     return s;

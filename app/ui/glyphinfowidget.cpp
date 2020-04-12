@@ -4,6 +4,8 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QMenu>
+#include <QGraphicsSceneContextMenuEvent>
 
 #include <sstream>
 #include <iomanip>
@@ -25,10 +27,25 @@ GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, bool isExported,
     QGraphicsWidget(parent),
     description_ { description(asciiCode) },
     imageSize_ { imageSize },
+    isExportedAdjustable_ { true },
     isExported_ { isExported },
     preview_ { Font::glyph_preview_image(glyph, margins) },
-    margins_ { margins }
+    margins_ { margins },
+    toggleExportedAction_ { QAction(tr("Exported")) }
 {
+    toggleExportedAction_.setCheckable(true);
+    toggleExportedAction_.setChecked(isExported_);
+
+    connect(&toggleExportedAction_, &QAction::triggered, [&](bool isChecked) {
+        isExported_ = !isExported_;
+        update();
+        emit isExportedChanged(isChecked);
+    });
+}
+
+void GlyphInfoWidget::setIsExportedAdjustable(bool isEnabled)
+{
+    isExportedAdjustable_ = isEnabled;
 }
 
 void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph, std::optional<bool> isExported, std::optional<Font::Margins> margins)
@@ -41,6 +58,17 @@ void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph, std::optional<bool> 
     }
     preview_ = Font::glyph_preview_image(glyph, margins_);
     update();
+}
+
+void GlyphInfoWidget::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    if (!isExportedAdjustable_) {
+        return;
+    }
+    QMenu menu;
+    menu.addAction(&toggleExportedAction_);
+
+    menu.exec(event->screenPos());
 }
 
 void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
