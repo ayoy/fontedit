@@ -56,7 +56,7 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
 
     auto index = 0;
     for (const auto& g : face.glyphs()) {
-        auto glyphWidget = new GlyphInfoWidget(g, printable_ascii_offset + index, imageSize, margins);
+        auto glyphWidget = new GlyphInfoWidget(g, true, printable_ascii_offset + index, imageSize, margins);
 
         // TODO: reduce number of these calls
         layout_->setRowFixedHeight(index / columnCount_, itemSize_.height());

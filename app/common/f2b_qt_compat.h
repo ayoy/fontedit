@@ -39,32 +39,25 @@ inline QSize qsize_with_size(const Font::Size &s)
     return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };
 }
 
-inline QPixmap glyph_preview_pixmap(const Font::Glyph &g, Font::Margins m)
+inline QImage glyph_preview_image(const Font::Glyph &g, Font::Margins m)
 {
     auto useful_glyph_size = g.size();
     useful_glyph_size.height -= m.top + m.bottom;
 
-    auto image_size = qsize_with_size(g.size());
     auto useful_image_size = qsize_with_size(useful_glyph_size);
 
-    QImage image(useful_image_size, QImage::Format_Grayscale8);
-    image.fill(Qt::white);
+    QImage image(useful_image_size, QImage::Format_Mono);
+    image.fill(1);
 
     for (std::vector<bool>::size_type y = 0; y < useful_glyph_size.height; ++y) {
         for (std::vector<bool>::size_type x = 0; x < useful_glyph_size.width; ++x) {
             if (g.is_pixel_set({x, y + m.top})) {
-                image.setPixel(x, y, Qt::black);
+                image.setPixel(x, y, 0);
             }
         }
     }
 
-    QPixmap b(image_size);
-    QPainter p(&b);
-    p.fillRect(b.rect(), Color::glyphMargin);
-    p.drawImage(QPoint(0, m.top), image);
-    p.end();
-
-    return b;
+    return image;
 }
 
 }

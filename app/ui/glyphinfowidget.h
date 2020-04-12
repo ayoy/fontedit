@@ -13,17 +13,19 @@ public:
     static constexpr auto cellMargin = 6.0;
     static constexpr auto descriptionHeight = 50.0;
 
-    GlyphInfoWidget(const Font::Glyph& glyph, unsigned char asciiCode, QSizeF imageSize,
+    GlyphInfoWidget(const Font::Glyph& glyph, bool isExported,
+                    unsigned char asciiCode, QSizeF imageSize,
                     Font::Margins margins = {}, QGraphicsItem *parent = nullptr);
 
-    void updateGlyph(const Font::Glyph& glyph, std::optional<Font::Margins> margins = {});
+    void updateGlyph(const Font::Glyph& glyph, std::optional<bool> isExported = {}, std::optional<Font::Margins> margins = {});
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
     const QString description_;
     const QSizeF imageSize_;
-    QPixmap preview_;
+    bool isExported_;
+    QImage preview_;
     Font::Margins margins_;
 };
 
