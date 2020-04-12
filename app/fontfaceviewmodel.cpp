@@ -90,7 +90,7 @@ FaceInfo FontFaceViewModel::faceInfo() const
     auto fontName = name_.has_value() ? name_.value() : QObject::tr("Custom font");
     auto size = face_.glyph_size();
     size.height -= originalMargins_.top + originalMargins_.bottom;
-    return { fontName, face_.glyph_size(), size, face_.num_glyphs() };
+    return { fontName, face_.glyph_size(), size, face_.num_glyphs(), face_.exported_glyph_ids().size() };
 }
 
 void FontFaceViewModel::modifyGlyph(std::size_t index, const Font::Glyph &new_glyph)

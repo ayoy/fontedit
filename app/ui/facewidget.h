@@ -24,6 +24,7 @@ public:
 
 signals:
     void currentGlyphIndexChanged(std::size_t index);
+    void glyphExportedStateChanged(std::size_t index, bool isExported);
 
 protected:
     bool sceneEvent(QEvent *event) override;

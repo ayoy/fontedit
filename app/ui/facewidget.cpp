@@ -88,11 +88,7 @@ void FaceWidget::load(Font::Face &face, Font::Margins margins)
         auto glyphWidget = new GlyphInfoWidget(g, isExported, printable_ascii_offset + index, imageSize, margins);
 
         connect(glyphWidget, &GlyphInfoWidget::isExportedChanged, [&, index](bool isExported) {
-            if (isExported) {
-                face.exported_glyph_ids().insert(index);
-            } else {
-                face.exported_glyph_ids().erase(index);
-            }
+            emit glyphExportedStateChanged(index, isExported);
         });
 
         // TODO: reduce number of these calls

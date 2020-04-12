@@ -428,6 +428,11 @@ void MainWindow::displayFace(Font::Face& face)
 
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 this, &MainWindow::switchActiveGlyph);
+        connect(faceWidget_, &FaceWidget::glyphExportedStateChanged,
+                [&](std::size_t index, bool isExported) {
+            viewModel_->faceModel()->setGlyphExportedState(index, isExported);
+            updateFaceInfoLabel(viewModel_->faceModel()->faceInfo());
+        });
     }
 
     auto margins = viewModel_->faceModel()->originalFaceMargins();
@@ -455,7 +460,8 @@ void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
     lines << faceInfo.fontName;
     lines << tr("Size (full): %1x%2px").arg(faceInfo.size.width).arg(faceInfo.size.height);
     lines << tr("Size (adjusted): %1x%2px").arg(faceInfo.sizeWithoutMargins.width).arg(faceInfo.sizeWithoutMargins.height);
-    lines << tr("%n Glyph(s)", "", faceInfo.numberOfGlyphs);
+    lines << QString("%1, %2").arg(tr("%n Glyph(s)", "", faceInfo.numberOfGlyphs),
+                                   tr("%1 to export").arg(QString::number(faceInfo.numberOfExportedGlyphs)));
     ui_->faceInfoLabel->setText(lines.join("\n"));
 }
 

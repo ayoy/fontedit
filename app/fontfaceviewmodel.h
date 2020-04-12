@@ -15,6 +15,7 @@ struct FaceInfo
     Font::Size size;
     Font::Size sizeWithoutMargins;
     std::size_t numberOfGlyphs;
+    std::size_t numberOfExportedGlyphs;
 };
 
 class FontFaceViewModel
@@ -36,6 +37,17 @@ public:
 
     Font::Face originalFace() const noexcept;
     Font::Margins originalFaceMargins() const noexcept { return originalMargins_; }
+
+    void setGlyphExportedState(std::size_t idx, bool isExported) {
+        if (idx >= face_.num_glyphs()) {
+            throw std::out_of_range("Active glyph index higher than number of glyphs.");
+        }
+        if (isExported) {
+            face_.exported_glyph_ids().insert(idx);
+        } else {
+            face_.exported_glyph_ids().erase(idx);
+        }
+    }
 
     void setActiveGlyphIndex(std::size_t idx) {
         if (idx >= face_.num_glyphs()) {
