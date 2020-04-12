@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <vector>
+#include <set>
 #include <unordered_map>
 
 #include <QByteArray>
@@ -62,6 +63,22 @@ TEST(SerializationTest, vector_bool)
 
 
     data = { false, false, false, true, true, false, true, false, true, true, true };
+
+    serialize_and_deserialize(data, deserialized);
+    EXPECT_EQ(data, deserialized);
+}
+
+TEST(SerializationTest, set_size_t)
+{
+    std::set<std::size_t> data;
+    std::set<std::size_t> deserialized = { 1, 2, 3 };
+
+    serialize_and_deserialize(data, deserialized);
+    EXPECT_TRUE(deserialized.empty());
+    EXPECT_EQ(data, deserialized);
+
+
+    data = { 100, 152, 3, 6, 17, 0x541882, 1500, 4, 2, 8 };
 
     serialize_and_deserialize(data, deserialized);
     EXPECT_EQ(data, deserialized);

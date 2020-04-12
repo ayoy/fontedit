@@ -13,6 +13,7 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
+#include <set>
 
 namespace Font {
 
@@ -71,10 +72,12 @@ inline QPixmap glyph_preview_pixmap(const Font::Glyph &g, Font::Margins m)
 
 static constexpr quint32 std_optional_magic_number = 0x46b13680;
 static constexpr quint32 std_vector_magic_number = 0x30612113;
+static constexpr quint32 std_set_magic_number = 0x254c2e1e;
 static constexpr quint32 std_unordered_map_magic_number = 0xc9eb6edf;
 
 static constexpr quint32 std_optional_version = 1;
 static constexpr quint32 std_vector_version = 1;
+static constexpr quint32 std_set_version = 1;
 static constexpr quint32 std_unordered_map_version = 1;
 
 template<typename T>
@@ -149,6 +152,81 @@ inline QDataStream& operator>>(QDataStream& s, std::vector<T>& vec)
         for (quint32 i = 0; i < size; ++i) {
             s >> value;
             vec.push_back(value);
+        }
+    }
+    return s;
+}
+
+
+template<typename T>
+inline QDataStream& operator<<(QDataStream& s, const std::set<T>& set)
+{
+    s << std_set_magic_number;
+    s << std_set_version;
+    s.setVersion(QDataStream::Qt_5_7);
+    s << (quint32) set.size();
+
+    for (const auto& value : set) {
+        s << value;
+    }
+
+    return s;
+}
+
+template<typename T>
+inline QDataStream& operator>>(QDataStream& s, std::set<T>& set)
+{
+    quint32 magic_number;
+    quint32 version;
+    s >> magic_number >> version;
+    if (magic_number == std_set_magic_number && version == std_set_version) {
+        s.setVersion(QDataStream::Qt_5_7);
+        quint32 size;
+        s >> size;
+
+        set.clear();
+
+        T value;
+        for (quint32 i = 0; i < size; ++i) {
+            s >> value;
+            set.insert(value);
+        }
+    }
+    return s;
+}
+
+template<>
+inline QDataStream& operator<<(QDataStream& s, const std::set<std::size_t>& set)
+{
+    s << std_set_magic_number;
+    s << std_set_version;
+    s.setVersion(QDataStream::Qt_5_7);
+    s << (quint32) set.size();
+
+    for (const auto& value : set) {
+        s << (quint32) value;
+    }
+
+    return s;
+}
+
+template<>
+inline QDataStream& operator>>(QDataStream& s, std::set<std::size_t>& set)
+{
+    quint32 magic_number;
+    quint32 version;
+    s >> magic_number >> version;
+    if (magic_number == std_set_magic_number && version == std_set_version) {
+        s.setVersion(QDataStream::Qt_5_7);
+        quint32 size;
+        s >> size;
+
+        set.clear();
+
+        quint32 value;
+        for (quint32 i = 0; i < size; ++i) {
+            s >> value;
+            set.insert(static_cast<std::size_t>(value));
         }
     }
     return s;

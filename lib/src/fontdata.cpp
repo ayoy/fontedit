@@ -37,11 +37,16 @@ std::size_t Glyph::bottom_margin() const
 
 Face::Face(const FaceReader &data) :
     Face(data.font_size(), read_glyphs(data))
-{}
+{
+    for (std::size_t i = 0; i < glyphs_.size(); i++) {
+        exported_glyph_ids_.insert(i);
+    }
+}
 
-Face::Face(Size size, const std::vector<Glyph> glyphs) :
+Face::Face(Size size, std::vector<Glyph> glyphs, std::set<std::size_t> exported_glyph_ids) :
     sz_ { size },
-    glyphs_ { glyphs }
+    glyphs_ { std::move(glyphs) },
+    exported_glyph_ids_ { std::move(exported_glyph_ids) }
 {}
 
 std::vector<Glyph> Face::read_glyphs(const FaceReader &data)

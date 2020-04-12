@@ -4,7 +4,7 @@ static constexpr quint32 font_glyph_magic_number = 0x92588c12;
 static constexpr quint32 font_face_magic_number = 0x03f59a82;
 
 static constexpr quint32 font_glyph_version = 1;
-static constexpr quint32 font_face_version = 1;
+static constexpr quint32 font_face_version = 2;
 
 QDataStream& operator<<(QDataStream& s, const Font::Glyph& glyph)
 {
@@ -46,6 +46,7 @@ QDataStream& operator<<(QDataStream& s, const Font::Face& face)
     s << (quint32) face.glyph_size().width;
     s << (quint32) face.glyph_size().height;
     s << face.glyphs();
+    s << face.exported_glyph_ids();
 
     return s;
 
@@ -56,7 +57,7 @@ QDataStream& operator>>(QDataStream& s, Font::Face& face)
     quint32 magic_number;
     quint32 version;
     s >> magic_number >> version;
-    if (magic_number == font_face_magic_number && version == font_face_version) {
+    if (magic_number == font_face_magic_number) {
         s.setVersion(QDataStream::Qt_5_7);
         quint32 width, height;
         s >> width >> height;
@@ -64,7 +65,13 @@ QDataStream& operator>>(QDataStream& s, Font::Face& face)
         std::vector<Font::Glyph> glyphs;
         s >> glyphs;
 
-        face = Font::Face({width, height}, glyphs);
+        if (version < 2) {
+            face = Font::Face({width, height}, glyphs);
+        } else {
+            std::set<std::size_t> exported_glyph_ids;
+            s >> exported_glyph_ids;
+            face = Font::Face({width, height}, glyphs, exported_glyph_ids);
+        }
     }
 
     return s;

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <set>
 
 namespace Font {
 
@@ -133,17 +134,20 @@ public:
     /// The default constructor intializing an empty face
     explicit Face() = default;
 
-    /// The constructor reading a face using face reader.
+    /// The constructor reading a face using face reader. By default all glyphs are exported.
     explicit Face(const FaceReader &data);
 
-    /// The constructor initializing a face with a given size and vector of glyphs.
-    explicit Face(Size size, const std::vector<Glyph> glyphs);
+    /// The constructor initializing a face with a given size, vector of glyphs and exported glyph IDs.
+    explicit Face(Size size, std::vector<Glyph> glyphs, std::set<std::size_t> exported_glyph_ids = {});
 
     Size glyph_size() const noexcept { return sz_; }
     std::size_t num_glyphs() const noexcept { return glyphs_.size(); }
 
     Glyph& glyph_at(std::size_t index) { return glyphs_.at(index); }
     const Glyph& glyph_at(std::size_t index) const { return glyphs_.at(index); }
+
+    std::set<std::size_t>& exported_glyph_ids() { return exported_glyph_ids_; }
+    const std::set<std::size_t>& exported_glyph_ids() const { return exported_glyph_ids_; }
 
     const std::vector<Glyph>& glyphs() const { return glyphs_; }
     void set_glyph(Glyph g, std::size_t index) { glyphs_[index] = g; }
@@ -183,6 +187,7 @@ private:
 
     Size sz_;
     std::vector<Glyph> glyphs_;
+    std::set<std::size_t> exported_glyph_ids_;
 };
 
 inline bool operator==(const Face& lhs, const Face& rhs) noexcept {
