@@ -59,6 +59,7 @@ QSizeF FaceWidget::calculateImageSize(Font::Size glyph_size)
 
 void FaceWidget::load(const Font::Face &face, Font::Margins margins)
 {
+//    face_ = &face;
     reset();
     auto imageSize = calculateImageSize(face.glyph_size());
 
@@ -67,37 +68,62 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
         auto glyphWidget = new GlyphInfoWidget(g, true, printable_ascii_offset + index, imageSize, margins);
         glyphWidget->setIsExportedAdjustable(false);
 
-        // TODO: reduce number of these calls
-        layout_->setRowFixedHeight(index / columnCount_, itemSize_.height());
-        layout_->setColumnFixedWidth(index % columnCount_, itemSize_.width());
-
-        layout_->addItem(glyphWidget, index / columnCount_, index % columnCount_, 1, 1);
-        index += 1;
+        addGlyphInfoWidget(glyphWidget, index);
+        index++;
     }
 }
 
 void FaceWidget::load(Font::Face &face, Font::Margins margins)
 {
+//    face_ = &face;
     reset();
     auto imageSize = calculateImageSize(face.glyph_size());
 
     auto index = 0;
+    auto widgetIndex = 0;
     auto exportedGlyphIDs = face.exported_glyph_ids();
     for (const auto& g : face.glyphs()) {
         auto isExported = exportedGlyphIDs.find(index) != exportedGlyphIDs.end();
-        auto glyphWidget = new GlyphInfoWidget(g, isExported, printable_ascii_offset + index, imageSize, margins);
 
-        connect(glyphWidget, &GlyphInfoWidget::isExportedChanged, [&, index](bool isExported) {
-            emit glyphExportedStateChanged(index, isExported);
-        });
+        if (isExported || showsNonExportedItems_) {
+            auto glyphWidget = new GlyphInfoWidget(g, isExported, printable_ascii_offset + index, imageSize, margins);
 
-        // TODO: reduce number of these calls
-        layout_->setRowFixedHeight(index / columnCount_, itemSize_.height());
-        layout_->setColumnFixedWidth(index % columnCount_, itemSize_.width());
+            connect(glyphWidget, &GlyphInfoWidget::isExportedChanged, [&, index, widgetIndex] (bool isExported) {
+//                if (!isExported && !showsNonExportedItems_) {
+//                    hideItem(widgetIndex);
+//                }
+                emit glyphExportedStateChanged(index, isExported);
+            });
 
-        layout_->addItem(glyphWidget, index / columnCount_, index % columnCount_, 1, 1);
-        index += 1;
+            addGlyphInfoWidget(glyphWidget, widgetIndex);
+            widgetIndex++;
+        }
+
+        index++;
     }
+}
+
+//void FaceWidget::hideItem(std::size_t index)
+//{
+//    auto item = layout_->itemAt(index);
+//    layout_->removeItem(item);
+//    delete item;
+
+//    resetFocusWidget();
+//    for (int widgetIndex = index; widgetIndex < layout_->count(); widgetIndex++) {
+//        item = layout_->itemAt(widgetIndex);
+//        addGlyphInfoWidget(item, widgetIndex);
+////        layout_->addItem(item, (widgetIndex - 1) / columnCount_, (widgetIndex - 1) % columnCount_);
+//    }
+//}
+
+void FaceWidget::addGlyphInfoWidget(QGraphicsLayoutItem *glyphWidget, std::size_t index)
+{
+    // TODO: reduce number of these calls
+    layout_->setRowFixedHeight(index / columnCount_, itemSize_.height());
+    layout_->setColumnFixedWidth(index % columnCount_, itemSize_.width());
+
+    layout_->addItem(glyphWidget, index / columnCount_, index % columnCount_, 1, 1);
 }
 
 void FaceWidget::setCurrentGlyphIndex(std::size_t index)

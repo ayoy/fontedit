@@ -8,6 +8,8 @@
 
 #include <memory>
 
+class GlyphInfoWidget;
+
 class FaceWidget : public QGraphicsWidget
 {
     Q_OBJECT
@@ -22,6 +24,9 @@ public:
     void setCurrentGlyphIndex(std::size_t index);
     void updateGlyphPreview(std::size_t index, const Font::Glyph& glyph);
 
+    bool showsNonExportedItems() const { return showsNonExportedItems_; }
+    void setShowsNonExportedItems(bool isEnabled) { showsNonExportedItems_ = isEnabled; }
+
 signals:
     void currentGlyphIndexChanged(std::size_t index);
     void glyphExportedStateChanged(std::size_t index, bool isExported);
@@ -33,14 +38,19 @@ protected:
 private:
     void reset();
     QSizeF calculateImageSize(Font::Size glyph_size);
+    void addGlyphInfoWidget(QGraphicsLayoutItem* glyphWidget, std::size_t index);
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
     void resetFocusWidget();
+
+//    void hideItem(std::size_t index);
 
     QGraphicsLayoutItem *focusedItem_ { nullptr };
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
     std::unique_ptr<FocusWidget> focusWidget_ { nullptr };
     QSizeF itemSize_;
     int columnCount_;
+    bool showsNonExportedItems_ { true };
+//    const Font::Face* face_;
 };
 
 #endif // FACEWIDGET_H
