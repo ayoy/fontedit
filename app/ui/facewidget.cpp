@@ -18,6 +18,7 @@ FaceWidget::FaceWidget(int columnCount, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     columnCount_ { columnCount }
 {
+    setFocusPolicy(Qt::ClickFocus);
     layout_->setSpacing(0);
     layout_->setContentsMargins(0, 0, 0, 0);
     setLayout(layout_);
@@ -153,6 +154,16 @@ GlyphInfoWidget* FaceWidget::glyphWidgetAtIndex(std::size_t index)
                                                            itemIndex % columnCount_));
 }
 
+GlyphInfoWidget* FaceWidget::glyphWidgetAtPos(QPointF pos)
+{
+    qreal leftMargin;
+    qreal topMargin;
+    layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
+    int row = static_cast<int>((pos.y() - topMargin) / itemSize_.height());
+    int col = static_cast<int>((pos.x() - leftMargin) / itemSize_.width());
+    return dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(row, col));
+}
+
 void FaceWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
 {
     if (focusWidget_ == nullptr) {
@@ -178,30 +189,38 @@ void FaceWidget::resetFocusWidget()
     focusedItem_ = nullptr;
 }
 
-bool FaceWidget::sceneEvent(QEvent *event)
+void FaceWidget::keyPressEvent(QKeyEvent *event)
 {
-    switch (event->type()) {
-    case QActionEvent::GraphicsSceneMousePress:
-    case QActionEvent::GraphicsSceneMouseDoubleClick:
-        if (auto mouseEvent = dynamic_cast<QGraphicsSceneMouseEvent *>(event)) {
-            qreal leftMargin;
-            qreal topMargin;
-            layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
-            int row = static_cast<int>((mouseEvent->pos().y() - topMargin) / itemSize_.height());
-            int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / itemSize_.width());
-            auto item = dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(row, col));
-            if (item != nullptr) {
-                setFocusForItem(item, true);
-                emit currentGlyphIndexChanged(item->glyphIndex());
-            } else {
-                resetFocusWidget();
-            }
-        }
-        break;
-    default:
-        break;
+    if (focusWidget_ == nullptr) {
+        return;
     }
-    return QGraphicsWidget::sceneEvent(event);
+
+    auto item = glyphWidgetAtPos(focusWidget_->pos());
+    if (item != nullptr && event->key() == Qt::Key_Space) {
+        auto isExported = face_->exported_glyph_ids().find(item->glyphIndex()) != face_->exported_glyph_ids().end();
+        emit glyphExportedStateChanged(item->glyphIndex(), !isExported);
+    }
+}
+
+void FaceWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    handleMousePress(event);
+}
+
+void FaceWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    handleMousePress(event);
+}
+
+void FaceWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
+{
+    auto item = glyphWidgetAtPos(event->pos());
+    if (item != nullptr) {
+        setFocusForItem(item, true);
+        emit currentGlyphIndexChanged(item->glyphIndex());
+    } else {
+        resetFocusWidget();
+    }
 }
 
 void FaceWidget::updateGeometry()
