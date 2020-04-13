@@ -19,8 +19,9 @@ AddGlyphDialog::AddGlyphDialog(const FontFaceViewModel& faceViewModel, QWidget *
 
     faceWidget_->load(faceViewModel.face(), Font::Margins {});
     connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged, ui_->copyRadio, &QRadioButton::click);
-    connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged, [&, faceViewModel](std::size_t index) {
-        newGlyph_ = faceViewModel.face().glyph_at(index);
+    connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged, [&, faceViewModel](std::optional<std::size_t> index) {
+        if (index.has_value())
+            newGlyph_ = faceViewModel.face().glyph_at(index.value());
     });
     connect(ui_->buttonBox, &QDialogButtonBox::accepted, [&, faceViewModel] {
         if (ui_->emptyRadio->isChecked()) {

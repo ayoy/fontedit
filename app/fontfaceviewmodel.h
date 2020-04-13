@@ -49,8 +49,8 @@ public:
         }
     }
 
-    void setActiveGlyphIndex(std::size_t idx) {
-        if (idx >= face_.num_glyphs()) {
+    void setActiveGlyphIndex(std::optional<std::size_t> idx) {
+        if (idx.has_value() && idx.value() >= face_.num_glyphs()) {
             throw std::out_of_range("Active glyph index higher than number of glyphs.");
         }
         activeGlyphIndex_ = idx;
@@ -60,11 +60,11 @@ public:
         return activeGlyphIndex_;
     }
 
-    const Font::Glyph& activeGlyph() const {
-        if (!activeGlyphIndex_.has_value()) {
-             throw std::logic_error("No active glyph. Call setActiveGlyphIndex() first");
+    std::optional<Font::Glyph> activeGlyph() const {
+        if (activeGlyphIndex_.has_value()) {
+            return face_.glyph_at(activeGlyphIndex_.value());
         }
-        return face_.glyph_at(activeGlyphIndex_.value());
+        return {};
     }
 
     void resetActiveGlyph() {

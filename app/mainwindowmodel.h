@@ -139,7 +139,7 @@ public slots:
     void saveDocument(const QString& fileName);
     void closeCurrentDocument();
 
-    void setActiveGlyphIndex(std::size_t index);
+    void setActiveGlyphIndex(std::optional<std::size_t> index);
     void setInvertBits(bool enabled);
     void setMSBEnabled(bool enabled);
     void setIncludeLineSpacing(bool enabled);
@@ -149,7 +149,7 @@ public slots:
 signals:
     void uiStateChanged(UIState state) const;
     void faceLoaded(Font::Face& face) const;
-    void activeGlyphChanged(const Font::Glyph& glyph) const;
+    void activeGlyphChanged(std::optional<Font::Glyph> glyph) const;
     void sourceCodeUpdating() const;
     void sourceCodeChanged() const;
     void runnableFinished() const;

@@ -5,6 +5,9 @@
 #include <QGraphicsSceneEvent>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QQueue>
+#include <algorithm>
+#include <iterator>
 
 static constexpr auto printable_ascii_offset = ' ';
 static constexpr auto min_cell_height = 120.0;
@@ -59,13 +62,13 @@ QSizeF FaceWidget::calculateImageSize(Font::Size glyph_size)
 
 void FaceWidget::load(const Font::Face &face, Font::Margins margins)
 {
-//    face_ = &face;
+    face_ = &face;
     reset();
     auto imageSize = calculateImageSize(face.glyph_size());
 
     auto index = 0;
     for (const auto& g : face.glyphs()) {
-        auto glyphWidget = new GlyphInfoWidget(g, true, printable_ascii_offset + index, imageSize, margins);
+        auto glyphWidget = new GlyphInfoWidget(g, index, true, printable_ascii_offset + index, imageSize, margins);
         glyphWidget->setIsExportedAdjustable(false);
 
         addGlyphInfoWidget(glyphWidget, index);
@@ -75,24 +78,41 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
 
 void FaceWidget::load(Font::Face &face, Font::Margins margins)
 {
-//    face_ = &face;
+    face_ = &face;
+    reloadFace(margins);
+}
+
+void FaceWidget::reloadFace(Font::Margins margins)
+{
     reset();
-    auto imageSize = calculateImageSize(face.glyph_size());
+    auto imageSize = calculateImageSize(face_->glyph_size());
 
     auto index = 0;
     auto widgetIndex = 0;
-    auto exportedGlyphIDs = face.exported_glyph_ids();
-    for (const auto& g : face.glyphs()) {
+    auto exportedGlyphIDs = face_->exported_glyph_ids();
+    for (const auto& g : face_->glyphs()) {
         auto isExported = exportedGlyphIDs.find(index) != exportedGlyphIDs.end();
 
         if (isExported || showsNonExportedItems_) {
-            auto glyphWidget = new GlyphInfoWidget(g, isExported, printable_ascii_offset + index, imageSize, margins);
+            auto glyphWidget = new GlyphInfoWidget(g, index, isExported, printable_ascii_offset + index, imageSize, margins);
 
-            connect(glyphWidget, &GlyphInfoWidget::isExportedChanged, [&, index, widgetIndex] (bool isExported) {
-//                if (!isExported && !showsNonExportedItems_) {
-//                    hideItem(widgetIndex);
-//                }
-                emit glyphExportedStateChanged(index, isExported);
+            connect(glyphWidget, &GlyphInfoWidget::isExportedChanged, [&, index, margins] (bool isExported) {
+                if (!isExported && !showsNonExportedItems_) {
+
+                    // Find index of the next exported item
+                    std::optional<std::size_t> nextIndex {};
+                    auto i = std::next(face_->exported_glyph_ids().find(index));
+                    if (i != face_->exported_glyph_ids().end()) {
+                        nextIndex = *i;
+                    }
+
+                    emit glyphExportedStateChanged(index, isExported);
+
+                    reloadFace(margins);
+                    emit currentGlyphIndexChanged(nextIndex);
+                } else {
+                    emit glyphExportedStateChanged(index, isExported);
+                }
             });
 
             addGlyphInfoWidget(glyphWidget, widgetIndex);
@@ -103,20 +123,6 @@ void FaceWidget::load(Font::Face &face, Font::Margins margins)
     }
 }
 
-//void FaceWidget::hideItem(std::size_t index)
-//{
-//    auto item = layout_->itemAt(index);
-//    layout_->removeItem(item);
-//    delete item;
-
-//    resetFocusWidget();
-//    for (int widgetIndex = index; widgetIndex < layout_->count(); widgetIndex++) {
-//        item = layout_->itemAt(widgetIndex);
-//        addGlyphInfoWidget(item, widgetIndex);
-////        layout_->addItem(item, (widgetIndex - 1) / columnCount_, (widgetIndex - 1) % columnCount_);
-//    }
-//}
-
 void FaceWidget::addGlyphInfoWidget(QGraphicsLayoutItem *glyphWidget, std::size_t index)
 {
     // TODO: reduce number of these calls
@@ -126,20 +132,38 @@ void FaceWidget::addGlyphInfoWidget(QGraphicsLayoutItem *glyphWidget, std::size_
     layout_->addItem(glyphWidget, index / columnCount_, index % columnCount_, 1, 1);
 }
 
-void FaceWidget::setCurrentGlyphIndex(std::size_t index)
+void FaceWidget::setCurrentGlyphIndex(std::optional<std::size_t> index)
 {
-    auto item = layout()->itemAt(index);
-    if (item) {
-        setFocusForItem(item, true);
+    if (index.has_value()) {
+        auto item = glyphWidgetAtIndex(index.value());
+        if (item) {
+            setFocusForItem(item, true);
+        }
+    } else {
+        clearFocus();
     }
 }
 
 void FaceWidget::updateGlyphPreview(std::size_t index, const Font::Glyph &glyph)
 {
-    auto item = dynamic_cast<GlyphInfoWidget *>(layout()->itemAt(index));
+    auto item = glyphWidgetAtIndex(index);
     if (item) {
         item->updateGlyph(glyph);
     }
+}
+
+GlyphInfoWidget* FaceWidget::glyphWidgetAtIndex(std::size_t index)
+{
+    int itemIndex = index;
+
+    if (!showsNonExportedItems_) {
+        itemIndex = std::count_if(face_->exported_glyph_ids().begin(),
+                                  face_->exported_glyph_ids().find(index),
+                                  [&](std::size_t i) { return i < index; });
+    }
+
+    return dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(itemIndex / columnCount_,
+                                                           itemIndex % columnCount_));
 }
 
 void FaceWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
@@ -178,10 +202,10 @@ bool FaceWidget::sceneEvent(QEvent *event)
             layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
             int row = static_cast<int>((mouseEvent->pos().y() - topMargin) / itemSize_.height());
             int col = static_cast<int>((mouseEvent->pos().x() - leftMargin) / itemSize_.width());
-            auto item = layout_->itemAt(row, col);
+            auto item = dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(row, col));
             if (item != nullptr) {
                 setFocusForItem(item, true);
-                emit currentGlyphIndexChanged(row * columnCount_ + col);
+                emit currentGlyphIndexChanged(item->glyphIndex());
             } else {
                 resetFocusWidget();
             }

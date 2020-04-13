@@ -21,7 +21,7 @@ static QString description(unsigned char asciiCode)
     return QString::fromStdString(stream.str());
 }
 
-GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, bool isExported,
+GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, std::size_t index, bool isExported,
                                  unsigned char asciiCode, QSizeF imageSize,
                                  Font::Margins margins, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
@@ -31,7 +31,8 @@ GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, bool isExported,
     isExported_ { isExported },
     preview_ { Font::glyph_preview_image(glyph, margins) },
     margins_ { margins },
-    toggleExportedAction_ { QAction(tr("Exported")) }
+    toggleExportedAction_ { QAction(tr("Exported")) },
+    glyphIndex_ { index }
 {
     toggleExportedAction_.setCheckable(true);
     toggleExportedAction_.setChecked(isExported_);

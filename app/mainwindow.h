@@ -51,7 +51,7 @@ private:
     void displayGlyph(const Font::Glyph& glyph);
     void updateUI(UIState uiState);
     void editGlyph(const BatchPixelChange& change);
-    void switchActiveGlyph(std::size_t newIndex);
+    void switchActiveGlyph(std::optional<std::size_t> newIndex);
     void updateResetActions();
     void updateFaceInfoLabel(const FaceInfo& faceInfo);
     void updateDefaultFontName(const FaceInfo& faceInfo);

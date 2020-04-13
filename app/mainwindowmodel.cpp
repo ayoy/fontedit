@@ -210,7 +210,7 @@ void MainWindowModel::closeCurrentDocument()
     emit documentClosed();
 }
 
-void MainWindowModel::setActiveGlyphIndex(std::size_t index)
+void MainWindowModel::setActiveGlyphIndex(std::optional<std::size_t> index)
 {
     if (fontFaceViewModel_->activeGlyphIndex().has_value() and
             fontFaceViewModel_->activeGlyphIndex().value() == index)

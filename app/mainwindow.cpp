@@ -108,7 +108,14 @@ void MainWindow::connectViewModelOutputs()
         displayFace(face);
     });
     connect(viewModel_.get(), &MainWindowModel::documentError, this, &MainWindow::displayError);
-    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
+    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, [&](std::optional<Font::Glyph> glyph) {
+        if (glyph.has_value()) {
+            displayGlyph(glyph.value());
+        } else if (auto g = glyphWidget_.get()) {
+            ui_->glyphGraphicsView->scene()->removeItem(g);
+            glyphWidget_.release();
+        }
+    });
     connect(viewModel_.get(), &MainWindowModel::sourceCodeUpdating, [&]() {
 //        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
     });
@@ -321,9 +328,7 @@ void MainWindow::showAddGlyphDialog()
 
             undoStack_->push(new Command(tr("Add Glyph"), [&, numberOfGlyphs, activeGlyphIndex] {
                 viewModel_->deleteGlyph(numberOfGlyphs);
-                if (activeGlyphIndex.has_value()) {
-                    viewModel_->setActiveGlyphIndex(activeGlyphIndex.value());
-                }
+                viewModel_->setActiveGlyphIndex(activeGlyphIndex);
                 displayFace(viewModel_->faceModel()->face());
             }, [&, glyph] {
                 viewModel_->appendGlyph(glyph.value());
@@ -347,27 +352,31 @@ void MainWindow::showDeleteGlyphDialog()
     }
 
     auto glyph = viewModel_->faceModel()->activeGlyph();
-    auto commandName = isLastGlyph ? tr("Delete Glyph") : tr("Clear Glyph");
+    if (glyph.has_value()) {
 
-    undoStack_->push(new Command(commandName, [&, currentIndex, isLastGlyph, glyph] {
-        if (isLastGlyph) {
-            viewModel_->appendGlyph(glyph);
-            viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->face().num_glyphs()-1);
-            displayFace(viewModel_->faceModel()->face());
-        } else {
-            viewModel_->modifyGlyph(currentIndex.value(), glyph);
-            faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph());
-            displayGlyph(viewModel_->faceModel()->activeGlyph());
-        }
-    }, [&, currentIndex, isLastGlyph] {
-        viewModel_->deleteGlyph(currentIndex.value());
-        if (isLastGlyph) {
-            displayFace(viewModel_->faceModel()->face());
-        } else {
-            faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph());
-            displayGlyph(viewModel_->faceModel()->activeGlyph());
-        }
-    }));
+        auto commandName = isLastGlyph ? tr("Delete Glyph") : tr("Clear Glyph");
+
+        undoStack_->push(new Command(commandName, [&, currentIndex, isLastGlyph, glyph] {
+            if (isLastGlyph) {
+                viewModel_->appendGlyph(glyph.value());
+                viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->face().num_glyphs()-1);
+                displayFace(viewModel_->faceModel()->face());
+            } else {
+                viewModel_->modifyGlyph(currentIndex.value(), glyph.value());
+                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
+                displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+            }
+        }, [&, currentIndex, isLastGlyph] {
+            viewModel_->deleteGlyph(currentIndex.value());
+            if (isLastGlyph) {
+                displayFace(viewModel_->faceModel()->face());
+            } else {
+                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
+                displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+            }
+        }));
+
+    }
 }
 
 void MainWindow::save()
@@ -443,10 +452,11 @@ void MainWindow::displayFace(Font::Face& face)
     updateDefaultFontName(faceInfo);
     ui_->faceInfoLabel->setVisible(true);
 
-    if (viewModel_->faceModel()->activeGlyphIndex().has_value()) {
-        displayGlyph(viewModel_->faceModel()->activeGlyph());
-        faceWidget_->setCurrentGlyphIndex(viewModel_->faceModel()->activeGlyphIndex().value());
-        viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->activeGlyphIndex().value());
+    auto glyph = viewModel_->faceModel()->activeGlyph();
+    if (glyph.has_value()) {
+        displayGlyph(glyph.value());
+        faceWidget_->setCurrentGlyphIndex(viewModel_->faceModel()->activeGlyphIndex());
+        viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->activeGlyphIndex());
     } else if (auto g = glyphWidget_.get()) {
         ui_->glyphGraphicsView->scene()->removeItem(g);
         glyphWidget_.release();
@@ -499,7 +509,7 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
                 viewModel_->modifyGlyph(currentIndex.value(), change, type);
                 updateResetActions();
                 glyphWidget_->applyChange(change, type);
-                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph());
+                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
                 viewModel_->updateDocumentTitle();
             };
         };
@@ -510,16 +520,16 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
     }
 }
 
-void MainWindow::switchActiveGlyph(std::size_t newIndex)
+void MainWindow::switchActiveGlyph(std::optional<std::size_t> newIndex)
 {
     auto currentIndex = viewModel_->faceModel()->activeGlyphIndex();
-    if (currentIndex.has_value()) {
-        auto idx = currentIndex.value();
-        if (idx == newIndex) {
-            return;
-        }
+    if (currentIndex == newIndex) {
+        return;
+    }
 
-        auto setGlyph = [&](std::size_t index) -> std::function<void()> {
+    if (currentIndex.has_value() && newIndex.has_value()) {
+
+        auto setGlyph = [&](std::optional<std::size_t> index) -> std::function<void()> {
             return [&, index] {
                 faceWidget_->setCurrentGlyphIndex(index);
                 viewModel_->setActiveGlyphIndex(index);
@@ -527,7 +537,7 @@ void MainWindow::switchActiveGlyph(std::size_t newIndex)
         };
 
         undoStack_->push(new Command(tr("Switch Active Glyph"),
-                                     setGlyph(idx),
+                                     setGlyph(currentIndex),
                                      setGlyph(newIndex)));
     } else {
         faceWidget_->setCurrentGlyphIndex(newIndex);
@@ -537,19 +547,19 @@ void MainWindow::switchActiveGlyph(std::size_t newIndex)
 
 void MainWindow::resetCurrentGlyph()
 {
-    Font::Glyph currentGlyphState { viewModel_->faceModel()->activeGlyph() };
+    Font::Glyph currentGlyphState { viewModel_->faceModel()->activeGlyph().value() };
     auto glyphIndex = viewModel_->faceModel()->activeGlyphIndex().value();
 
     undoStack_->push(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
         viewModel_->modifyGlyph(glyphIndex, currentGlyphState);
         viewModel_->updateDocumentTitle();
-        displayGlyph(viewModel_->faceModel()->activeGlyph());
-        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());
+        displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
     }, [&, glyphIndex] {
         viewModel_->resetGlyph(glyphIndex);
         viewModel_->updateDocumentTitle();
-        displayGlyph(viewModel_->faceModel()->activeGlyph());
-        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());
+        displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
     }));
 }
 
