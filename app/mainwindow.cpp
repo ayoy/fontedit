@@ -363,7 +363,7 @@ void MainWindow::showDeleteGlyphDialog()
                 displayFace(viewModel_->faceModel()->face());
             } else {
                 viewModel_->modifyGlyph(currentIndex.value(), glyph.value());
-                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
+                faceWidget_->updateGlyphInfo(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
                 displayGlyph(viewModel_->faceModel()->activeGlyph().value());
             }
         }, [&, currentIndex, isLastGlyph] {
@@ -371,7 +371,7 @@ void MainWindow::showDeleteGlyphDialog()
             if (isLastGlyph) {
                 displayFace(viewModel_->faceModel()->face());
             } else {
-                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
+                faceWidget_->updateGlyphInfo(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
                 displayGlyph(viewModel_->faceModel()->activeGlyph().value());
             }
         }));
@@ -438,10 +438,7 @@ void MainWindow::displayFace(Font::Face& face)
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 this, &MainWindow::switchActiveGlyph);
         connect(faceWidget_, &FaceWidget::glyphExportedStateChanged,
-                [&](std::size_t index, bool isExported) {
-            viewModel_->faceModel()->setGlyphExportedState(index, isExported);
-            updateFaceInfoLabel(viewModel_->faceModel()->faceInfo());
-        });
+                this, &MainWindow::setGlyphExported);
     }
 
     auto margins = viewModel_->faceModel()->originalFaceMargins();
@@ -462,6 +459,50 @@ void MainWindow::displayFace(Font::Face& face)
         glyphWidget_.release();
     }
     updateResetActions();
+}
+
+void MainWindow::setGlyphExported(std::size_t index, bool isExported)
+{
+    undoStack_->push(new Command(tr("Toggle Glyph Exported"), [&, index, isExported] {
+        auto faceModel = viewModel_->faceModel();
+        faceModel->setGlyphExportedState(index, !isExported);
+        updateFaceInfoLabel(faceModel->faceInfo());
+        if (!faceWidget_->showsNonExportedItems()) {
+            auto margins = faceModel->originalFaceMargins();
+            faceWidget_->load(faceModel->face(), margins);
+            faceWidget_->setCurrentGlyphIndex(index);
+            glyphWidget_->load(faceModel->face().glyph_at(index), margins);
+        } else {
+            faceWidget_->updateGlyphInfo(index, {}, !isExported);
+        }
+
+    }, [&, index, isExported] {
+        auto faceModel = viewModel_->faceModel();
+        auto shouldUpdateCurrentIndex = !isExported && !faceWidget_->showsNonExportedItems();
+
+        std::optional<std::size_t> nextIndex {};
+        if (shouldUpdateCurrentIndex) {
+            // Find index of the next exported item
+            auto i = std::next(faceModel->face().exported_glyph_ids().find(index));
+            if (i != faceModel->face().exported_glyph_ids().end()) {
+                nextIndex = *i;
+            }
+        }
+
+        faceModel->setGlyphExportedState(index, isExported);
+        updateFaceInfoLabel(faceModel->faceInfo());
+
+        if (shouldUpdateCurrentIndex) {
+            auto margins = faceModel->originalFaceMargins();
+            faceWidget_->load(faceModel->face(), margins);
+            faceWidget_->setCurrentGlyphIndex(nextIndex);
+            if (nextIndex.has_value()) {
+                glyphWidget_->load(faceModel->face().glyph_at(nextIndex.value()), margins);
+            }
+        } else {
+            faceWidget_->updateGlyphInfo(index, {}, isExported);
+        }
+    }));
 }
 
 void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
@@ -509,7 +550,7 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
                 viewModel_->modifyGlyph(currentIndex.value(), change, type);
                 updateResetActions();
                 glyphWidget_->applyChange(change, type);
-                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
+                faceWidget_->updateGlyphInfo(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
                 viewModel_->updateDocumentTitle();
             };
         };
@@ -554,12 +595,12 @@ void MainWindow::resetCurrentGlyph()
         viewModel_->modifyGlyph(glyphIndex, currentGlyphState);
         viewModel_->updateDocumentTitle();
         displayGlyph(viewModel_->faceModel()->activeGlyph().value());
-        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
+        faceWidget_->updateGlyphInfo(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
     }, [&, glyphIndex] {
         viewModel_->resetGlyph(glyphIndex);
         viewModel_->updateDocumentTitle();
         displayGlyph(viewModel_->faceModel()->activeGlyph().value());
-        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
+        faceWidget_->updateGlyphInfo(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
     }));
 }
 

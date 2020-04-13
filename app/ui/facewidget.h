@@ -22,7 +22,7 @@ public:
     void load(const Font::Face& face, Font::Margins margins);
     void load(Font::Face& face, Font::Margins margins);
     void setCurrentGlyphIndex(std::optional<std::size_t> index);
-    void updateGlyphPreview(std::size_t index, const Font::Glyph& glyph);
+    void updateGlyphInfo(std::size_t index, std::optional<Font::Glyph> glyph, std::optional<bool> isExported = {});
 
     bool showsNonExportedItems() const { return showsNonExportedItems_; }
     void setShowsNonExportedItems(bool isEnabled) { showsNonExportedItems_ = isEnabled; }
@@ -44,14 +44,12 @@ private:
 
     GlyphInfoWidget* glyphWidgetAtIndex(std::size_t index);
 
-    void reloadFace(Font::Margins margins);
-
     QGraphicsLayoutItem *focusedItem_ { nullptr };
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
     std::unique_ptr<FocusWidget> focusWidget_ { nullptr };
     QSizeF itemSize_;
     int columnCount_;
-    bool showsNonExportedItems_ { true };
+    bool showsNonExportedItems_ { false };
     const Font::Face* face_;
 };
 

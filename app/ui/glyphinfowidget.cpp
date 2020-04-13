@@ -37,11 +37,7 @@ GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, std::size_t index, bo
     toggleExportedAction_.setCheckable(true);
     toggleExportedAction_.setChecked(isExported_);
 
-    connect(&toggleExportedAction_, &QAction::triggered, [&](bool isChecked) {
-        isExported_ = !isExported_;
-        update();
-        emit isExportedChanged(isChecked);
-    });
+    connect(&toggleExportedAction_, &QAction::triggered, this, &GlyphInfoWidget::isExportedChanged);
 }
 
 void GlyphInfoWidget::setIsExportedAdjustable(bool isEnabled)
@@ -49,7 +45,7 @@ void GlyphInfoWidget::setIsExportedAdjustable(bool isEnabled)
     isExportedAdjustable_ = isEnabled;
 }
 
-void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph, std::optional<bool> isExported, std::optional<Font::Margins> margins)
+void GlyphInfoWidget::updateGlyph(std::optional<Font::Glyph> glyph, std::optional<bool> isExported, std::optional<Font::Margins> margins)
 {
     if (isExported.has_value()) {
         isExported_ = isExported.value();
@@ -57,7 +53,9 @@ void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph, std::optional<bool> 
     if (margins.has_value()) {
         margins_ = margins.value();
     }
-    preview_ = Font::glyph_preview_image(glyph, margins_);
+    if (glyph.has_value()) {
+        preview_ = Font::glyph_preview_image(glyph.value(), margins_);
+    }
     update();
 }
 

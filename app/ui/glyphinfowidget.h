@@ -21,7 +21,7 @@ public:
                     Font::Margins margins = {}, QGraphicsItem *parent = nullptr);
 
     std::size_t glyphIndex() const { return glyphIndex_; }
-    void updateGlyph(const Font::Glyph& glyph, std::optional<bool> isExported = {}, std::optional<Font::Margins> margins = {});
+    void updateGlyph(std::optional<Font::Glyph> glyph, std::optional<bool> isExported = {}, std::optional<Font::Margins> margins = {});
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
