@@ -10,6 +10,7 @@
 #include "facewidget.h"
 #include "glyphwidget.h"
 #include "batchpixelchange.h"
+#include "command.h"
 
 #include <memory>
 
@@ -61,6 +62,7 @@ private:
     void exportSourceCode();
     void closeCurrentDocument();
     void displayError(const QString& error);
+    void pushUndoCommand(QUndoCommand *command);
 
     void debounceFontNameChanged(const QString& fontName);
 
@@ -83,6 +85,8 @@ private:
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
     std::unique_ptr<QUndoStack> undoStack_ { std::make_unique<QUndoStack>() };
     std::unique_ptr<QTimer> fontNameDebounceTimer_ {};
+
+    std::unique_ptr<SwitchActiveGlyphCommand> pendingSwitchGlyphCommand_ {};
 };
 
 #endif // MAINWINDOW_H

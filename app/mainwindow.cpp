@@ -326,7 +326,7 @@ void MainWindow::showAddGlyphDialog()
             auto numberOfGlyphs = viewModel_->faceModel()->face().num_glyphs();
             auto activeGlyphIndex = viewModel_->faceModel()->activeGlyphIndex();
 
-            undoStack_->push(new Command(tr("Add Glyph"), [&, numberOfGlyphs, activeGlyphIndex] {
+            pushUndoCommand(new Command(tr("Add Glyph"), [&, numberOfGlyphs, activeGlyphIndex] {
                 viewModel_->deleteGlyph(numberOfGlyphs);
                 viewModel_->setActiveGlyphIndex(activeGlyphIndex);
                 displayFace(viewModel_->faceModel()->face());
@@ -356,7 +356,7 @@ void MainWindow::showDeleteGlyphDialog()
 
         auto commandName = isLastGlyph ? tr("Delete Glyph") : tr("Clear Glyph");
 
-        undoStack_->push(new Command(commandName, [&, currentIndex, isLastGlyph, glyph] {
+        pushUndoCommand(new Command(commandName, [&, currentIndex, isLastGlyph, glyph] {
             if (isLastGlyph) {
                 viewModel_->appendGlyph(glyph.value());
                 viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->face().num_glyphs()-1);
@@ -463,7 +463,7 @@ void MainWindow::displayFace(Font::Face& face)
 
 void MainWindow::setGlyphExported(std::size_t index, bool isExported)
 {
-    undoStack_->push(new Command(tr("Toggle Glyph Exported"), [&, index, isExported] {
+    pushUndoCommand(new Command(tr("Toggle Glyph Exported"), [&, index, isExported] {
         auto faceModel = viewModel_->faceModel();
         faceModel->setGlyphExportedState(index, !isExported);
         updateFaceInfoLabel(faceModel->faceInfo());
@@ -555,9 +555,9 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
             };
         };
 
-        undoStack_->push(new Command(tr("Edit Glyph"),
-                                     applyChange(BatchPixelChange::ChangeType::Reverse),
-                                     applyChange(BatchPixelChange::ChangeType::Normal)));
+        pushUndoCommand(new Command(tr("Edit Glyph"),
+                                    applyChange(BatchPixelChange::ChangeType::Reverse),
+                                    applyChange(BatchPixelChange::ChangeType::Normal)));
     }
 }
 
@@ -570,16 +570,13 @@ void MainWindow::switchActiveGlyph(std::optional<std::size_t> newIndex)
 
     if (currentIndex.has_value() && newIndex.has_value()) {
 
-        auto setGlyph = [&](std::optional<std::size_t> index) -> std::function<void()> {
-            return [&, index] {
-                faceWidget_->setCurrentGlyphIndex(index);
-                viewModel_->setActiveGlyphIndex(index);
-            };
-        };
-
-        undoStack_->push(new Command(tr("Switch Active Glyph"),
-                                     setGlyph(currentIndex),
-                                     setGlyph(newIndex)));
+        if (!pendingSwitchGlyphCommand_) {
+            pendingSwitchGlyphCommand_ = std::make_unique<SwitchActiveGlyphCommand>(faceWidget_, viewModel_.get(),
+                                                                                    currentIndex.value(), newIndex.value());
+        } else {
+            pendingSwitchGlyphCommand_->setToIndex(newIndex.value());
+        }
+        pendingSwitchGlyphCommand_->redo();
     } else {
         faceWidget_->setCurrentGlyphIndex(newIndex);
         viewModel_->setActiveGlyphIndex(newIndex);
@@ -591,7 +588,7 @@ void MainWindow::resetCurrentGlyph()
     Font::Glyph currentGlyphState { viewModel_->faceModel()->activeGlyph().value() };
     auto glyphIndex = viewModel_->faceModel()->activeGlyphIndex().value();
 
-    undoStack_->push(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
+    pushUndoCommand(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
         viewModel_->modifyGlyph(glyphIndex, currentGlyphState);
         viewModel_->updateDocumentTitle();
         displayGlyph(viewModel_->faceModel()->activeGlyph().value());
@@ -693,4 +690,21 @@ void MainWindow::exportSourceCode()
     });
 
     dialog->open();
+}
+
+void MainWindow::pushUndoCommand(QUndoCommand *command)
+{
+    bool shouldPushSwitchGlyphCommand = pendingSwitchGlyphCommand_ != nullptr;
+
+    if (shouldPushSwitchGlyphCommand) {
+        undoStack_->beginMacro(command->text());
+        undoStack_->push(pendingSwitchGlyphCommand_.get());
+        pendingSwitchGlyphCommand_.release();
+    }
+
+    undoStack_->push(command);
+
+    if (shouldPushSwitchGlyphCommand) {
+        undoStack_->endMacro();
+    }
 }
