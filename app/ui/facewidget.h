@@ -25,7 +25,7 @@ public:
     void updateGlyphInfo(std::size_t index, std::optional<Font::Glyph> glyph, std::optional<bool> isExported = {});
 
     bool showsNonExportedItems() const { return showsNonExportedItems_; }
-    void setShowsNonExportedItems(bool isEnabled) { showsNonExportedItems_ = isEnabled; }
+    void setShowsNonExportedItems(bool isEnabled);
 
 signals:
     void currentGlyphIndexChanged(std::optional<std::size_t> index);
@@ -39,11 +39,13 @@ protected:
 
 private:
     void handleMousePress(QGraphicsSceneMouseEvent *event);
+    void reloadFace();
     void reset();
     QSizeF calculateImageSize(Font::Size glyph_size);
     void addGlyphInfoWidget(QGraphicsLayoutItem* glyphWidget, std::size_t index);
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
     void resetFocusWidget();
+
 
     GlyphInfoWidget* glyphWidgetAtIndex(std::size_t index);
     GlyphInfoWidget* glyphWidgetAtPos(QPointF pos);
@@ -54,8 +56,9 @@ private:
     std::unique_ptr<FocusWidget> focusWidget_ { nullptr };
     QSizeF itemSize_;
     int columnCount_;
-    bool showsNonExportedItems_ { true };
+    bool showsNonExportedItems_;
     const Font::Face* face_;
+    Font::Margins margins_;
 };
 
 #endif // FACEWIDGET_H

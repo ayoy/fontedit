@@ -64,6 +64,7 @@ QSizeF FaceWidget::calculateImageSize(Font::Size glyph_size)
 void FaceWidget::load(const Font::Face &face, Font::Margins margins)
 {
     face_ = &face;
+    margins_ = margins;
     reset();
     auto imageSize = calculateImageSize(face.glyph_size());
 
@@ -80,7 +81,18 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
 void FaceWidget::load(Font::Face &face, Font::Margins margins)
 {
     face_ = &face;
+    margins_ = margins;
+    reloadFace();
+}
+
+void FaceWidget::reloadFace()
+{
     reset();
+
+    if (face_ == nullptr) {
+        return;
+    }
+
     auto imageSize = calculateImageSize(face_->glyph_size());
 
     auto index = 0;
@@ -90,7 +102,7 @@ void FaceWidget::load(Font::Face &face, Font::Margins margins)
         auto isExported = exportedGlyphIDs.find(index) != exportedGlyphIDs.end();
 
         if (isExported || showsNonExportedItems_) {
-            auto glyphWidget = new GlyphInfoWidget(g, index, isExported, printable_ascii_offset + index, imageSize, margins);
+            auto glyphWidget = new GlyphInfoWidget(g, index, isExported, printable_ascii_offset + index, imageSize, margins_);
 
             connect(glyphWidget, &GlyphInfoWidget::isExportedChanged, [&, index] (bool isExported) {
                 emit glyphExportedStateChanged(index, isExported);
@@ -271,3 +283,14 @@ void FaceWidget::updateGeometry()
         fw->setFocus(focusedItem_, true);
     }
 }
+
+void FaceWidget::setShowsNonExportedItems(bool isEnabled)
+{
+    if (showsNonExportedItems_ != isEnabled) {
+        showsNonExportedItems_ = isEnabled;
+        if (face_ != nullptr && face_->exported_glyph_ids().size() != face_->num_glyphs()) {
+            reloadFace();
+        }
+    }
+}
+

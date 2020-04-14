@@ -141,6 +141,9 @@ void MainWindow::initUI()
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
+    ui_->showNonExportedGlyphsCheckBox->setChecked(ui_->actionShow_non_exported_Glyphs->isChecked());
+    ui_->showNonExportedGlyphsCheckBox->setVisible(false);
+    ui_->faceInfoSeparator->setVisible(false);
     ui_->faceInfoLabel->setVisible(false);
 
     auto scrollBarWidth = ui_->faceGraphicsView->verticalScrollBar()->sizeHint().width();
@@ -169,6 +172,8 @@ void MainWindow::initUI()
 
 void MainWindow::closeCurrentDocument()
 {
+    ui_->showNonExportedGlyphsCheckBox->setVisible(false);
+    ui_->faceInfoSeparator->setVisible(false);
     ui_->faceInfoLabel->setVisible(false);
 
     if (faceWidget_ != nullptr) {
@@ -433,16 +438,22 @@ void MainWindow::displayFace(Font::Face& face)
 {
     if (faceWidget_ == nullptr) {
         faceWidget_ = new FaceWidget();
+        faceWidget_->setShowsNonExportedItems(ui_->actionShow_non_exported_Glyphs->isChecked());
         ui_->faceGraphicsView->scene()->addItem(faceWidget_);
 
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 this, &MainWindow::switchActiveGlyph);
         connect(faceWidget_, &FaceWidget::glyphExportedStateChanged,
                 this, &MainWindow::setGlyphExported);
+        connect(ui_->actionShow_non_exported_Glyphs, &QAction::toggled,
+                faceWidget_, &FaceWidget::setShowsNonExportedItems);
     }
 
     auto margins = viewModel_->faceModel()->originalFaceMargins();
     faceWidget_->load(face, margins);
+
+    ui_->showNonExportedGlyphsCheckBox->setVisible(true);
+    ui_->faceInfoSeparator->setVisible(true);
 
     auto faceInfo = viewModel_->faceModel()->faceInfo();
     updateFaceInfoLabel(faceInfo);
