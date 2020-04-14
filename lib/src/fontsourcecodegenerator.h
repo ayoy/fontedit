@@ -138,7 +138,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
 
     std::ostringstream s;
     s << Idiom::Begin<T> { font_name, size, current_timestamp() };
-    s << Idiom::BeginArray<T> { std::move(font_name) };
+    s << Idiom::BeginArray<T, uint8_t> { std::move(font_name) };
 
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };
@@ -150,14 +150,14 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
             bits.flip();
         }
         auto byte = static_cast<uint8_t>(bits.to_ulong());
-        s << Idiom::Byte<T> { std::move(byte) };
+        s << Idiom::Value<T, uint8_t> { std::move(byte) };
         bits.reset();
     };
 
     auto width = size.width;
 
     for (const auto& glyph : face.glyphs()) {
-        s << Idiom::BeginArrayRow<T> { options_.indentation };
+        s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
 
         std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
                       [&](auto pixel) {

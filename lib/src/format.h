@@ -109,17 +109,50 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Begin<T> b)
 
 // BeginArray
 
-template<typename T>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T> b)
+template<typename T, typename V>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T, V> b)
 {
+    using namespace SourceCode::Idiom;
+
     if constexpr (std::is_same<T, Format::C>::value) {
-        s << "\n\nconst unsigned char " << b.array_name << "[] = {\n";
+
+        if constexpr (std::is_same<V, uint8_t>::value) {
+            s << "\n\nconst unsigned char ";
+        } else if constexpr (std::is_same<V, int8_t>::value) {
+            s << "\n\nconst int8_t ";
+        } else if constexpr (std::is_same<V, int16_t>::value) {
+            s << "\n\nconst int16_t ";
+        } else if constexpr (std::is_same<V, int32_t>::value) {
+            s << "\n\nconst int32_t ";
+        }
+
+        s << b.array_name << "[] = {\n";
+
     } else if constexpr (std::is_same<T, Format::Arduino>::value) {
-        s << "\n\nconst uint8_t " << b.array_name << "[] PROGMEM = {\n";
+
+        if constexpr (std::is_same<V, uint8_t>::value) {
+            s << "\n\nconst uint8_t ";
+        } else if constexpr (std::is_same<V, int8_t>::value) {
+            s << "\n\nconst int8_t ";
+        } else if constexpr (std::is_same<V, int16_t>::value) {
+            s << "\n\nconst int16_t ";
+        } else if constexpr (std::is_same<V, int32_t>::value) {
+            s << "\n\nconst int32_t ";
+        }
+
+        s << b.array_name << "[] PROGMEM = {\n";
+
     } else if constexpr (std::is_same<T, Format::PythonList>::value) {
+
         s << "\n\n" << b.array_name << " = [\n";
+
     } else if constexpr (std::is_same<T, Format::PythonBytes>::value) {
-        s << "\n\n" << b.array_name << " = b'' \\\n";
+
+        if constexpr (std::is_same<V, uint8_t>::value) {
+            s << "\n\n" << b.array_name << " = b'' \\\n";
+        } else {
+            s << "\n\n" << b.array_name << " = [\n";
+        }
     }
     return s;
 }
@@ -127,10 +160,12 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T
 
 // BeginArrayRow
 
-template<typename T>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArrayRow<T> b)
+template<typename T, typename V>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArrayRow<T, V> b)
 {
-    if constexpr (std::is_same<T, Format::PythonBytes>::value) {
+    using namespace SourceCode::Idiom;
+
+    if constexpr (std::is_same<T, Format::PythonBytes>::value && std::is_same<V, uint8_t>::value) {
         s << b.tab << "b'";
     } else {
         s << b.tab;
@@ -139,26 +174,30 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArrayRo
 }
 
 
-// Byte
+// Value
 
-template<typename T>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Byte<T> b)
+template<typename T, typename V>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Value<T, V> v)
 {
-    if constexpr (std::is_same<T, Format::PythonBytes>::value) {
-        s << "\\x"
-          << std::setw(2)
-          << std::setfill('0')
-          << std::uppercase
-          << std::hex
-          << static_cast<unsigned>(b.byte);
+    if constexpr (std::is_same<V, uint8_t>::value) {
+        if constexpr (std::is_same<T, Format::PythonBytes>::value) {
+            s << "\\x"
+              << std::setw(2)
+              << std::setfill('0')
+              << std::uppercase
+              << std::hex
+              << static_cast<unsigned>(v.value);
+        } else {
+            s << "0x"
+              << std::setw(2)
+              << std::setfill('0')
+              << std::uppercase
+              << std::hex
+              << static_cast<unsigned>(v.value)
+              << ",";
+        }
     } else {
-        s << "0x"
-          << std::setw(2)
-          << std::setfill('0')
-          << std::uppercase
-          << std::hex
-          << static_cast<unsigned>(b.byte)
-          << ",";
+        s << v.value << ",";
     }
     return s;
 }

@@ -45,19 +45,19 @@ struct Begin {
     std::string timestamp;
 };
 
-template<typename T>
+template<typename T, typename V>
 struct BeginArray {
     std::string array_name;
 };
 
-template<typename T>
+template<typename T, typename V>
 struct BeginArrayRow {
     Indentation tab;
 };
 
-template<typename T>
-struct Byte {
-    uint8_t byte;
+template<typename T, typename V>
+struct Value {
+    V value;
 };
 
 template<typename T>
