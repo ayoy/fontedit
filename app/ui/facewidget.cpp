@@ -154,14 +154,20 @@ GlyphInfoWidget* FaceWidget::glyphWidgetAtIndex(std::size_t index)
                                                            itemIndex % columnCount_));
 }
 
-GlyphInfoWidget* FaceWidget::glyphWidgetAtPos(QPointF pos)
+QSize FaceWidget::glyphCoordsAtPos(QPointF pos)
 {
     qreal leftMargin;
     qreal topMargin;
     layout_->getContentsMargins(&leftMargin, &topMargin, nullptr, nullptr);
     int row = static_cast<int>((pos.y() - topMargin) / itemSize_.height());
     int col = static_cast<int>((pos.x() - leftMargin) / itemSize_.width());
-    return dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(row, col));
+    return { col, row };
+}
+
+GlyphInfoWidget* FaceWidget::glyphWidgetAtPos(QPointF pos)
+{
+    auto coords = glyphCoordsAtPos(pos);
+    return dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(coords.height(), coords.width()));
 }
 
 void FaceWidget::setFocusForItem(QGraphicsLayoutItem *item, bool isFocused)
@@ -195,10 +201,45 @@ void FaceWidget::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    auto item = glyphWidgetAtPos(focusWidget_->pos());
-    if (item != nullptr && event->key() == Qt::Key_Space) {
+    auto coords = glyphCoordsAtPos(focusWidget_->pos());
+    auto item = dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(coords.height(), coords.width()));
+    if (item == nullptr) {
+        return;
+    }
+
+    switch (event->key()) {
+    case Qt::Key_Left:
+    case Qt::Key_H:
+        if (coords.width() > 0)
+            --coords.rwidth();
+        break;
+    case Qt::Key_Right:
+    case Qt::Key_L:
+        if (coords.width() < columnCount_ - 1)
+            ++coords.rwidth();
+        break;
+    case Qt::Key_Up:
+    case Qt::Key_K:
+        if (coords.height() > 0)
+            --coords.rheight();
+        break;
+    case Qt::Key_Down:
+    case Qt::Key_J: {
+        auto rowCount = (layout_->count() + columnCount_) / columnCount_;
+        if (coords.height() < rowCount - 1)
+            ++coords.rheight();
+        break;
+    }
+    case Qt::Key_Space: {
         auto isExported = face_->exported_glyph_ids().find(item->glyphIndex()) != face_->exported_glyph_ids().end();
         emit glyphExportedStateChanged(item->glyphIndex(), !isExported);
+    }
+    }
+
+    item = dynamic_cast<GlyphInfoWidget *>(layout_->itemAt(coords.height(), coords.width()));
+    if (item) {
+        setFocusForItem(item, true);
+        emit currentGlyphIndexChanged(item->glyphIndex());
     }
 }
 

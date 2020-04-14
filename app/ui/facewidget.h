@@ -47,6 +47,7 @@ private:
 
     GlyphInfoWidget* glyphWidgetAtIndex(std::size_t index);
     GlyphInfoWidget* glyphWidgetAtPos(QPointF pos);
+    QSize glyphCoordsAtPos(QPointF pos);
 
     QGraphicsLayoutItem *focusedItem_ { nullptr };
     QGraphicsGridLayout *layout_ { new QGraphicsGridLayout() };
