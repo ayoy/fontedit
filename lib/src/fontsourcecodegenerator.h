@@ -38,6 +38,7 @@ class FontSourceCodeGeneratorInterface
 public:
     virtual std::string current_timestamp() = 0;
     virtual std::string comment_for_glyph(std::size_t index) = 0;
+    virtual std::string lut_value_for_glyph(std::size_t index) = 0;
 };
 
 /**
@@ -95,7 +96,7 @@ public:
  * This char will result in the byte sequence: 0x3c, 0x66, 0x66, ...
  *
  */
-class FontSourceCodeGenerator : public FontSourceCodeGeneratorInterface
+class FontSourceCodeGenerator : private FontSourceCodeGeneratorInterface
 {
 public:
 
@@ -127,6 +128,7 @@ private:
 
     std::string current_timestamp() override;
     std::string comment_for_glyph(std::size_t index) override;
+    std::string lut_value_for_glyph(std::size_t index) override;
     SourceCodeOptions options_;
 };
 
@@ -229,12 +231,18 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
 
     std::ostringstream s;
     s << Idiom::Begin<T> { font_name, size, current_timestamp() };
-    s << Idiom::BeginArray<T, uint8_t> { std::move(font_name) };
+
+    auto bytes_per_line = (size.width % byte_size) == 0 ?
+                size.width / byte_size :
+                (size.width + byte_size) / byte_size;
+
+    s << Idiom::Constant<T, int> { "bytes_per_glyph", static_cast<int>(size.height * bytes_per_line) };
+
+    s << Idiom::BeginArray<T, uint8_t> { font_name };
 
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };
     std::size_t col { 0 };
-    std::size_t glyph_id { 0 };
 
     auto append_byte = [&](std::bitset<byte_size> &bits) {
         if (options_.invert_bits) {
@@ -247,7 +255,8 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
 
     auto width = size.width;
 
-    for (const auto& glyph : face.glyphs()) {
+    for (auto glyph_id : face.exported_glyph_ids()) {
+        const auto& glyph = face.glyph_at(glyph_id);
         s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
 
         std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
@@ -276,8 +285,25 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
 
         s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
         s << Idiom::LineBreak<T> {};
+    }
 
-        ++glyph_id;
+    s << Idiom::EndArray<T> {};
+
+    s << Idiom::BeginArray<T, unsigned long> { std::move(font_name) + "_lut" };
+
+    std::size_t exported_id { 0 };
+    auto last = std::prev(face.exported_glyph_ids().end());
+
+    for (std::size_t glyph_id = 0; glyph_id <= *last; ++glyph_id) {
+        s << Idiom::BeginArrayRow<T, unsigned long> { options_.indentation };
+        if (face.exported_glyph_ids().find(glyph_id) != face.exported_glyph_ids().end()) {
+            s << Idiom::Value<T, std::string> { lut_value_for_glyph(exported_id) };
+            s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
+            ++exported_id;
+        } else {
+            s << Idiom::Value<T, unsigned long> { 0 };
+        }
+        s << Idiom::LineBreak<T> {};
     }
 
     s << Idiom::EndArray<T> {};

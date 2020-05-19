@@ -46,6 +46,12 @@ struct Begin {
 };
 
 template<typename T, typename V>
+struct Constant {
+    std::string name;
+    V value;
+};
+
+template<typename T, typename V>
 struct BeginArray {
     std::string array_name;
 };

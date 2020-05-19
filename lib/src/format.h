@@ -107,10 +107,10 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Begin<T> b)
 }
 
 
-// BeginArray
+// Constant
 
 template<typename T, typename V>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T, V> b)
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Constant<T, V> c)
 {
     using namespace SourceCode::Idiom;
 
@@ -126,12 +126,60 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T
             s << "\n\nconst int32_t ";
         }
 
+        s << c.name << " = " << c.value << ";\n";
+
+    } else if constexpr (std::is_same<T, Format::Arduino>::value) {
+
+        if constexpr (std::is_same<V, uint8_t>::value) {
+            s << "\n\nconst uint8_t ";
+        } else if constexpr (std::is_same<V, int8_t>::value) {
+            s << "\n\nconst int8_t ";
+        } else if constexpr (std::is_same<V, int16_t>::value) {
+            s << "\n\nconst int16_t ";
+        } else if constexpr (std::is_same<V, int32_t>::value) {
+            s << "\n\nconst int32_t ";
+        }
+
+        s << c.name << " PROGMEM = " << c.value << ";\n";
+
+    } else if constexpr (is_python<T>::value) {
+
+        s << "\n\n" << c.name << " = " << c.value << "\n";
+
+    }
+    return s;
+}
+
+
+// BeginArray
+
+template<typename T, typename V>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T, V> b)
+{
+    using namespace SourceCode::Idiom;
+
+    if constexpr (std::is_same<T, Format::C>::value) {
+
+        if constexpr (std::is_same<V, uint8_t>::value) {
+            s << "\n\nconst unsigned char ";
+        } else if constexpr (std::is_same<V, unsigned long>::value) {
+            s << "\n\nconst unsigned long ";
+        } else if constexpr (std::is_same<V, int8_t>::value) {
+            s << "\n\nconst int8_t ";
+        } else if constexpr (std::is_same<V, int16_t>::value) {
+            s << "\n\nconst int16_t ";
+        } else if constexpr (std::is_same<V, int32_t>::value) {
+            s << "\n\nconst int32_t ";
+        }
+
         s << b.array_name << "[] = {\n";
 
     } else if constexpr (std::is_same<T, Format::Arduino>::value) {
 
         if constexpr (std::is_same<V, uint8_t>::value) {
             s << "\n\nconst uint8_t ";
+        } else if constexpr (std::is_same<V, unsigned long>::value) {
+            s << "\n\nconst unsigned long ";
         } else if constexpr (std::is_same<V, int8_t>::value) {
             s << "\n\nconst int8_t ";
         } else if constexpr (std::is_same<V, int16_t>::value) {
