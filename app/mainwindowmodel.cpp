@@ -15,6 +15,7 @@
 Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
 
 namespace SettingsKey {
+static const QString showNonExportedGlyphs = "main_window/show_non_expoerted_glyphs";
 static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
 static const QString includeLineSpacing = "source_code_options/include_line_spacing";
@@ -41,6 +42,8 @@ bool operator!=(const UIState& lhs, const UIState& rhs)
 MainWindowModel::MainWindowModel(QObject *parent) :
     QObject(parent)
 {
+    shouldShowNonExportedGlyphs_ = settings_.value(SettingsKey::showNonExportedGlyphs, true).toBool();
+
     sourceCodeOptions_.bit_numbering =
             qvariant_cast<SourceCodeOptions::BitNumbering>(
                 settings_.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
@@ -226,6 +229,12 @@ void MainWindowModel::setActiveGlyphIndex(std::optional<std::size_t> index)
     } catch (const std::exception& e) {
         qCritical() << e.what();
     }
+}
+
+void MainWindowModel::setShouldShowNonExportedGlyphs(bool enabled)
+{
+    shouldShowNonExportedGlyphs_ = enabled;
+    settings_.setValue(SettingsKey::showNonExportedGlyphs, enabled);
 }
 
 void MainWindowModel::setInvertBits(bool enabled)

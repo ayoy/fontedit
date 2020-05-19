@@ -141,7 +141,9 @@ void MainWindow::initUI()
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
-    ui_->showNonExportedGlyphsCheckBox->setChecked(ui_->actionShow_non_exported_Glyphs->isChecked());
+    ui_->actionShow_non_exported_Glyphs->setChecked(viewModel_->shouldShowNonExportedGlyphs());
+    ui_->showNonExportedGlyphsCheckBox->setChecked(viewModel_->shouldShowNonExportedGlyphs());
+
     ui_->showNonExportedGlyphsCheckBox->setVisible(false);
     ui_->faceInfoSeparator->setVisible(false);
     ui_->faceInfoLabel->setVisible(false);
@@ -438,7 +440,7 @@ void MainWindow::displayFace(Font::Face& face)
 {
     if (faceWidget_ == nullptr) {
         faceWidget_ = new FaceWidget();
-        faceWidget_->setShowsNonExportedItems(ui_->actionShow_non_exported_Glyphs->isChecked());
+        faceWidget_->setShowsNonExportedItems(viewModel_->shouldShowNonExportedGlyphs());
         ui_->faceGraphicsView->scene()->addItem(faceWidget_);
 
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
@@ -446,7 +448,10 @@ void MainWindow::displayFace(Font::Face& face)
         connect(faceWidget_, &FaceWidget::glyphExportedStateChanged,
                 this, &MainWindow::setGlyphExported);
         connect(ui_->actionShow_non_exported_Glyphs, &QAction::toggled,
-                faceWidget_, &FaceWidget::setShowsNonExportedItems);
+                [&](bool checked) {
+            viewModel_->setShouldShowNonExportedGlyphs(checked);
+            faceWidget_->setShowsNonExportedItems(checked);
+        });
     }
 
     auto margins = viewModel_->faceModel()->originalFaceMargins();

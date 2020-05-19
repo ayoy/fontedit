@@ -706,5 +706,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionShow_non_exported_Glyphs</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>showNonExportedGlyphsCheckBox</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>563</x>
+     <y>508</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
