@@ -57,7 +57,7 @@ private:
     QSizeF itemSize_;
     int columnCount_;
     bool showsNonExportedItems_;
-    const Font::Face* face_;
+    const Font::Face* face_ { nullptr };
     Font::Margins margins_;
 };
 

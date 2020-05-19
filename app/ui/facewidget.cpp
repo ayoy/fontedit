@@ -291,10 +291,12 @@ void FaceWidget::setShowsNonExportedItems(bool isEnabled)
         if (face_ != nullptr && face_->exported_glyph_ids().size() != face_->num_glyphs()) {
             reloadFace();
         }
-        auto item = glyphWidgetAtPos(focusWidget_->pos());
-        if (item != nullptr) {
-            setFocusForItem(item, true);
-            emit currentGlyphIndexChanged(item->glyphIndex());
+        if (auto fw = focusWidget_.get()) {
+            auto item = glyphWidgetAtPos(fw->pos());
+            if (item != nullptr) {
+                setFocusForItem(item, true);
+                emit currentGlyphIndexChanged(item->glyphIndex());
+            }
         }
     }
 }
