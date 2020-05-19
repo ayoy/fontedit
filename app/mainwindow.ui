@@ -25,7 +25,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabEdit">
        <attribute name="title">
@@ -349,6 +349,26 @@
             <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
               <widget class="QComboBox" name="formatComboBox"/>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="exportSubsetButton">
+               <property name="text">
+                <string>Export Selected Glyphs</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">exportMethodButtonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="exportAllButton">
+               <property name="text">
+                <string>Export All Glyphs</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">exportMethodButtonGroup</string>
+               </attribute>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -723,4 +743,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="exportMethodButtonGroup"/>
+ </buttongroups>
 </ui>

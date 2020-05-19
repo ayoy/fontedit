@@ -71,7 +71,14 @@ public:
 
     const UIState& uiState() const { return uiState_; }
 
-    bool shouldShowNonExportedGlyphs() const { return shouldShowNonExportedGlyphs_; }
+    Qt::CheckState shouldShowNonExportedGlyphs() const {
+        return shouldShowNonExportedGlyphs_ ? Qt::Checked : Qt::Unchecked;
+    }
+
+    bool exportAllEnabled() const {
+        return sourceCodeOptions_.export_method == SourceCodeOptions::ExportMethod::ExportAll
+                ? Qt::Checked : Qt::Unchecked;
+    }
 
     Qt::CheckState invertBits() const {
         return sourceCodeOptions_.invert_bits ? Qt::Checked : Qt::Unchecked;
@@ -143,6 +150,7 @@ public slots:
 
     void setActiveGlyphIndex(std::optional<std::size_t> index);
     void setShouldShowNonExportedGlyphs(bool enabled);
+    void setExportAllEnabled(bool enabled);
     void setInvertBits(bool enabled);
     void setMSBEnabled(bool enabled);
     void setIncludeLineSpacing(bool enabled);

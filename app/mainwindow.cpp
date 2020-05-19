@@ -27,6 +27,7 @@
 #include <QTextStream>
 
 static constexpr auto codeTabIndex = 1;
+static constexpr auto exportAllButtonIndex = -3;
 static constexpr auto fileFilter = "FontEdit documents (*.fontedit)";
 
 MainWindow::MainWindow(QWidget *parent)
@@ -77,6 +78,9 @@ void MainWindow::connectUIInputs()
         } else {
             viewModel_->registerInputEvent(UIState::InterfaceAction::ActionTabEdit);
         }
+    });
+    connect(ui_->exportMethodButtonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), [&](int buttonID) {
+        viewModel_->setExportAllEnabled(buttonID == exportAllButtonIndex);
     });
     connect(ui_->invertBitsCheckBox, &QCheckBox::stateChanged, [&](int state) {
         viewModel_->setInvertBits(state == Qt::Checked);
@@ -142,7 +146,7 @@ void MainWindow::initUI()
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
     ui_->actionShow_non_exported_Glyphs->setChecked(viewModel_->shouldShowNonExportedGlyphs());
-    ui_->showNonExportedGlyphsCheckBox->setChecked(viewModel_->shouldShowNonExportedGlyphs());
+    ui_->showNonExportedGlyphsCheckBox->setCheckState(viewModel_->shouldShowNonExportedGlyphs());
 
     ui_->showNonExportedGlyphsCheckBox->setVisible(false);
     ui_->faceInfoSeparator->setVisible(false);
@@ -153,6 +157,8 @@ void MainWindow::initUI()
     ui_->faceGraphicsView->setMinimumSize({ faceViewWidth,
                                             ui_->faceGraphicsView->minimumSize().height() });
 
+    ui_->exportAllButton->setChecked(viewModel_->exportAllEnabled());
+    ui_->exportSubsetButton->setChecked(!viewModel_->exportAllEnabled());
     ui_->invertBitsCheckBox->setCheckState(viewModel_->invertBits());
     ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
     ui_->lineSpacingCheckBox->setCheckState(viewModel_->includeLineSpacing());

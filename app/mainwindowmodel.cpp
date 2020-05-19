@@ -13,9 +13,11 @@
 #include <thread>
 
 Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
+Q_DECLARE_METATYPE(SourceCodeOptions::ExportMethod);
 
 namespace SettingsKey {
 static const QString showNonExportedGlyphs = "main_window/show_non_expoerted_glyphs";
+static const QString exportMethod = "source_code_options/export_method";
 static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
 static const QString includeLineSpacing = "source_code_options/include_line_spacing";
@@ -44,6 +46,10 @@ MainWindowModel::MainWindowModel(QObject *parent) :
 {
     shouldShowNonExportedGlyphs_ = settings_.value(SettingsKey::showNonExportedGlyphs, true).toBool();
 
+    sourceCodeOptions_.export_method =
+            qvariant_cast<SourceCodeOptions::ExportMethod>(
+                settings_.value(SettingsKey::exportMethod, SourceCodeOptions::ExportSelected)
+                );
     sourceCodeOptions_.bit_numbering =
             qvariant_cast<SourceCodeOptions::BitNumbering>(
                 settings_.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
@@ -235,6 +241,14 @@ void MainWindowModel::setShouldShowNonExportedGlyphs(bool enabled)
 {
     shouldShowNonExportedGlyphs_ = enabled;
     settings_.setValue(SettingsKey::showNonExportedGlyphs, enabled);
+}
+
+void MainWindowModel::setExportAllEnabled(bool enabled)
+{
+    auto exportMethod = enabled ? SourceCodeOptions::ExportAll : SourceCodeOptions::ExportSelected;
+    sourceCodeOptions_.export_method = exportMethod;
+    settings_.setValue(SettingsKey::exportMethod, exportMethod);
+    reloadSourceCode();
 }
 
 void MainWindowModel::setInvertBits(bool enabled)
