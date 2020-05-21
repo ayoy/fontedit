@@ -17,7 +17,11 @@ static constexpr std::string_view ascii_glyphs =
 QFontFaceReader::QFontFaceReader(const QFont &font, std::string text, std::optional<Font::Size> forced_size) :
     Font::FaceReader()
 {
-    std::string source_text { text.empty() ? ascii_glyphs : std::move(text) };
+    std::stringstream ascii;
+    for (unsigned char i = 32; i < 254; ++i) {
+        ascii << i;
+    }
+    std::string source_text { text.empty() ? ascii.str() : std::move(text) };
     num_glyphs_ = source_text.length();
 
     auto result = read_font(font, std::move(source_text), forced_size);
@@ -35,15 +39,26 @@ QString QFontFaceReader::template_text(std::string text)
 {
     std::stringstream stream;
 
-    utf8::iterator i(text.begin(), text.begin(), text.end());
-    utf8::iterator end(text.end(), text.begin(), text.end());
+    auto end_it = utf8::find_invalid(text.begin(), text.end());
+    if (end_it != text.end()) {
+        for (auto c : text) {
+            stream << c << "\n";
+        }
+//        std::cout << "This part is fine: " << std::string(text.begin(), end_it) << "\n";
+    } else {
 
-    while (i != end) {
-        auto utf8_begin = i;
-        auto utf8_end = ++i;
-        stream << std::string(utf8_begin.base(), utf8_end.base()) << "\n";
+        utf8::iterator i(text.begin(), text.begin(), text.end());
+        utf8::iterator end(text.end(), text.begin(), text.end());
+
+
+        while (i != end) {
+            auto utf8_begin = i;
+            auto utf8_end = ++i;
+            stream << std::string(utf8_begin.base(), utf8_end.base()) << "\n";
+        }
     }
 
+    return QString::fromLocal8Bit(stream.str().c_str());
     return QString::fromStdString(stream.str());
 }
 

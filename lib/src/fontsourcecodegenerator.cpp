@@ -40,6 +40,6 @@ std::string FontSourceCodeGenerator::lut_value_for_glyph(std::size_t index)
     }
 
     std::ostringstream s;
-    s << "bytes_per_char * " << index;
+    s << "bytes_per_glyph * " << index;
     return s.str();
 }
