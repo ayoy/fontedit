@@ -191,13 +191,13 @@ std::string FontSourceCodeGenerator::generateAll(const Font::Face &face, std::st
             }
         });
 
-        s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
-        s << Idiom::LineBreak<T> {};
+        s << Idiom::Comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << Idiom::ArrayLineBreak<T, uint8_t> {};
 
         ++glyph_id;
     }
 
-    s << Idiom::EndArray<T> {};
+    s << Idiom::EndArray<T, uint8_t> {};
     s << Idiom::End<T> {};
 
     return s.str();
@@ -205,7 +205,6 @@ std::string FontSourceCodeGenerator::generateAll(const Font::Face &face, std::st
 
 /**
  * begin_document
- * constant<int>(height, 8)
  * begin_array<byte>(data)
  *     begin_array_row(), byte(x), comment(...), line_break()
  * end_array()
@@ -274,11 +273,11 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
             }
         });
 
-        s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
-        s << Idiom::LineBreak<T> {};
+        s << Idiom::Comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << Idiom::ArrayLineBreak<T, uint8_t> {};
     }
 
-    s << Idiom::EndArray<T> {};
+    s << Idiom::EndArray<T, uint8_t> {};
 
     s << Idiom::BeginArray<T, uint16_t> { "lut" };
 
@@ -293,12 +292,12 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
     for (std::size_t glyph_id = 0; glyph_id <= *last_exported_glyph; ++glyph_id) {
         if (face.exported_glyph_ids().find(glyph_id) != face.exported_glyph_ids().end()) {
             if (!is_previous_exported)
-                s << Idiom::LineBreak<T> {};
+                s << Idiom::ArrayLineBreak<T> {};
             s << Idiom::BeginArrayRow<T, uint16_t> { options_.indentation };
             s << Idiom::Value<T, uint16_t> { static_cast<uint16_t>(bytes_per_glyph * exported_id) };
             s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
             ++exported_id;
-            s << Idiom::LineBreak<T> {};
+            s << Idiom::ArrayLineBreak<T> {};
             is_previous_exported = true;
         } else {
             if (is_previous_exported)

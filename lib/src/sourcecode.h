@@ -66,15 +66,15 @@ struct Value {
     V value;
 };
 
-template<typename T>
+template<typename T, typename V = void>
 struct Comment {
     std::string comment;
 };
 
-template<typename T>
-struct LineBreak {};
+template<typename T, typename V = void>
+struct ArrayLineBreak {};
 
-template<typename T>
+template<typename T, typename V = void>
 struct EndArray {};
 
 template<typename T>

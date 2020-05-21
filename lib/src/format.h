@@ -86,6 +86,18 @@ static_assert (is_python<Format::PythonBytes>::value, "***");
 // performance.
 //
 
+template<typename T, typename V, typename = void>
+struct is_bytearray : std::false_type {};
+template<typename T, typename V>
+struct is_bytearray<T, V, std::enable_if_t<std::is_same<T, Format::PythonBytes>::value && std::is_same<V, uint8_t>::value>> : std::true_type {};
+
+static_assert (!is_bytearray<Format::C, uint8_t>::value, "***");
+static_assert (!is_bytearray<Format::PythonBytes, void>::value, "***");
+static_assert (!is_bytearray<Format::PythonBytes, int32_t>::value, "***");
+static_assert (!is_bytearray<Format::PythonBytes, std::string>::value, "***");
+static_assert (is_bytearray<Format::PythonBytes, uint8_t>::value, "***");
+
+
 // Begin
 
 template<typename T>
@@ -253,12 +265,13 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Value<T, V> 
 
 // Comment
 
-template<typename T>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Comment<T> b)
+template<typename T, typename V>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Comment<T, V> b)
 {
     if constexpr (is_c_based<T>::value) {
         s << " // " << b.comment;
-    } else if constexpr (std::is_same<T, Format::PythonList>::value) {
+    } else if constexpr (is_python<T>::value && !is_bytearray<T,V>::value) {
+        std::cout << is_bytearray<T,V>::value << T::identifier << std::endl;
         s << " # " << b.comment;
     }
     return s;
@@ -267,10 +280,10 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Comment<T> b
 
 // LineBreak
 
-template<typename T>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::LineBreak<T>)
+template<typename T, typename V>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::ArrayLineBreak<T, V>)
 {
-    if constexpr (std::is_same<T, Format::PythonBytes>::value) {
+    if constexpr (is_bytearray<T,V>::value) {
         s << "' \\\n";
     } else {
         s << "\n";
@@ -281,13 +294,15 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::LineBreak<T>
 
 // EndArray
 
-template<typename T>
-inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::EndArray<T>)
+template<typename T, typename V>
+inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::EndArray<T, V>)
 {
     if constexpr (is_c_based<T>::value) {
         s << "};\n";
-    } else if constexpr (std::is_same<T, Format::PythonList>::value) {
-        s << "]\n";
+    } else {
+        if constexpr (std::is_same<T, Format::PythonList>::value || !is_bytearray<T,V>::value) {
+            s << "]\n";
+        }
     }
     return s;
 }
