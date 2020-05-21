@@ -162,8 +162,8 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T
 
         if constexpr (std::is_same<V, uint8_t>::value) {
             s << "\n\nconst unsigned char ";
-        } else if constexpr (std::is_same<V, unsigned long>::value) {
-            s << "\n\nconst unsigned long ";
+        } else if constexpr (std::is_same<V, uint16_t>::value) {
+            s << "\n\nconst uint16_t ";
         } else if constexpr (std::is_same<V, int8_t>::value) {
             s << "\n\nconst int8_t ";
         } else if constexpr (std::is_same<V, int16_t>::value) {
@@ -178,8 +178,8 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T
 
         if constexpr (std::is_same<V, uint8_t>::value) {
             s << "\n\nconst uint8_t ";
-        } else if constexpr (std::is_same<V, unsigned long>::value) {
-            s << "\n\nconst unsigned long ";
+        } else if constexpr (std::is_same<V, uint16_t>::value) {
+            s << "\n\nconst uint16_t ";
         } else if constexpr (std::is_same<V, int8_t>::value) {
             s << "\n\nconst int8_t ";
         } else if constexpr (std::is_same<V, int16_t>::value) {
@@ -245,7 +245,7 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Value<T, V> 
               << ",";
         }
     } else {
-        s << v.value << ",";
+        s << std::resetiosflags(std::ios_base::basefield) << v.value << ",";
     }
     return s;
 }

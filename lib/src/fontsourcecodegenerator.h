@@ -38,7 +38,6 @@ class FontSourceCodeGeneratorInterface
 public:
     virtual std::string current_timestamp() = 0;
     virtual std::string comment_for_glyph(std::size_t index) = 0;
-    virtual std::string lut_value_for_glyph(std::size_t index) = 0;
 };
 
 /**
@@ -128,7 +127,6 @@ private:
 
     std::string current_timestamp() override;
     std::string comment_for_glyph(std::size_t index) override;
-    std::string lut_value_for_glyph(std::size_t index) override;
     SourceCodeOptions options_;
 };
 
@@ -231,14 +229,7 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
 
     std::ostringstream s;
     s << Idiom::Begin<T> { font_name, size, current_timestamp() };
-
-    auto bytes_per_line = (size.width % byte_size) == 0 ?
-                size.width / byte_size :
-                (size.width + byte_size) / byte_size;
-
-    s << Idiom::Constant<T, int> { "bytes_per_glyph", static_cast<int>(size.height * bytes_per_line) };
-
-    s << Idiom::BeginArray<T, uint8_t> { font_name };
+    s << Idiom::BeginArray<T, uint8_t> { std::move(font_name) };
 
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };
@@ -289,21 +280,32 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
 
     s << Idiom::EndArray<T> {};
 
-    s << Idiom::BeginArray<T, unsigned long> { std::move(font_name) + "_lut" };
+    s << Idiom::BeginArray<T, uint16_t> { "lut" };
 
-    std::size_t exported_id { 0 };
-    auto last = std::prev(face.exported_glyph_ids().end());
+    uint16_t exported_id { 0 };
 
-    for (std::size_t glyph_id = 0; glyph_id <= *last; ++glyph_id) {
-        s << Idiom::BeginArrayRow<T, unsigned long> { options_.indentation };
+    auto bytes_per_line = size.width / byte_size + (size.width % byte_size ? 1 : 0);
+    auto bytes_per_glyph = size.height * bytes_per_line;
+
+    auto last_exported_glyph = std::prev(face.exported_glyph_ids().end());
+
+    bool is_previous_exported = true;
+    for (std::size_t glyph_id = 0; glyph_id <= *last_exported_glyph; ++glyph_id) {
         if (face.exported_glyph_ids().find(glyph_id) != face.exported_glyph_ids().end()) {
-            s << Idiom::Value<T, std::string> { lut_value_for_glyph(exported_id) };
+            if (!is_previous_exported)
+                s << Idiom::LineBreak<T> {};
+            s << Idiom::BeginArrayRow<T, uint16_t> { options_.indentation };
+            s << Idiom::Value<T, uint16_t> { static_cast<uint16_t>(bytes_per_glyph * exported_id) };
             s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
             ++exported_id;
+            s << Idiom::LineBreak<T> {};
+            is_previous_exported = true;
         } else {
-            s << Idiom::Value<T, unsigned long> { 0 };
+            if (is_previous_exported)
+                s << Idiom::BeginArrayRow<T, uint16_t> { options_.indentation };
+            s << Idiom::Value<T, uint16_t> { 0 };
+            is_previous_exported = false;
         }
-        s << Idiom::LineBreak<T> {};
     }
 
     s << Idiom::EndArray<T> {};

@@ -32,14 +32,3 @@ std::string FontSourceCodeGenerator::comment_for_glyph(std::size_t index)
 
     return s.str();
 }
-
-std::string FontSourceCodeGenerator::lut_value_for_glyph(std::size_t index)
-{
-    if (index == 0) {
-        return "0";
-    }
-
-    std::ostringstream s;
-    s << "bytes_per_char * " << index;
-    return s.str();
-}
