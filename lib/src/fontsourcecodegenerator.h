@@ -116,14 +116,18 @@ public:
      * @see SourceCode::Idiom
      */
     template<typename T>
-    std::string generate(const Font::Face &face, std::string font_name = "font");
+    std::string generate(const Font::Face& face, std::string font_name = "font");
 
 private:
     template<typename T>
-    std::string generateAll(const Font::Face &face, std::string font_name = "font");
+    std::string generate_all(const Font::Face& face, std::string font_name = "font");
 
     template<typename T>
-    std::string generateSubset(const Font::Face &face, std::string font_name = "font");
+    std::string generate_subset(const Font::Face& face, std::string font_name = "font");
+
+    template<typename T, typename V>
+    std::string subset_lut(const std::set<std::size_t>& exported_glyph_ids,
+                           std::size_t bytes_per_glyph);
 
     std::string current_timestamp() override;
     std::string comment_for_glyph(std::size_t index) override;
@@ -131,7 +135,7 @@ private:
 };
 
 template<typename T>
-std::string FontSourceCodeGenerator::generateAll(const Font::Face &face, std::string font_name)
+std::string FontSourceCodeGenerator::generate_all(const Font::Face& face, std::string font_name)
 {
     using namespace SourceCode;
 
@@ -203,6 +207,44 @@ std::string FontSourceCodeGenerator::generateAll(const Font::Face &face, std::st
     return s.str();
 }
 
+template<typename T, typename V>
+std::string FontSourceCodeGenerator::subset_lut(const std::set<std::size_t>& exported_glyph_ids,
+                                                std::size_t bytes_per_glyph)
+{
+    using namespace SourceCode;
+
+    std::ostringstream s;
+
+    uint16_t exported_id { 0 };
+
+    auto last_exported_glyph = std::prev(exported_glyph_ids.end());
+
+    s << Idiom::BeginArray<T, V> { "lut" };
+
+    bool is_previous_exported = true;
+    for (std::size_t glyph_id = 0; glyph_id <= *last_exported_glyph; ++glyph_id) {
+        if (exported_glyph_ids.find(glyph_id) != exported_glyph_ids.end()) {
+            if (!is_previous_exported)
+                s << Idiom::ArrayLineBreak<T> {};
+            s << Idiom::BeginArrayRow<T, V> { options_.indentation };
+            s << Idiom::Value<T, V> { static_cast<V>(bytes_per_glyph * exported_id) };
+            s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
+            ++exported_id;
+            s << Idiom::ArrayLineBreak<T> {};
+            is_previous_exported = true;
+        } else {
+            if (is_previous_exported)
+                s << Idiom::BeginArrayRow<T, V> { options_.indentation };
+            s << Idiom::Value<T, V> { 0 };
+            is_previous_exported = false;
+        }
+    }
+
+    s << Idiom::EndArray<T, V> {};
+
+    return s.str();
+}
+
 /**
  * begin_document
  * begin_array<byte>(data)
@@ -213,7 +255,7 @@ std::string FontSourceCodeGenerator::generateAll(const Font::Face &face, std::st
  * end_array()
  */
 template<typename T>
-std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std::string font_name)
+std::string FontSourceCodeGenerator::generate_subset(const Font::Face& face, std::string font_name)
 {
     using namespace SourceCode;
 
@@ -279,35 +321,22 @@ std::string FontSourceCodeGenerator::generateSubset(const Font::Face &face, std:
 
     s << Idiom::EndArray<T, uint8_t> {};
 
-    s << Idiom::BeginArray<T, uint16_t> { "lut" };
-
-    uint16_t exported_id { 0 };
 
     auto bytes_per_line = size.width / byte_size + (size.width % byte_size ? 1 : 0);
     auto bytes_per_glyph = size.height * bytes_per_line;
 
-    auto last_exported_glyph = std::prev(face.exported_glyph_ids().end());
+    auto max_offset = (face.exported_glyph_ids().size() - 1) * bytes_per_glyph;
 
-    bool is_previous_exported = true;
-    for (std::size_t glyph_id = 0; glyph_id <= *last_exported_glyph; ++glyph_id) {
-        if (face.exported_glyph_ids().find(glyph_id) != face.exported_glyph_ids().end()) {
-            if (!is_previous_exported)
-                s << Idiom::ArrayLineBreak<T> {};
-            s << Idiom::BeginArrayRow<T, uint16_t> { options_.indentation };
-            s << Idiom::Value<T, uint16_t> { static_cast<uint16_t>(bytes_per_glyph * exported_id) };
-            s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
-            ++exported_id;
-            s << Idiom::ArrayLineBreak<T> {};
-            is_previous_exported = true;
-        } else {
-            if (is_previous_exported)
-                s << Idiom::BeginArrayRow<T, uint16_t> { options_.indentation };
-            s << Idiom::Value<T, uint16_t> { 0 };
-            is_previous_exported = false;
-        }
+    if (max_offset < (1<<8)) {
+        s << subset_lut<T,uint8_t>(face.exported_glyph_ids(), bytes_per_glyph);
+    } else if (max_offset < (1<<16)) {
+        s << subset_lut<T,uint16_t>(face.exported_glyph_ids(), bytes_per_glyph);
+    } else if (max_offset < (1ull<<32)) {
+        s << subset_lut<T,uint32_t>(face.exported_glyph_ids(), bytes_per_glyph);
+    } else {
+        s << subset_lut<T,uint64_t>(face.exported_glyph_ids(), bytes_per_glyph);
     }
 
-    s << Idiom::EndArray<T> {};
     s << Idiom::End<T> {};
 
     return s.str();
@@ -318,9 +347,9 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
 {
     switch (options_.export_method) {
     case SourceCodeOptions::ExportAll:
-        return generateAll<T>(face, font_name);
+        return generate_all<T>(face, font_name);
     case SourceCodeOptions::ExportSelected:
-        return generateSubset<T>(face, font_name);
+        return generate_subset<T>(face, font_name);
     }
 }
 

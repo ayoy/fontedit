@@ -23,9 +23,10 @@ using Indentation = std::variant<Tab,Space>;
  * - begin (source code file)
  * - begin array
  * - begin array row
- * - byte
+ * - constant definition
+ * - value (e.g. byte)
  * - comment
- * - line break
+ * - line break with an array
  * - end array
  * - end (source code file).
  *

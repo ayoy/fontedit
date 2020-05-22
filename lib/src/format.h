@@ -109,6 +109,8 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::Begin<T> b)
           << "// Created: " << b.timestamp << "\n//\n";
         if constexpr (std::is_same<T, Format::Arduino>::value) {
             s << "\n#include <Arduino.h>\n";
+        } else {
+            s << "\n#include <stdint.h>\n";
         }
     } else if constexpr (is_python<T>::value) {
         s << "#\n# " << b.font_name << "\n"
@@ -176,12 +178,18 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T
             s << "\n\nconst unsigned char ";
         } else if constexpr (std::is_same<V, uint16_t>::value) {
             s << "\n\nconst uint16_t ";
+        } else if constexpr (std::is_same<V, uint32_t>::value) {
+            s << "\n\nconst uint32_t ";
+        } else if constexpr (std::is_same<V, uint64_t>::value) {
+            s << "\n\nconst uint64_t ";
         } else if constexpr (std::is_same<V, int8_t>::value) {
             s << "\n\nconst int8_t ";
         } else if constexpr (std::is_same<V, int16_t>::value) {
             s << "\n\nconst int16_t ";
         } else if constexpr (std::is_same<V, int32_t>::value) {
             s << "\n\nconst int32_t ";
+        } else if constexpr (std::is_same<V, int64_t>::value) {
+            s << "\n\nconst int64_t ";
         }
 
         s << b.array_name << "[] = {\n";
@@ -192,12 +200,18 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::BeginArray<T
             s << "\n\nconst uint8_t ";
         } else if constexpr (std::is_same<V, uint16_t>::value) {
             s << "\n\nconst uint16_t ";
+        } else if constexpr (std::is_same<V, uint32_t>::value) {
+            s << "\n\nconst uint32_t ";
+        } else if constexpr (std::is_same<V, uint64_t>::value) {
+            s << "\n\nconst uint64_t ";
         } else if constexpr (std::is_same<V, int8_t>::value) {
             s << "\n\nconst int8_t ";
         } else if constexpr (std::is_same<V, int16_t>::value) {
             s << "\n\nconst int16_t ";
         } else if constexpr (std::is_same<V, int32_t>::value) {
             s << "\n\nconst int32_t ";
+        } else if constexpr (std::is_same<V, int64_t>::value) {
+            s << "\n\nconst int64_t ";
         }
 
         s << b.array_name << "[] PROGMEM = {\n";
