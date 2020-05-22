@@ -19,6 +19,7 @@
 #include <QKeySequence>
 #include <QElapsedTimer>
 #include <QStandardPaths>
+#include <QDesktopServices>
 
 #include <iostream>
 #include <stdexcept>
@@ -41,16 +42,31 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     updateUI(viewModel_->uiState());
 
+    connectUpdateManager();
     connectUIInputs();
     connectViewModelOutputs();
     viewModel_->restoreSession();
 
     ui_->statusBar->addPermanentWidget(statusLabel_);
+
+    updateManager_->checkForUpdatesIfNeeded();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui_;
+}
+
+void MainWindow::connectUpdateManager()
+{
+    connect(updateManager_.get(), &UpdateManager::updateAvailable,
+            [&] (UpdateManager::Update update) {
+        showUpdateDialog(update);
+    });
+    connect(updateManager_.get(), &UpdateManager::updateNotAvailable,
+            [&] {
+        showUpdateDialog({});
+    });
 }
 
 void MainWindow::connectUIInputs()
@@ -98,6 +114,10 @@ void MainWindow::connectUIInputs()
     connect(ui_->fontArrayNameEdit, &QLineEdit::textChanged, [&](const QString& fontArrayName) {
         auto fontName = fontArrayName.isEmpty() ? ui_->fontArrayNameEdit->placeholderText() : std::move(fontArrayName);
         debounceFontNameChanged(fontName);
+    });
+
+    connect(ui_->actionCheck_for_Updates, &QAction::triggered, [&] {
+        updateManager_->checkForUpdates(true);
     });
 }
 
@@ -176,6 +196,41 @@ void MainWindow::initUI()
     QFont f(consoleFontName, 12);
     f.setStyleHint(QFont::TypeWriter);
     ui_->sourceCodeTextBrowser->setFont(f);
+}
+
+void MainWindow::showUpdateDialog(std::optional<UpdateManager::Update> update)
+{
+    QMessageBox messageBox;
+    messageBox.setCheckBox(new QCheckBox(tr("Check for updates at start-up")));
+    messageBox.checkBox()->setChecked(updateManager_->shouldCheckAtStartup());
+
+    connect(messageBox.checkBox(), &QCheckBox::toggled, [&] (bool isChecked) {
+        updateManager_->setShouldCheckAtStartup(isChecked);
+    });
+
+    if (update.has_value()) {
+        auto updateInfo = update.value();
+        messageBox.setText(tr("Update Available"));
+        messageBox.setInformativeText(tr("FontEdit %1 is available (you have %2).\nGet the new version from GitHub Releases Page.")
+                                      .arg(updateInfo.latestVersion, updateInfo.currentVersion));
+        messageBox.setDetailedText(updateInfo.releaseNotes);
+
+        auto visitPageButton = messageBox.addButton(tr("Go to Releases Page"), QMessageBox::YesRole);
+        messageBox.addButton(tr("Dismiss"), QMessageBox::NoRole);
+
+        messageBox.setDefaultButton(visitPageButton);
+        messageBox.exec();
+
+        if (messageBox.clickedButton() == visitPageButton) {
+            QDesktopServices::openUrl(updateInfo.webpageURL);
+        }
+    } else {
+        messageBox.setText(tr("No Update Available"));
+        messageBox.setInformativeText(tr("You're using the latest version of FontEdit"));
+
+        messageBox.exec();
+    }
+
 }
 
 void MainWindow::closeCurrentDocument()

@@ -521,6 +521,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionCheck_for_Updates"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -696,6 +697,11 @@
    </property>
    <property name="text">
     <string>Show non-exported Glyphs</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_Updates">
+   <property name="text">
+    <string>Check for Updates...</string>
    </property>
   </action>
  </widget>
