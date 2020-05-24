@@ -36,7 +36,7 @@ void FaceWidget::reset()
     resetFocusWidget();
 }
 
-QSizeF FaceWidget::calculateImageSize(f2b::font::size glyph_size)
+QSizeF FaceWidget::calculateImageSize(f2b::font::glyph_size glyph_size)
 {
     // height: 6 + desc.height + 6 + img.height + 6
     // width: 6 + img.width + 6
@@ -66,7 +66,7 @@ void FaceWidget::load(const f2b::font::face &face, f2b::font::margins margins)
     face_ = &face;
     margins_ = margins;
     reset();
-    auto imageSize = calculateImageSize(face.glyph_size());
+    auto imageSize = calculateImageSize(face.glyphs_size());
 
     auto index = 0;
     for (const auto& g : face.glyphs()) {
@@ -93,7 +93,7 @@ void FaceWidget::reloadFace()
         return;
     }
 
-    auto imageSize = calculateImageSize(face_->glyph_size());
+    auto imageSize = calculateImageSize(face_->glyphs_size());
 
     auto index = 0;
     auto widgetIndex = 0;

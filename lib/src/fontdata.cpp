@@ -5,12 +5,12 @@ namespace f2b {
 
 namespace font {
 
-glyph::glyph(font::size sz) :
+glyph::glyph(font::glyph_size sz) :
     size_ { sz },
     pixels_ { std::vector<bool>(sz.width * sz.height, false) }
 {}
 
-glyph::glyph(font::size sz, std::vector<bool> pixels) :
+glyph::glyph(font::glyph_size sz, std::vector<bool> pixels) :
     size_ { sz },
     pixels_ { std::move(pixels) }
 {
@@ -45,7 +45,7 @@ face::face(const face_reader &data) :
     }
 }
 
-face::face(font::size size, std::vector<glyph> glyphs, std::set<std::size_t> exported_glyph_ids) :
+face::face(font::glyph_size size, std::vector<glyph> glyphs, std::set<std::size_t> exported_glyph_ids) :
     sz_ { size },
     glyphs_ { std::move(glyphs) },
     exported_glyph_ids_ { std::move(exported_glyph_ids) }

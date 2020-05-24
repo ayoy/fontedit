@@ -25,12 +25,12 @@ AddGlyphDialog::AddGlyphDialog(const FontFaceViewModel& faceViewModel, QWidget *
     });
     connect(ui_->buttonBox, &QDialogButtonBox::accepted, [&, faceViewModel] {
         if (ui_->emptyRadio->isChecked()) {
-            newGlyph_ = f2b::font::glyph { faceViewModel.face().glyph_size() };
+            newGlyph_ = f2b::font::glyph { faceViewModel.face().glyphs_size() };
         } else if (ui_->characterRadio->isChecked()) {
             QFontFaceReader adapter {
                 faceViewModel.font().value(),
                 ui_->characterLineEdit->text().toStdString(),
-                faceViewModel.face().glyph_size()
+                faceViewModel.face().glyphs_size()
             };
             newGlyph_ = f2b::font::face(adapter).glyph_at(0);
         }

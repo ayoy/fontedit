@@ -41,7 +41,7 @@ private:
     void handleMousePress(QGraphicsSceneMouseEvent *event);
     void reloadFace();
     void reset();
-    QSizeF calculateImageSize(f2b::font::size glyph_size);
+    QSizeF calculateImageSize(f2b::font::glyph_size glyph_size);
     void addGlyphInfoWidget(QGraphicsLayoutItem* glyphWidget, std::size_t index);
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
     void resetFocusWidget();

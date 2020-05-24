@@ -34,7 +34,7 @@ struct source_code_options
  * @param glyph_size
  * @return Margins expressed in pixel offset for a given glyph size (width).
  */
-font::margins pixel_margins(font::margins line_margins, font::size glyph_size);
+font::margins pixel_margins(font::margins line_margins, font::glyph_size glyph_size);
 
 
 class font_source_code_generator_interface
@@ -134,7 +134,7 @@ private:
                            std::size_t bytes_per_glyph);
 
     template<typename T>
-    void output_glyph(const font::glyph& glyph, font::size size, font::margins margins, std::ostream& s);
+    void output_glyph(const font::glyph& glyph, font::glyph_size size, font::margins margins, std::ostream& s);
 
 
     std::string current_timestamp() override;
@@ -143,7 +143,7 @@ private:
 };
 
 template<typename T>
-void font_source_code_generator::output_glyph(const font::glyph& glyph, font::size size, font::margins margins, std::ostream& s)
+void font_source_code_generator::output_glyph(const font::glyph& glyph, font::glyph_size size, font::margins margins, std::ostream& s)
 {
     using namespace source_code;
     std::bitset<byte_size> bits;
@@ -199,13 +199,13 @@ std::string font_source_code_generator::generate_all(const font::face& face, std
 {
     using namespace source_code;
 
-    auto [size, margins] = [&] () -> std::pair<font::size, font::margins> {
+    auto [size, margins] = [&] () -> std::pair<font::glyph_size, font::margins> {
         if (options_.include_line_spacing) {
-            return { face.glyph_size(), {} };
+            return { face.glyphs_size(), {} };
         }
         auto line_margins = face.calculate_margins();
-        return { face.glyph_size().with_margins(line_margins),
-                    pixel_margins(line_margins, face.glyph_size()) };
+        return { face.glyphs_size().with_margins(line_margins),
+                    pixel_margins(line_margins, face.glyphs_size()) };
     }();
 
     std::ostringstream s;
@@ -269,13 +269,13 @@ std::string font_source_code_generator::generate_subset(const font::face& face, 
 {
     using namespace source_code;
 
-    auto [size, margins] = [&] () -> std::pair<font::size, font::margins> {
+    auto [size, margins] = [&] () -> std::pair<font::glyph_size, font::margins> {
         if (options_.include_line_spacing) {
-            return { face.glyph_size(), {} };
+            return { face.glyphs_size(), {} };
         }
         auto line_margins = face.calculate_margins();
-        return { face.glyph_size().with_margins(line_margins),
-                    pixel_margins(line_margins, face.glyph_size()) };
+        return { face.glyphs_size().with_margins(line_margins),
+                    pixel_margins(line_margins, face.glyphs_size()) };
     }();
 
     std::ostringstream s;

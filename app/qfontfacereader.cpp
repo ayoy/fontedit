@@ -14,7 +14,7 @@ using namespace std::literals::string_view_literals;
 static constexpr std::string_view ascii_glyphs =
         " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"sv;
 
-QFontFaceReader::QFontFaceReader(const QFont &font, std::string text, std::optional<f2b::font::size> forced_size) :
+QFontFaceReader::QFontFaceReader(const QFont &font, std::string text, std::optional<f2b::font::glyph_size> forced_size) :
     f2b::font::face_reader()
 {
     std::string source_text { text.empty() ? ascii_glyphs : std::move(text) };
@@ -47,10 +47,10 @@ QString QFontFaceReader::template_text(std::string text)
     return QString::fromStdString(stream.str());
 }
 
-std::pair<f2b::font::size, std::unique_ptr<QImage>> QFontFaceReader::read_font(
+std::pair<f2b::font::glyph_size, std::unique_ptr<QImage>> QFontFaceReader::read_font(
             const QFont &font,
             std::string text,
-            std::optional<f2b::font::size> forced_size)
+            std::optional<f2b::font::glyph_size> forced_size)
 {
     auto text_length = text.length();
     auto template_text = QFontFaceReader::template_text(std::move(text));

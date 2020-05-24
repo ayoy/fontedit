@@ -88,9 +88,9 @@ void FontFaceViewModel::saveToFile(const QString &documentPath)
 FaceInfo FontFaceViewModel::faceInfo() const
 {
     auto fontName = name_.has_value() ? name_.value() : QObject::tr("Custom font");
-    auto size = face_.glyph_size();
+    auto size = face_.glyphs_size();
     size.height -= originalMargins_.top + originalMargins_.bottom;
-    return { fontName, face_.glyph_size(), size, face_.num_glyphs(), face_.exported_glyph_ids().size() };
+    return { fontName, face_.glyphs_size(), size, face_.num_glyphs(), face_.exported_glyph_ids().size() };
 }
 
 void FontFaceViewModel::modifyGlyph(std::size_t index, const f2b::font::glyph &new_glyph)

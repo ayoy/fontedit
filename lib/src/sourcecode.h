@@ -44,7 +44,7 @@ namespace idiom {
 template<typename T>
 struct begin {
     std::string font_name;
-    font::size font_size;
+    font::glyph_size font_size;
     std::string timestamp;
 };
 

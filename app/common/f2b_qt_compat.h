@@ -30,13 +30,13 @@ inline QPoint qpoint_with_point(const font::point &p)
     return QPoint { static_cast<int>(p.x), static_cast<int>(p.y) };
 }
 
-inline font::size size_with_qsize(const QSize &s)
+inline font::glyph_size size_with_qsize(const QSize &s)
 {
     return { static_cast<std::size_t>(qMax(0, s.width())),
                 static_cast<std::size_t>(qMax(0, s.height())) };
 }
 
-inline QSize qsize_with_size(const font::size &s)
+inline QSize qsize_with_size(const font::glyph_size &s)
 {
     return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };
 }

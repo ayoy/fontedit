@@ -45,8 +45,8 @@ QDataStream& operator<<(QDataStream& s, const font::face& face)
     s << font_face_magic_number;
     s << font_face_version;
     s.setVersion(QDataStream::Qt_5_7);
-    s << (quint32) face.glyph_size().width;
-    s << (quint32) face.glyph_size().height;
+    s << (quint32) face.glyphs_size().width;
+    s << (quint32) face.glyphs_size().height;
     s << face.glyphs();
     s << face.exported_glyph_ids();
 

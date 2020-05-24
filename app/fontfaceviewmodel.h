@@ -12,8 +12,8 @@
 struct FaceInfo
 {
     QString fontName;
-    f2b::font::size size;
-    f2b::font::size sizeWithoutMargins;
+    f2b::font::glyph_size size;
+    f2b::font::glyph_size sizeWithoutMargins;
     std::size_t numberOfGlyphs;
     std::size_t numberOfExportedGlyphs;
 };

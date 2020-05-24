@@ -6,7 +6,7 @@ using namespace f2b;
 class TestFaceData : public font::face_reader
 {
 public:
-    font::size font_size() const override { return { 4, 3 }; }
+    font::glyph_size font_size() const override { return { 4, 3 }; }
     std::size_t num_glyphs() const override { return 5; }
 
     bool is_pixel_set(std::size_t glyph_id, font::point p) const override

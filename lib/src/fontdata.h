@@ -30,13 +30,13 @@ inline bool operator!=(const margins& lhs, const margins& rhs) noexcept {
 /**
  * @brief A struct that describes font size (glyph size) in pixels.
  */
-struct size
+struct glyph_size
 {
     std::size_t width;
     std::size_t height;
 
-    size with_margins(const margins& m) {
-        size size { width, height };
+    glyph_size with_margins(const margins& m) {
+        glyph_size size { width, height };
         auto m_height = m.top + m.bottom;
         if (m_height > height) {
             size.height = 0;
@@ -47,10 +47,10 @@ struct size
     }
 };
 
-inline bool operator==(const size& lhs, const size& rhs) noexcept {
+inline bool operator==(const glyph_size& lhs, const glyph_size& rhs) noexcept {
     return lhs.width == rhs.width && lhs.height == rhs.height;
 }
-inline bool operator!=(const size& lhs, const size& rhs) noexcept {
+inline bool operator!=(const glyph_size& lhs, const glyph_size& rhs) noexcept {
     return !(lhs == rhs);
 }
 
@@ -63,7 +63,7 @@ struct point
     std::size_t x;
     std::size_t y;
 
-    std::size_t offset(size sz) { return y * sz.width + x; }
+    std::size_t offset(glyph_size sz) { return y * sz.width + x; }
 };
 
 inline bool operator==(const point& lhs, const point& rhs) noexcept {
@@ -82,10 +82,10 @@ inline bool operator!=(const point& lhs, const point& rhs) noexcept {
 class glyph
 {
 public:
-    explicit glyph(size sz = {});
-    explicit glyph(size sz, std::vector<bool> pixels);
+    explicit glyph(glyph_size sz = {});
+    explicit glyph(glyph_size sz, std::vector<bool> pixels);
 
-    font::size size() const noexcept { return size_; }
+    f2b::font::glyph_size size() const noexcept { return size_; }
     bool is_pixel_set(point p) const { return pixels_[p.offset(size_)]; }
     void set_pixel_set(point p, bool is_set) { pixels_[p.offset(size_)] = is_set; }
     void clear();
@@ -96,7 +96,7 @@ public:
     std::size_t bottom_margin() const;
 
 private:
-    font::size size_;
+    font::glyph_size size_;
     std::vector<bool> pixels_;
 };
 
@@ -117,7 +117,7 @@ inline bool operator!=(const glyph& lhs, const glyph& rhs) noexcept {
 class face_reader
 {
 public:
-    virtual size font_size() const = 0;
+    virtual glyph_size font_size() const = 0;
     virtual std::size_t num_glyphs() const = 0;
     virtual bool is_pixel_set(std::size_t glyph_id, point p) const = 0;
 
@@ -140,9 +140,9 @@ public:
     explicit face(const face_reader &data);
 
     /// The constructor initializing a face with a given size, vector of glyphs and exported glyph IDs.
-    explicit face(size glyph_size, std::vector<glyph> glyphs, std::set<std::size_t> exported_glyph_ids = {});
+    explicit face(glyph_size glyphs_size, std::vector<glyph> glyphs, std::set<std::size_t> exported_glyph_ids = {});
 
-    font::size glyph_size() const noexcept { return sz_; }
+    f2b::font::glyph_size glyphs_size() const noexcept { return sz_; }
     std::size_t num_glyphs() const noexcept { return glyphs_.size(); }
 
     glyph& glyph_at(std::size_t index) { return glyphs_.at(index); }
@@ -187,13 +187,13 @@ public:
 private:
     static std::vector<glyph> read_glyphs(const face_reader &data);
 
-    font::size sz_;
+    font::glyph_size sz_;
     std::vector<glyph> glyphs_;
     std::set<std::size_t> exported_glyph_ids_;
 };
 
 inline bool operator==(const face& lhs, const face& rhs) noexcept {
-    return lhs.glyph_size() == rhs.glyph_size() && lhs.glyphs() == rhs.glyphs();
+    return lhs.glyphs_size() == rhs.glyphs_size() && lhs.glyphs() == rhs.glyphs();
 }
 
 inline bool operator!=(const face& lhs, const face& rhs) noexcept {
