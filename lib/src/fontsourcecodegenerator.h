@@ -291,6 +291,15 @@ std::string font_source_code_generator::generate_subset(const font::face& face, 
     s << idiom::begin<T> { font_name, size, current_timestamp() };
     s << idiom::begin_array<T, uint8_t> { std::move(font_name) };
 
+    // Not exported characters are replaced with a space character.
+    // If space character (ASCII 32, the first glyph) itself is not exported,
+    // we add a dummy blank character and default all not exported characters to it.
+    if (face.exported_glyph_ids().find(0) == face.exported_glyph_ids().end()) {
+        output_glyph<T>(font::glyph(size), size, margins, s);
+        s << idiom::comment<T, uint8_t> { "Dummy blank character" };
+        s << idiom::array_line_break<T, uint8_t> {};
+    }
+
     for (auto glyph_id : face.exported_glyph_ids()) {
         const auto& glyph = face.glyph_at(glyph_id);
         output_glyph<T>(glyph, size, margins, s);
