@@ -12,8 +12,8 @@
 #include <iostream>
 #include <thread>
 
-Q_DECLARE_METATYPE(f2b::source_code_options::BitNumbering);
-Q_DECLARE_METATYPE(f2b::source_code_options::ExportMethod);
+Q_DECLARE_METATYPE(f2b::source_code_options::bit_numbering_type);
+Q_DECLARE_METATYPE(f2b::source_code_options::export_method_type);
 
 namespace SettingsKey {
 static const QString showNonExportedGlyphs = "main_window/show_non_expoerted_glyphs";
@@ -47,12 +47,12 @@ MainWindowModel::MainWindowModel(QObject *parent) :
     shouldShowNonExportedGlyphs_ = settings_.value(SettingsKey::showNonExportedGlyphs, true).toBool();
 
     sourceCodeOptions_.export_method =
-            qvariant_cast<f2b::source_code_options::ExportMethod>(
-                settings_.value(SettingsKey::exportMethod, f2b::source_code_options::ExportSelected)
+            qvariant_cast<f2b::source_code_options::export_method_type>(
+                settings_.value(SettingsKey::exportMethod, f2b::source_code_options::export_selected)
                 );
     sourceCodeOptions_.bit_numbering =
-            qvariant_cast<f2b::source_code_options::BitNumbering>(
-                settings_.value(SettingsKey::bitNumbering, f2b::source_code_options::LSB)
+            qvariant_cast<f2b::source_code_options::bit_numbering_type>(
+                settings_.value(SettingsKey::bitNumbering, f2b::source_code_options::lsb)
                 );
     sourceCodeOptions_.invert_bits = settings_.value(SettingsKey::invertBits, false).toBool();
     sourceCodeOptions_.include_line_spacing = settings_.value(SettingsKey::includeLineSpacing, false).toBool();
@@ -245,7 +245,7 @@ void MainWindowModel::setShouldShowNonExportedGlyphs(bool enabled)
 
 void MainWindowModel::setExportAllEnabled(bool enabled)
 {
-    auto exportMethod = enabled ? f2b::source_code_options::ExportAll : f2b::source_code_options::ExportSelected;
+    auto exportMethod = enabled ? f2b::source_code_options::export_all : f2b::source_code_options::export_selected;
     sourceCodeOptions_.export_method = exportMethod;
     settings_.setValue(SettingsKey::exportMethod, exportMethod);
     reloadSourceCode();
@@ -260,7 +260,7 @@ void MainWindowModel::setInvertBits(bool enabled)
 
 void MainWindowModel::setMSBEnabled(bool enabled)
 {
-    auto bitNumbering = enabled ? f2b::source_code_options::MSB : f2b::source_code_options::LSB;
+    auto bitNumbering = enabled ? f2b::source_code_options::msb : f2b::source_code_options::lsb;
     sourceCodeOptions_.bit_numbering = bitNumbering;
     settings_.setValue(SettingsKey::bitNumbering, bitNumbering);
     reloadSourceCode();

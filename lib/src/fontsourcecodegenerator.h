@@ -17,12 +17,12 @@ static constexpr auto byte_size = 8;
 
 struct source_code_options
 {
-    enum BitNumbering { LSB, MSB };
-    enum ExportMethod { ExportSelected, ExportAll };
+    enum bit_numbering_type { lsb, msb };
+    enum export_method_type { export_selected, export_all };
 
     uint8_t wrap_column = 80;
-    ExportMethod export_method { ExportSelected };
-    BitNumbering bit_numbering { LSB };
+    export_method_type export_method { export_selected };
+    bit_numbering_type bit_numbering { lsb };
     bool invert_bits { false };
     bool include_line_spacing { false };
     source_code::indentation indentation { source_code::tab {} };
@@ -172,10 +172,10 @@ void font_source_code_generator::output_glyph(const font::glyph& glyph, font::si
     std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
                   [&](auto pixel) {
         switch (options_.bit_numbering) {
-        case source_code_options::LSB:
+        case source_code_options::lsb:
             bits[bit_pos] = pixel;
             break;
-        case source_code_options::MSB:
+        case source_code_options::msb:
             bits[byte_size-1-bit_pos] = pixel;
             break;
         }
@@ -264,15 +264,6 @@ std::string font_source_code_generator::subset_lut(const std::set<std::size_t>& 
     return s.str();
 }
 
-/**
- * begin_document
- * begin_array<byte>(data)
- *     begin_array_row(), byte(x), comment(...), line_break()
- * end_array()
- * begin_array<int>(font)
- *     begin_array_row(), value(x), comment(...), line_break()
- * end_array()
- */
 template<typename T>
 std::string font_source_code_generator::generate_subset(const font::face& face, std::string font_name)
 {
@@ -334,9 +325,9 @@ template<typename T>
 std::string font_source_code_generator::generate(const font::face &face, std::string font_name)
 {
     switch (options_.export_method) {
-    case source_code_options::ExportAll:
+    case source_code_options::export_all:
         return generate_all<T>(face, font_name);
-    case source_code_options::ExportSelected:
+    case source_code_options::export_selected:
         return generate_subset<T>(face, font_name);
     }
 }

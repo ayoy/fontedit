@@ -76,7 +76,7 @@ public:
     }
 
     bool exportAllEnabled() const {
-        return sourceCodeOptions_.export_method == f2b::source_code_options::ExportMethod::ExportAll
+        return sourceCodeOptions_.export_method == f2b::source_code_options::export_method_type::export_all
                 ? Qt::Checked : Qt::Unchecked;
     }
 
@@ -85,7 +85,7 @@ public:
     }
 
     Qt::CheckState msbEnabled() const {
-        return sourceCodeOptions_.bit_numbering == f2b::source_code_options::BitNumbering::MSB
+        return sourceCodeOptions_.bit_numbering == f2b::source_code_options::bit_numbering_type::msb
                 ? Qt::Checked : Qt::Unchecked;
     }
 
