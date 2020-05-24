@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 #include "fontdata.h"
 
+using namespace f2b;
+
 TEST(GlyphTest, API)
 {
-    Font::Size sz { 5, 5 };
+    font::glyph_size sz { 5, 5 };
 
-    EXPECT_EQ(sz, Font::Glyph(sz).size());
+    EXPECT_EQ(sz, font::glyph(sz).size());
 }

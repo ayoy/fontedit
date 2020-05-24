@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName(Global::organization_name);
     QApplication::setOrganizationDomain(Global::organization_domain);
     QApplication::setApplicationName(Global::application_name);
-    QApplication::setApplicationVersion(Global::application_version);
+    QApplication::setApplicationVersion(QString::fromStdString(std::string(Global::application_version)));
 
     QTranslator myappTranslator;
     myappTranslator.load(":/l10n/fontedit_en.qm");

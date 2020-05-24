@@ -11,14 +11,14 @@
 
 static constexpr qreal gridSize = 20;
 
-QRectF rectForPoint(const Font::Point& point)
+QRectF rectForPoint(const f2b::font::point& point)
 {
     return QRectF(QPointF(point.x * gridSize, point.y * gridSize),
                   QSizeF(gridSize, gridSize));
 }
 
 
-GlyphWidget::GlyphWidget(const Font::Glyph& glyph, Font::Margins margins, QGraphicsItem* parent) :
+GlyphWidget::GlyphWidget(const f2b::font::glyph& glyph, f2b::font::margins margins, QGraphicsItem* parent) :
     QGraphicsWidget(parent),
     glyph_ { glyph },
     margins_ { margins }
@@ -28,7 +28,7 @@ GlyphWidget::GlyphWidget(const Font::Glyph& glyph, Font::Margins margins, QGraph
                        gridSize * static_cast<qreal>(glyph.size().height) });
 }
 
-void GlyphWidget::load(const Font::Glyph &glyph, Font::Margins margins)
+void GlyphWidget::load(const f2b::font::glyph &glyph, f2b::font::margins margins)
 {
     glyph_ = glyph;
     margins_ = margins;
@@ -45,12 +45,12 @@ QRectF GlyphWidget::boundingRect() const
                   glyph_.size().height * gridSize + 0.25);
 }
 
-void GlyphWidget::togglePixel(Font::Point p)
+void GlyphWidget::togglePixel(f2b::font::point p)
 {
     setPixel(p, !glyph_.is_pixel_set(p));
 }
 
-void GlyphWidget::setPixel(Font::Point p, bool value)
+void GlyphWidget::setPixel(f2b::font::point p, bool value)
 {
     if (glyph_.is_pixel_set(p) != value) {
         glyph_.set_pixel_set(p, value);
@@ -99,7 +99,7 @@ void GlyphWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
     for (std::size_t row = 0; row < glyph_.size().height; ++row) {
         for (std::size_t col = 0; col < glyph_.size().width; ++col) {
-            Font::Point p { col, row };
+            f2b::font::point p { col, row };
             if (glyph_.is_pixel_set(p)) {
                 painter->fillRect(rectForPoint(p), Qt::black);
             }
@@ -192,7 +192,7 @@ void GlyphWidget::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
 void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
 {
-    Font::Point currentPixel = pointForEvent(event);
+    f2b::font::point currentPixel = pointForEvent(event);
 //    qDebug() << event << currentPixel.x << currentPixel.y;
 
     penState_ = !event->modifiers().testFlag(Qt::AltModifier)
@@ -209,7 +209,7 @@ void GlyphWidget::handleMousePress(QGraphicsSceneMouseEvent *event)
 
 void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    Font::Point currentPixel = pointForEvent(event);
+    f2b::font::point currentPixel = pointForEvent(event);
 
     auto updateMode = UpdateMode::UpdateFocus;
 
@@ -228,7 +228,7 @@ void GlyphWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     updateIfNeeded(updateMode, previousPixel);
 }
 
-void GlyphWidget::updateIfNeeded(UpdateMode updateMode, std::optional<Font::Point> previousFocusedPixel)
+void GlyphWidget::updateIfNeeded(UpdateMode updateMode, std::optional<f2b::font::point> previousFocusedPixel)
 {
     QRectF rect;
 
@@ -273,7 +273,7 @@ void GlyphWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     affectedPixels_.changes.clear();
 }
 
-Font::Point GlyphWidget::pointForEvent(QGraphicsSceneMouseEvent *event) const
+f2b::font::point GlyphWidget::pointForEvent(QGraphicsSceneMouseEvent *event) const
 {
     auto row = static_cast<std::size_t>(std::max(event->pos().y() / gridSize, 0.0));
     auto col = static_cast<std::size_t>(std::max(event->pos().x() / gridSize, 0.0));

@@ -4,6 +4,8 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QMenu>
+#include <QGraphicsSceneContextMenuEvent>
 
 #include <sstream>
 #include <iomanip>
@@ -19,29 +21,59 @@ static QString description(unsigned char asciiCode)
     return QString::fromStdString(stream.str());
 }
 
-GlyphInfoWidget::GlyphInfoWidget(const Font::Glyph &glyph, unsigned char asciiCode, QSizeF imageSize,
-                                 Font::Margins margins, QGraphicsItem *parent) :
+GlyphInfoWidget::GlyphInfoWidget(const f2b::font::glyph &glyph, std::size_t index, bool isExported,
+                                 unsigned char asciiCode, QSizeF imageSize,
+                                 f2b::font::margins margins, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     description_ { description(asciiCode) },
     imageSize_ { imageSize },
-    preview_ { Font::glyph_preview_pixmap(glyph, margins) },
-    margins_ { margins }
+    isExportedAdjustable_ { true },
+    isExported_ { isExported },
+    preview_ { f2b::font::glyph_preview_image(glyph, margins) },
+    margins_ { margins },
+    toggleExportedAction_ { QAction(tr("Exported")) },
+    glyphIndex_ { index }
 {
+    toggleExportedAction_.setCheckable(true);
+    toggleExportedAction_.setChecked(isExported_);
+
+    connect(&toggleExportedAction_, &QAction::triggered, this, &GlyphInfoWidget::isExportedChanged);
 }
 
-void GlyphInfoWidget::updateGlyph(const Font::Glyph &glyph, std::optional<Font::Margins> margins)
+void GlyphInfoWidget::setIsExportedAdjustable(bool isEnabled)
 {
+    isExportedAdjustable_ = isEnabled;
+}
+
+void GlyphInfoWidget::updateGlyph(std::optional<f2b::font::glyph> glyph, std::optional<bool> isExported, std::optional<f2b::font::margins> margins)
+{
+    if (isExported.has_value()) {
+        isExported_ = isExported.value();
+    }
     if (margins.has_value()) {
         margins_ = margins.value();
     }
-    preview_ = Font::glyph_preview_pixmap(glyph, margins_);
+    if (glyph.has_value()) {
+        preview_ = f2b::font::glyph_preview_image(glyph.value(), margins_);
+    }
     update();
+}
+
+void GlyphInfoWidget::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    if (!isExportedAdjustable_) {
+        return;
+    }
+    QMenu menu;
+    menu.addAction(&toggleExportedAction_);
+
+    menu.exec(event->screenPos());
 }
 
 void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(widget);    
 
     painter->fillRect(rect(), QBrush(Qt::white));
     QPen pen(QBrush(Qt::darkGray), 0.5);
@@ -57,15 +89,31 @@ void GlyphInfoWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     textRect.setWidth(textRect.width() - cellMargin);
     textRect.setHeight(descriptionHeight);
 
+    if (!isExported_) {
+        painter->setPen(QPen(QBrush(QColor(Color::inactiveText)), 0.5));
+    }
+
     painter->setFont(f);
     painter->drawText(textRect, Qt::TextWordWrap, description_);
 
-    QRectF imageRect { QPointF(), imageSize_ };
 
+    // Preview rect (with margins)
+
+    QRectF imageRect { QPointF(), imageSize_ };
     imageRect.moveCenter(rect().center().toPoint());
     imageRect.moveBottom(rect().height() - cellMargin);
-    painter->setPen(QPen(QBrush(Qt::black), 1));
-    painter->drawPixmap(imageRect, preview_, preview_.rect());
+    painter->fillRect(imageRect, Color::glyphMargin);
+
+
+    // Glyph rect (margins removed)
+    preview_.setColor(0, isExported_ ? Color::activeGlyph : Color::inactiveGlyph);
+
+    QRectF imageSansMarginsRect = imageRect.marginsRemoved(QMarginsF(0, margins_.top, 0, margins_.bottom));
+    painter->drawImage(imageSansMarginsRect, preview_, preview_.rect());
+
+
+    // Glyph preview outline
+
     painter->setPen(QPen(QBrush(Qt::lightGray), 1));
     painter->drawRect(imageRect.marginsAdded(QMarginsF(0.5, 0.5, 0.5, 0.5)));
 }

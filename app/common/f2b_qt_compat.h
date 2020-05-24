@@ -13,68 +13,68 @@
 #include <optional>
 #include <vector>
 #include <unordered_map>
+#include <set>
 
-namespace Font {
+namespace f2b {
 
-inline Font::Point point_with_qpoint(const QPoint &p)
+namespace font {
+
+inline font::point point_with_qpoint(const QPoint &p)
 {
     return { static_cast<std::size_t>(qMax(0, p.x())),
                 static_cast<std::size_t>(qMax(0, p.y())) };
 }
 
-inline QPoint qpoint_with_point(const Font::Point &p)
+inline QPoint qpoint_with_point(const font::point &p)
 {
     return QPoint { static_cast<int>(p.x), static_cast<int>(p.y) };
 }
 
-inline Font::Size size_with_qsize(const QSize &s)
+inline font::glyph_size size_with_qsize(const QSize &s)
 {
     return { static_cast<std::size_t>(qMax(0, s.width())),
                 static_cast<std::size_t>(qMax(0, s.height())) };
 }
 
-inline QSize qsize_with_size(const Font::Size &s)
+inline QSize qsize_with_size(const font::glyph_size &s)
 {
     return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };
 }
 
-inline QPixmap glyph_preview_pixmap(const Font::Glyph &g, Font::Margins m)
+inline QImage glyph_preview_image(const font::glyph &g, font::margins m)
 {
     auto useful_glyph_size = g.size();
     useful_glyph_size.height -= m.top + m.bottom;
 
-    auto image_size = qsize_with_size(g.size());
     auto useful_image_size = qsize_with_size(useful_glyph_size);
 
-    QImage image(useful_image_size, QImage::Format_Grayscale8);
-    image.fill(Qt::white);
+    QImage image(useful_image_size, QImage::Format_Mono);
+    image.fill(1);
 
     for (std::vector<bool>::size_type y = 0; y < useful_glyph_size.height; ++y) {
         for (std::vector<bool>::size_type x = 0; x < useful_glyph_size.width; ++x) {
             if (g.is_pixel_set({x, y + m.top})) {
-                image.setPixel(x, y, Qt::black);
+                image.setPixel(x, y, 0);
             }
         }
     }
 
-    QPixmap b(image_size);
-    QPainter p(&b);
-    p.fillRect(b.rect(), Color::glyphMargin);
-    p.drawImage(QPoint(0, m.top), image);
-    p.end();
-
-    return b;
+    return image;
 }
 
-}
+} // namespace Font
+
+} // namespace f2b
 
 
 static constexpr quint32 std_optional_magic_number = 0x46b13680;
 static constexpr quint32 std_vector_magic_number = 0x30612113;
+static constexpr quint32 std_set_magic_number = 0x254c2e1e;
 static constexpr quint32 std_unordered_map_magic_number = 0xc9eb6edf;
 
 static constexpr quint32 std_optional_version = 1;
 static constexpr quint32 std_vector_version = 1;
+static constexpr quint32 std_set_version = 1;
 static constexpr quint32 std_unordered_map_version = 1;
 
 template<typename T>
@@ -149,6 +149,81 @@ inline QDataStream& operator>>(QDataStream& s, std::vector<T>& vec)
         for (quint32 i = 0; i < size; ++i) {
             s >> value;
             vec.push_back(value);
+        }
+    }
+    return s;
+}
+
+
+template<typename T>
+inline QDataStream& operator<<(QDataStream& s, const std::set<T>& set)
+{
+    s << std_set_magic_number;
+    s << std_set_version;
+    s.setVersion(QDataStream::Qt_5_7);
+    s << (quint32) set.size();
+
+    for (const auto& value : set) {
+        s << value;
+    }
+
+    return s;
+}
+
+template<typename T>
+inline QDataStream& operator>>(QDataStream& s, std::set<T>& set)
+{
+    quint32 magic_number;
+    quint32 version;
+    s >> magic_number >> version;
+    if (magic_number == std_set_magic_number && version == std_set_version) {
+        s.setVersion(QDataStream::Qt_5_7);
+        quint32 size;
+        s >> size;
+
+        set.clear();
+
+        T value;
+        for (quint32 i = 0; i < size; ++i) {
+            s >> value;
+            set.insert(value);
+        }
+    }
+    return s;
+}
+
+template<>
+inline QDataStream& operator<<(QDataStream& s, const std::set<std::size_t>& set)
+{
+    s << std_set_magic_number;
+    s << std_set_version;
+    s.setVersion(QDataStream::Qt_5_7);
+    s << (quint32) set.size();
+
+    for (const auto& value : set) {
+        s << (quint32) value;
+    }
+
+    return s;
+}
+
+template<>
+inline QDataStream& operator>>(QDataStream& s, std::set<std::size_t>& set)
+{
+    quint32 magic_number;
+    quint32 version;
+    s >> magic_number >> version;
+    if (magic_number == std_set_magic_number && version == std_set_version) {
+        s.setVersion(QDataStream::Qt_5_7);
+        quint32 size;
+        s >> size;
+
+        set.clear();
+
+        quint32 value;
+        for (quint32 i = 0; i < size; ++i) {
+            s >> value;
+            set.insert(static_cast<std::size_t>(value));
         }
     }
     return s;
@@ -237,14 +312,14 @@ inline QDataStream& operator>>(QDataStream& s, std::unordered_map<std::size_t, V
     return s;
 }
 
-QDataStream& operator<<(QDataStream& s, const Font::Glyph& glyph);
-QDataStream& operator>>(QDataStream& s, Font::Glyph& glyph);
+QDataStream& operator<<(QDataStream& s, const f2b::font::glyph& glyph);
+QDataStream& operator>>(QDataStream& s, f2b::font::glyph& glyph);
 
-QDataStream& operator<<(QDataStream& s, const Font::Face& face);
-QDataStream& operator>>(QDataStream& s, Font::Face& face);
+QDataStream& operator<<(QDataStream& s, const f2b::font::face& face);
+QDataStream& operator>>(QDataStream& s, f2b::font::face& face);
 
 
-QVariant to_qvariant(const SourceCode::Indentation& i);
-SourceCode::Indentation from_qvariant(const QVariant& v);
+QVariant to_qvariant(const f2b::source_code::indentation& i);
+f2b::source_code::indentation from_qvariant(const QVariant& v);
 
 #endif // F2B_QT_COMPAT_H

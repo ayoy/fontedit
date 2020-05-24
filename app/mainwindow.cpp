@@ -19,6 +19,7 @@
 #include <QKeySequence>
 #include <QElapsedTimer>
 #include <QStandardPaths>
+#include <QDesktopServices>
 
 #include <iostream>
 #include <stdexcept>
@@ -27,6 +28,7 @@
 #include <QTextStream>
 
 static constexpr auto codeTabIndex = 1;
+static constexpr auto exportAllButtonIndex = -3;
 static constexpr auto fileFilter = "FontEdit documents (*.fontedit)";
 
 MainWindow::MainWindow(QWidget *parent)
@@ -40,16 +42,31 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     updateUI(viewModel_->uiState());
 
+    connectUpdateHelper();
     connectUIInputs();
     connectViewModelOutputs();
     viewModel_->restoreSession();
 
     ui_->statusBar->addPermanentWidget(statusLabel_);
+
+    updateHelper_->checkForUpdatesIfNeeded();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui_;
+}
+
+void MainWindow::connectUpdateHelper()
+{
+    connect(updateHelper_.get(), &UpdateHelper::updateAvailable,
+            [&] (UpdateHelper::Update update) {
+        showUpdateDialog(update);
+    });
+    connect(updateHelper_.get(), &UpdateHelper::updateNotAvailable,
+            [&] {
+        showUpdateDialog({});
+    });
 }
 
 void MainWindow::connectUIInputs()
@@ -78,6 +95,9 @@ void MainWindow::connectUIInputs()
             viewModel_->registerInputEvent(UIState::InterfaceAction::ActionTabEdit);
         }
     });
+    connect(ui_->exportMethodButtonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), [&](int buttonID) {
+        viewModel_->setExportAllEnabled(buttonID == exportAllButtonIndex);
+    });
     connect(ui_->invertBitsCheckBox, &QCheckBox::stateChanged, [&](int state) {
         viewModel_->setInvertBits(state == Qt::Checked);
     });
@@ -95,6 +115,10 @@ void MainWindow::connectUIInputs()
         auto fontName = fontArrayName.isEmpty() ? ui_->fontArrayNameEdit->placeholderText() : std::move(fontArrayName);
         debounceFontNameChanged(fontName);
     });
+
+    connect(ui_->actionCheck_for_Updates, &QAction::triggered, [&] {
+        updateHelper_->checkForUpdates(true);
+    });
 }
 
 void MainWindow::connectViewModelOutputs()
@@ -103,12 +127,19 @@ void MainWindow::connectViewModelOutputs()
         setWindowTitle(QString("FontEdit (%1)").arg(title));
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
-    connect(viewModel_.get(), &MainWindowModel::faceLoaded, [&](const Font::Face& face) {
+    connect(viewModel_.get(), &MainWindowModel::faceLoaded, [&](f2b::font::face& face) {
         undoStack_->clear();
         displayFace(face);
     });
     connect(viewModel_.get(), &MainWindowModel::documentError, this, &MainWindow::displayError);
-    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, this, &MainWindow::displayGlyph);
+    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, [&](std::optional<f2b::font::glyph> glyph) {
+        if (glyph.has_value()) {
+            displayGlyph(glyph.value());
+        } else if (auto g = glyphWidget_.get()) {
+            ui_->glyphGraphicsView->scene()->removeItem(g);
+            glyphWidget_.release();
+        }
+    });
     connect(viewModel_.get(), &MainWindowModel::sourceCodeUpdating, [&]() {
 //        ui_->stackedWidget->setCurrentWidget(ui_->spinnerContainer);
     });
@@ -134,6 +165,11 @@ void MainWindow::initUI()
     faceScene_->setBackgroundBrush(QBrush(Qt::lightGray));
     ui_->faceGraphicsView->setScene(faceScene_.get());
 
+    ui_->actionShow_non_exported_Glyphs->setChecked(viewModel_->shouldShowNonExportedGlyphs());
+    ui_->showNonExportedGlyphsCheckBox->setCheckState(viewModel_->shouldShowNonExportedGlyphs());
+
+    ui_->showNonExportedGlyphsCheckBox->setVisible(false);
+    ui_->faceInfoSeparator->setVisible(false);
     ui_->faceInfoLabel->setVisible(false);
 
     auto scrollBarWidth = ui_->faceGraphicsView->verticalScrollBar()->sizeHint().width();
@@ -141,6 +177,8 @@ void MainWindow::initUI()
     ui_->faceGraphicsView->setMinimumSize({ faceViewWidth,
                                             ui_->faceGraphicsView->minimumSize().height() });
 
+    ui_->exportAllButton->setChecked(viewModel_->exportAllEnabled());
+    ui_->exportSubsetButton->setChecked(!viewModel_->exportAllEnabled());
     ui_->invertBitsCheckBox->setCheckState(viewModel_->invertBits());
     ui_->bitNumberingCheckBox->setCheckState(viewModel_->msbEnabled());
     ui_->lineSpacingCheckBox->setCheckState(viewModel_->includeLineSpacing());
@@ -160,8 +198,45 @@ void MainWindow::initUI()
     ui_->sourceCodeTextBrowser->setFont(f);
 }
 
+void MainWindow::showUpdateDialog(std::optional<UpdateHelper::Update> update)
+{
+    QMessageBox messageBox;
+    messageBox.setCheckBox(new QCheckBox(tr("Check for updates at start-up")));
+    messageBox.checkBox()->setChecked(updateHelper_->shouldCheckAtStartup());
+
+    connect(messageBox.checkBox(), &QCheckBox::toggled, [&] (bool isChecked) {
+        updateHelper_->setShouldCheckAtStartup(isChecked);
+    });
+
+    if (update.has_value()) {
+        auto updateInfo = update.value();
+        messageBox.setText(tr("Update Available"));
+        messageBox.setInformativeText(tr("FontEdit %1 is available (you have %2).\nGet the new version from GitHub Releases Page.")
+                                      .arg(updateInfo.latestVersion, updateInfo.currentVersion));
+        messageBox.setDetailedText(updateInfo.releaseNotes);
+
+        auto visitPageButton = messageBox.addButton(tr("Go to Releases Page"), QMessageBox::YesRole);
+        messageBox.addButton(tr("Dismiss"), QMessageBox::NoRole);
+
+        messageBox.setDefaultButton(visitPageButton);
+        messageBox.exec();
+
+        if (messageBox.clickedButton() == visitPageButton) {
+            QDesktopServices::openUrl(updateInfo.webpageURL);
+        }
+    } else {
+        messageBox.setText(tr("No Update Available"));
+        messageBox.setInformativeText(tr("You're using the latest version of FontEdit"));
+
+        messageBox.exec();
+    }
+
+}
+
 void MainWindow::closeCurrentDocument()
 {
+    ui_->showNonExportedGlyphsCheckBox->setVisible(false);
+    ui_->faceInfoSeparator->setVisible(false);
     ui_->faceInfoLabel->setVisible(false);
 
     if (faceWidget_ != nullptr) {
@@ -313,17 +388,15 @@ void MainWindow::showAddGlyphDialog()
     auto addGlyph = new AddGlyphDialog(*viewModel_->faceModel(), this);
     addGlyph->show();
 
-    connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<Font::Glyph>& glyph) {
+    connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<f2b::font::glyph>& glyph) {
         if (glyph.has_value()) {
 
             auto numberOfGlyphs = viewModel_->faceModel()->face().num_glyphs();
             auto activeGlyphIndex = viewModel_->faceModel()->activeGlyphIndex();
 
-            undoStack_->push(new Command(tr("Add Glyph"), [&, numberOfGlyphs, activeGlyphIndex] {
+            pushUndoCommand(new Command(tr("Add Glyph"), [&, numberOfGlyphs, activeGlyphIndex] {
                 viewModel_->deleteGlyph(numberOfGlyphs);
-                if (activeGlyphIndex.has_value()) {
-                    viewModel_->setActiveGlyphIndex(activeGlyphIndex.value());
-                }
+                viewModel_->setActiveGlyphIndex(activeGlyphIndex);
                 displayFace(viewModel_->faceModel()->face());
             }, [&, glyph] {
                 viewModel_->appendGlyph(glyph.value());
@@ -347,27 +420,31 @@ void MainWindow::showDeleteGlyphDialog()
     }
 
     auto glyph = viewModel_->faceModel()->activeGlyph();
-    auto commandName = isLastGlyph ? tr("Delete Glyph") : tr("Clear Glyph");
+    if (glyph.has_value()) {
 
-    undoStack_->push(new Command(commandName, [&, currentIndex, isLastGlyph, glyph] {
-        if (isLastGlyph) {
-            viewModel_->appendGlyph(glyph);
-            viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->face().num_glyphs()-1);
-            displayFace(viewModel_->faceModel()->face());
-        } else {
-            viewModel_->modifyGlyph(currentIndex.value(), glyph);
-            faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph());
-            displayGlyph(viewModel_->faceModel()->activeGlyph());
-        }
-    }, [&, currentIndex, isLastGlyph] {
-        viewModel_->deleteGlyph(currentIndex.value());
-        if (isLastGlyph) {
-            displayFace(viewModel_->faceModel()->face());
-        } else {
-            faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph());
-            displayGlyph(viewModel_->faceModel()->activeGlyph());
-        }
-    }));
+        auto commandName = isLastGlyph ? tr("Delete Glyph") : tr("Clear Glyph");
+
+        pushUndoCommand(new Command(commandName, [&, currentIndex, isLastGlyph, glyph] {
+            if (isLastGlyph) {
+                viewModel_->appendGlyph(glyph.value());
+                viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->face().num_glyphs()-1);
+                displayFace(viewModel_->faceModel()->face());
+            } else {
+                viewModel_->modifyGlyph(currentIndex.value(), glyph.value());
+                faceWidget_->updateGlyphInfo(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
+                displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+            }
+        }, [&, currentIndex, isLastGlyph] {
+            viewModel_->deleteGlyph(currentIndex.value());
+            if (isLastGlyph) {
+                displayFace(viewModel_->faceModel()->face());
+            } else {
+                faceWidget_->updateGlyphInfo(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
+                displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+            }
+        }));
+
+    }
 }
 
 void MainWindow::save()
@@ -420,33 +497,89 @@ MainWindow::SavePromptButton MainWindow::promptToSaveDirtyDocument()
     return static_cast<MainWindow::SavePromptButton>(ret);
 }
 
-void MainWindow::displayFace(const Font::Face& face)
+void MainWindow::displayFace(f2b::font::face& face)
 {
     if (faceWidget_ == nullptr) {
         faceWidget_ = new FaceWidget();
+        faceWidget_->setShowsNonExportedItems(viewModel_->shouldShowNonExportedGlyphs());
         ui_->faceGraphicsView->scene()->addItem(faceWidget_);
 
         connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged,
                 this, &MainWindow::switchActiveGlyph);
+        connect(faceWidget_, &FaceWidget::glyphExportedStateChanged,
+                this, &MainWindow::setGlyphExported);
+        connect(ui_->actionShow_non_exported_Glyphs, &QAction::toggled,
+                [&](bool checked) {
+            viewModel_->setShouldShowNonExportedGlyphs(checked);
+            faceWidget_->setShowsNonExportedItems(checked);
+        });
     }
 
     auto margins = viewModel_->faceModel()->originalFaceMargins();
     faceWidget_->load(face, margins);
+
+    ui_->showNonExportedGlyphsCheckBox->setVisible(true);
+    ui_->faceInfoSeparator->setVisible(true);
 
     auto faceInfo = viewModel_->faceModel()->faceInfo();
     updateFaceInfoLabel(faceInfo);
     updateDefaultFontName(faceInfo);
     ui_->faceInfoLabel->setVisible(true);
 
-    if (viewModel_->faceModel()->activeGlyphIndex().has_value()) {
-        displayGlyph(viewModel_->faceModel()->activeGlyph());
-        faceWidget_->setCurrentGlyphIndex(viewModel_->faceModel()->activeGlyphIndex().value());
-        viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->activeGlyphIndex().value());
+    auto glyph = viewModel_->faceModel()->activeGlyph();
+    if (glyph.has_value()) {
+        displayGlyph(glyph.value());
+        faceWidget_->setCurrentGlyphIndex(viewModel_->faceModel()->activeGlyphIndex());
+        viewModel_->setActiveGlyphIndex(viewModel_->faceModel()->activeGlyphIndex());
     } else if (auto g = glyphWidget_.get()) {
         ui_->glyphGraphicsView->scene()->removeItem(g);
         glyphWidget_.release();
     }
     updateResetActions();
+}
+
+void MainWindow::setGlyphExported(std::size_t index, bool isExported)
+{
+    pushUndoCommand(new Command(tr("Toggle Glyph Exported"), [&, index, isExported] {
+        viewModel_->setGlyphExported(index, !isExported);
+        auto faceModel = viewModel_->faceModel();
+        updateFaceInfoLabel(faceModel->faceInfo());
+        if (!faceWidget_->showsNonExportedItems()) {
+            auto margins = faceModel->originalFaceMargins();
+            faceWidget_->load(faceModel->face(), margins);
+            faceWidget_->setCurrentGlyphIndex(index);
+            glyphWidget_->load(faceModel->face().glyph_at(index), margins);
+        } else {
+            faceWidget_->updateGlyphInfo(index, {}, !isExported);
+        }
+
+    }, [&, index, isExported] {
+        auto faceModel = viewModel_->faceModel();
+        auto shouldUpdateCurrentIndex = !isExported && !faceWidget_->showsNonExportedItems();
+
+        std::optional<std::size_t> nextIndex {};
+        if (shouldUpdateCurrentIndex) {
+            // Find index of the next exported item
+            auto i = std::next(faceModel->face().exported_glyph_ids().find(index));
+            if (i != faceModel->face().exported_glyph_ids().end()) {
+                nextIndex = *i;
+            }
+        }
+
+        viewModel_->setGlyphExported(index, isExported);
+        updateFaceInfoLabel(faceModel->faceInfo());
+
+        if (shouldUpdateCurrentIndex) {
+            auto margins = faceModel->originalFaceMargins();
+            faceWidget_->load(faceModel->face(), margins);
+            faceWidget_->setCurrentGlyphIndex(nextIndex);
+            if (nextIndex.has_value()) {
+                glyphWidget_->load(faceModel->face().glyph_at(nextIndex.value()), margins);
+            }
+        } else {
+            faceWidget_->updateGlyphInfo(index, {}, isExported);
+        }
+    }));
 }
 
 void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
@@ -455,7 +588,8 @@ void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
     lines << faceInfo.fontName;
     lines << tr("Size (full): %1x%2px").arg(faceInfo.size.width).arg(faceInfo.size.height);
     lines << tr("Size (adjusted): %1x%2px").arg(faceInfo.sizeWithoutMargins.width).arg(faceInfo.sizeWithoutMargins.height);
-    lines << tr("%n Glyph(s)", "", faceInfo.numberOfGlyphs);
+    lines << QString("%1, %2").arg(tr("%n Glyph(s)", "", faceInfo.numberOfGlyphs),
+                                   tr("%1 to export").arg(QString::number(faceInfo.numberOfExportedGlyphs)));
     ui_->faceInfoLabel->setText(lines.join("\n"));
 }
 
@@ -467,7 +601,7 @@ void MainWindow::updateDefaultFontName(const FaceInfo &faceInfo)
     ui_->fontArrayNameEdit->setText(fontName);
 }
 
-void MainWindow::displayGlyph(const Font::Glyph& glyph)
+void MainWindow::displayGlyph(const f2b::font::glyph& glyph)
 {
     auto margins = viewModel_->faceModel()->originalFaceMargins();
     if (!glyphWidget_.get()) {
@@ -493,36 +627,33 @@ void MainWindow::editGlyph(const BatchPixelChange& change)
                 viewModel_->modifyGlyph(currentIndex.value(), change, type);
                 updateResetActions();
                 glyphWidget_->applyChange(change, type);
-                faceWidget_->updateGlyphPreview(currentIndex.value(), viewModel_->faceModel()->activeGlyph());
+                faceWidget_->updateGlyphInfo(currentIndex.value(), viewModel_->faceModel()->activeGlyph().value());
                 viewModel_->updateDocumentTitle();
             };
         };
 
-        undoStack_->push(new Command(tr("Edit Glyph"),
-                                     applyChange(BatchPixelChange::ChangeType::Reverse),
-                                     applyChange(BatchPixelChange::ChangeType::Normal)));
+        pushUndoCommand(new Command(tr("Edit Glyph"),
+                                    applyChange(BatchPixelChange::ChangeType::Reverse),
+                                    applyChange(BatchPixelChange::ChangeType::Normal)));
     }
 }
 
-void MainWindow::switchActiveGlyph(std::size_t newIndex)
+void MainWindow::switchActiveGlyph(std::optional<std::size_t> newIndex)
 {
     auto currentIndex = viewModel_->faceModel()->activeGlyphIndex();
-    if (currentIndex.has_value()) {
-        auto idx = currentIndex.value();
-        if (idx == newIndex) {
-            return;
+    if (currentIndex == newIndex) {
+        return;
+    }
+
+    if (currentIndex.has_value() && newIndex.has_value()) {
+
+        if (!pendingSwitchGlyphCommand_) {
+            pendingSwitchGlyphCommand_ = std::make_unique<SwitchActiveGlyphCommand>(faceWidget_, viewModel_.get(),
+                                                                                    currentIndex.value(), newIndex.value());
+        } else {
+            pendingSwitchGlyphCommand_->setToIndex(newIndex.value());
         }
-
-        auto setGlyph = [&](std::size_t index) -> std::function<void()> {
-            return [&, index] {
-                faceWidget_->setCurrentGlyphIndex(index);
-                viewModel_->setActiveGlyphIndex(index);
-            };
-        };
-
-        undoStack_->push(new Command(tr("Switch Active Glyph"),
-                                     setGlyph(idx),
-                                     setGlyph(newIndex)));
+        pendingSwitchGlyphCommand_->redo();
     } else {
         faceWidget_->setCurrentGlyphIndex(newIndex);
         viewModel_->setActiveGlyphIndex(newIndex);
@@ -531,19 +662,19 @@ void MainWindow::switchActiveGlyph(std::size_t newIndex)
 
 void MainWindow::resetCurrentGlyph()
 {
-    Font::Glyph currentGlyphState { viewModel_->faceModel()->activeGlyph() };
+    f2b::font::glyph currentGlyphState { viewModel_->faceModel()->activeGlyph().value() };
     auto glyphIndex = viewModel_->faceModel()->activeGlyphIndex().value();
 
-    undoStack_->push(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
+    pushUndoCommand(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {
         viewModel_->modifyGlyph(glyphIndex, currentGlyphState);
         viewModel_->updateDocumentTitle();
-        displayGlyph(viewModel_->faceModel()->activeGlyph());
-        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());
+        displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+        faceWidget_->updateGlyphInfo(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
     }, [&, glyphIndex] {
         viewModel_->resetGlyph(glyphIndex);
         viewModel_->updateDocumentTitle();
-        displayGlyph(viewModel_->faceModel()->activeGlyph());
-        faceWidget_->updateGlyphPreview(glyphIndex, viewModel_->faceModel()->activeGlyph());
+        displayGlyph(viewModel_->faceModel()->activeGlyph().value());
+        faceWidget_->updateGlyphInfo(glyphIndex, viewModel_->faceModel()->activeGlyph().value());
     }));
 }
 
@@ -636,4 +767,21 @@ void MainWindow::exportSourceCode()
     });
 
     dialog->open();
+}
+
+void MainWindow::pushUndoCommand(QUndoCommand *command)
+{
+    bool shouldPushSwitchGlyphCommand = pendingSwitchGlyphCommand_ != nullptr;
+
+    if (shouldPushSwitchGlyphCommand) {
+        undoStack_->beginMacro(command->text());
+        undoStack_->push(pendingSwitchGlyphCommand_.get());
+        pendingSwitchGlyphCommand_.release();
+    }
+
+    undoStack_->push(command);
+
+    if (shouldPushSwitchGlyphCommand) {
+        undoStack_->endMacro();
+    }
 }

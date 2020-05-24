@@ -12,9 +12,12 @@
 #include <iostream>
 #include <thread>
 
-Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
+Q_DECLARE_METATYPE(f2b::source_code_options::bit_numbering_type);
+Q_DECLARE_METATYPE(f2b::source_code_options::export_method_type);
 
 namespace SettingsKey {
+static const QString showNonExportedGlyphs = "main_window/show_non_expoerted_glyphs";
+static const QString exportMethod = "source_code_options/export_method";
 static const QString bitNumbering = "source_code_options/bit_numbering";
 static const QString invertBits = "source_code_options/invert_bits";
 static const QString includeLineSpacing = "source_code_options/include_line_spacing";
@@ -41,24 +44,30 @@ bool operator!=(const UIState& lhs, const UIState& rhs)
 MainWindowModel::MainWindowModel(QObject *parent) :
     QObject(parent)
 {
+    shouldShowNonExportedGlyphs_ = settings_.value(SettingsKey::showNonExportedGlyphs, true).toBool();
+
+    sourceCodeOptions_.export_method =
+            qvariant_cast<f2b::source_code_options::export_method_type>(
+                settings_.value(SettingsKey::exportMethod, f2b::source_code_options::export_selected)
+                );
     sourceCodeOptions_.bit_numbering =
-            qvariant_cast<SourceCodeOptions::BitNumbering>(
-                settings_.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
+            qvariant_cast<f2b::source_code_options::bit_numbering_type>(
+                settings_.value(SettingsKey::bitNumbering, f2b::source_code_options::lsb)
                 );
     sourceCodeOptions_.invert_bits = settings_.value(SettingsKey::invertBits, false).toBool();
     sourceCodeOptions_.include_line_spacing = settings_.value(SettingsKey::includeLineSpacing, false).toBool();
-    sourceCodeOptions_.indentation = from_qvariant(settings_.value(SettingsKey::indentation, to_qvariant(SourceCode::Tab {})));
+    sourceCodeOptions_.indentation = from_qvariant(settings_.value(SettingsKey::indentation, to_qvariant(f2b::source_code::tab {})));
 
-    formats_.insert(QString::fromStdString(std::string(Format::C::identifier)), "C/C++");
-    formats_.insert(QString::fromStdString(std::string(Format::Arduino::identifier)), "Arduino");
-    formats_.insert(QString::fromStdString(std::string(Format::PythonList::identifier)), "Python List");
-    formats_.insert(QString::fromStdString(std::string(Format::PythonBytes::identifier)), "Python Bytes");
+    formats_.insert(QString::fromStdString(std::string(f2b::format::c::identifier)), "C/C++");
+    formats_.insert(QString::fromStdString(std::string(f2b::format::arduino::identifier)), "Arduino");
+    formats_.insert(QString::fromStdString(std::string(f2b::format::python_list::identifier)), "Python List");
+    formats_.insert(QString::fromStdString(std::string(f2b::format::python_bytes::identifier)), "Python Bytes");
 
     currentFormat_ = settings_.value(SettingsKey::format, formats_.firstKey()).toString();
 
-    indentationStyles_.push_back({ SourceCode::Tab {}, tr("Tab") });
+    indentationStyles_.push_back({ f2b::source_code::tab {}, tr("Tab") });
     for (std::size_t i = 1; i <= 8; ++i) {
-        indentationStyles_.push_back({ SourceCode::Space {i}, tr("%n Space(s)", "", i) });
+        indentationStyles_.push_back({ f2b::source_code::space {i}, tr("%n Space(s)", "", i) });
     }
 
     connect(this, &MainWindowModel::runnableFinished,
@@ -210,7 +219,7 @@ void MainWindowModel::closeCurrentDocument()
     emit documentClosed();
 }
 
-void MainWindowModel::setActiveGlyphIndex(std::size_t index)
+void MainWindowModel::setActiveGlyphIndex(std::optional<std::size_t> index)
 {
     if (fontFaceViewModel_->activeGlyphIndex().has_value() and
             fontFaceViewModel_->activeGlyphIndex().value() == index)
@@ -228,6 +237,20 @@ void MainWindowModel::setActiveGlyphIndex(std::size_t index)
     }
 }
 
+void MainWindowModel::setShouldShowNonExportedGlyphs(bool enabled)
+{
+    shouldShowNonExportedGlyphs_ = enabled;
+    settings_.setValue(SettingsKey::showNonExportedGlyphs, enabled);
+}
+
+void MainWindowModel::setExportAllEnabled(bool enabled)
+{
+    auto exportMethod = enabled ? f2b::source_code_options::export_all : f2b::source_code_options::export_selected;
+    sourceCodeOptions_.export_method = exportMethod;
+    settings_.setValue(SettingsKey::exportMethod, exportMethod);
+    reloadSourceCode();
+}
+
 void MainWindowModel::setInvertBits(bool enabled)
 {
     sourceCodeOptions_.invert_bits = enabled;
@@ -237,7 +260,7 @@ void MainWindowModel::setInvertBits(bool enabled)
 
 void MainWindowModel::setMSBEnabled(bool enabled)
 {
-    auto bitNumbering = enabled ? SourceCodeOptions::MSB : SourceCodeOptions::LSB;
+    auto bitNumbering = enabled ? f2b::source_code_options::msb : f2b::source_code_options::lsb;
     sourceCodeOptions_.bit_numbering = bitNumbering;
     settings_.setValue(SettingsKey::bitNumbering, bitNumbering);
     reloadSourceCode();
@@ -334,21 +357,21 @@ void MainWindowModel::resetGlyph(std::size_t index)
     reloadSourceCode();
 }
 
-void MainWindowModel::modifyGlyph(std::size_t index, const Font::Glyph &new_glyph)
+void MainWindowModel::modifyGlyph(std::size_t index, const f2b::font::glyph &new_glyph)
 {
     fontFaceViewModel_->modifyGlyph(index, new_glyph);
     reloadSourceCode();
 }
 
 void MainWindowModel::modifyGlyph(std::size_t index,
-                                     const BatchPixelChange &change,
-                                     BatchPixelChange::ChangeType changeType)
+                                  const BatchPixelChange &change,
+                                  BatchPixelChange::ChangeType changeType)
 {
     fontFaceViewModel_->modifyGlyph(index, change, changeType);
     reloadSourceCode();
 }
 
-void MainWindowModel::appendGlyph(Font::Glyph glyph)
+void MainWindowModel::appendGlyph(f2b::font::glyph glyph)
 {
     fontFaceViewModel_->appendGlyph(std::move(glyph));
     reloadSourceCode();
@@ -363,5 +386,11 @@ void MainWindowModel::deleteGlyph(std::size_t index)
         emit activeGlyphChanged(fontFaceViewModel_->activeGlyph());
     }
 
+    reloadSourceCode();
+}
+
+void MainWindowModel::setGlyphExported(std::size_t index, bool isExported)
+{
+    fontFaceViewModel_->setGlyphExportedState(index, isExported);
     reloadSourceCode();
 }

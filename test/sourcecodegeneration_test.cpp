@@ -10,16 +10,18 @@
 #include <QString>
 #include <QFile>
 
+using namespace f2b;
+
 template<typename T>
 QString asset(const T& fileName)
 {
     return QString("%1/%2").arg(ASSETS_DIR, fileName);
 }
 
-class TestSourceCodeGenerator : public FontSourceCodeGenerator
+class TestSourceCodeGenerator : public font_source_code_generator
 {
 public:
-    TestSourceCodeGenerator(SourceCodeOptions options): FontSourceCodeGenerator(options) {};
+    TestSourceCodeGenerator(source_code_options options): font_source_code_generator(options) {};
 
     std::string current_timestamp() override {
         return "<timestamp>";
@@ -31,17 +33,17 @@ TEST(SourceCodeGeneratorTest, Generator)
     auto faceFileName = asset("monaco8.fontedit");
     auto faceVM = std::make_unique<FontFaceViewModel>(faceFileName);
 
-    Font::Size expectedSize {5,11};
-    Font::Margins expectedMargins {1, 2};
+    font::glyph_size expectedSize {5, 11};
+    font::margins expectedMargins {1, 2};
 
     EXPECT_EQ(faceVM->face().num_glyphs(), 95);
-    EXPECT_EQ(faceVM->face().glyph_size(), expectedSize);
+    EXPECT_EQ(faceVM->face().glyphs_size(), expectedSize);
     EXPECT_EQ(faceVM->face().calculate_margins(), expectedMargins);
 
-    TestSourceCodeGenerator g(SourceCodeOptions{});
+    TestSourceCodeGenerator g(source_code_options{});
 
 
-    auto sourceCode = g.generate<Format::C>(faceVM->face());
+    auto sourceCode = g.generate<format::c>(faceVM->face());
 
     auto sourceCodeFileName = asset("monaco8.c-test");
     QFile f(sourceCodeFileName);
@@ -57,12 +59,12 @@ TEST(SourceCodeGeneratorTest, GeneratorPerformance)
     auto faceFileName = asset("jetbrains260.fontedit");
     auto faceVM = std::make_unique<FontFaceViewModel>(faceFileName);
 
-    FontSourceCodeGenerator g(SourceCodeOptions{});
+    font_source_code_generator g(source_code_options{});
 
     std::vector<std::chrono::high_resolution_clock::rep> durations;
     for (int i = 0; i < 5; ++i) {
         auto start = std::chrono::high_resolution_clock::now();
-        g.generate<Format::C>(faceVM->face());
+        g.generate<format::c>(faceVM->face());
         auto end = std::chrono::high_resolution_clock::now();
         durations.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count());
     }
