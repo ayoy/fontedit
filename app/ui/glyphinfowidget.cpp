@@ -21,9 +21,9 @@ static QString description(unsigned char asciiCode)
     return QString::fromStdString(stream.str());
 }
 
-GlyphInfoWidget::GlyphInfoWidget(const f2b::font::Glyph &glyph, std::size_t index, bool isExported,
+GlyphInfoWidget::GlyphInfoWidget(const f2b::font::glyph &glyph, std::size_t index, bool isExported,
                                  unsigned char asciiCode, QSizeF imageSize,
-                                 f2b::font::Margins margins, QGraphicsItem *parent) :
+                                 f2b::font::margins margins, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     description_ { description(asciiCode) },
     imageSize_ { imageSize },
@@ -45,7 +45,7 @@ void GlyphInfoWidget::setIsExportedAdjustable(bool isEnabled)
     isExportedAdjustable_ = isEnabled;
 }
 
-void GlyphInfoWidget::updateGlyph(std::optional<f2b::font::Glyph> glyph, std::optional<bool> isExported, std::optional<f2b::font::Margins> margins)
+void GlyphInfoWidget::updateGlyph(std::optional<f2b::font::glyph> glyph, std::optional<bool> isExported, std::optional<f2b::font::margins> margins)
 {
     if (isExported.has_value()) {
         isExported_ = isExported.value();

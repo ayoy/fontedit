@@ -15,7 +15,7 @@ namespace f2b
 
 static constexpr auto byte_size = 8;
 
-struct SourceCodeOptions
+struct source_code_options
 {
     enum BitNumbering { LSB, MSB };
     enum ExportMethod { ExportSelected, ExportAll };
@@ -25,7 +25,7 @@ struct SourceCodeOptions
     BitNumbering bit_numbering { LSB };
     bool invert_bits { false };
     bool include_line_spacing { false };
-    SourceCode::Indentation indentation { SourceCode::Tab {} };
+    source_code::indentation indentation { source_code::tab {} };
 };
 
 /**
@@ -34,10 +34,10 @@ struct SourceCodeOptions
  * @param glyph_size
  * @return Margins expressed in pixel offset for a given glyph size (width).
  */
-font::Margins pixel_margins(font::Margins line_margins, font::Size glyph_size);
+font::margins pixel_margins(font::margins line_margins, font::size glyph_size);
 
 
-class FontSourceCodeGeneratorInterface
+class font_source_code_generator_interface
 {
 public:
     virtual std::string current_timestamp() = 0;
@@ -99,11 +99,11 @@ public:
  * This char will result in the byte sequence: 0x3c, 0x66, 0x66, ...
  *
  */
-class FontSourceCodeGenerator : private FontSourceCodeGeneratorInterface
+class font_source_code_generator : private font_source_code_generator_interface
 {
 public:
 
-    FontSourceCodeGenerator(SourceCodeOptions options):
+    font_source_code_generator(source_code_options options):
         options_ { options }
     {}
 
@@ -115,37 +115,37 @@ public:
      * the font byte array parameter.
      *
      * The generator builds the source code out of building blocks -
-     * structs from \c SourceCode::Idiom namespace.
+     * structs from \c source_code::Idiom namespace.
      *
-     * @see SourceCode::Idiom
+     * @see source_code::Idiom
      */
     template<typename T>
-    std::string generate(const font::Face& face, std::string font_name = "font");
+    std::string generate(const font::face& face, std::string font_name = "font");
 
 private:
     template<typename T>
-    std::string generate_all(const font::Face& face, std::string font_name = "font");
+    std::string generate_all(const font::face& face, std::string font_name = "font");
 
     template<typename T>
-    std::string generate_subset(const font::Face& face, std::string font_name = "font");
+    std::string generate_subset(const font::face& face, std::string font_name = "font");
 
     template<typename T, typename V>
     std::string subset_lut(const std::set<std::size_t>& exported_glyph_ids,
                            std::size_t bytes_per_glyph);
 
     template<typename T>
-    void output_glyph(const font::Glyph& glyph, font::Size size, font::Margins margins, std::ostream& s);
+    void output_glyph(const font::glyph& glyph, font::size size, font::margins margins, std::ostream& s);
 
 
     std::string current_timestamp() override;
     std::string comment_for_glyph(std::size_t index) override;
-    SourceCodeOptions options_;
+    source_code_options options_;
 };
 
 template<typename T>
-void FontSourceCodeGenerator::output_glyph(const font::Glyph& glyph, font::Size size, font::Margins margins, std::ostream& s)
+void font_source_code_generator::output_glyph(const font::glyph& glyph, font::size size, font::margins margins, std::ostream& s)
 {
-    using namespace SourceCode;
+    using namespace source_code;
     std::bitset<byte_size> bits;
     std::size_t bit_pos { 0 };
     std::size_t col { 0 };
@@ -155,27 +155,27 @@ void FontSourceCodeGenerator::output_glyph(const font::Glyph& glyph, font::Size 
             bits.flip();
         }
         auto byte = static_cast<uint8_t>(bits.to_ulong());
-        s << Idiom::Value<T, uint8_t> { std::move(byte) };
+        s << idiom::value<T, uint8_t> { std::move(byte) };
         bits.reset();
 
         if (s.tellp() - pos >= options_.wrap_column) {
-            s << Idiom::ArrayLineBreak<T, uint8_t> {};
+            s << idiom::array_line_break<T, uint8_t> {};
             pos = s.tellp();
-            s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
+            s << idiom::begin_array_row<T, uint8_t> { options_.indentation };
         }
     };
 
 
     auto pos = s.tellp();
-    s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
+    s << idiom::begin_array_row<T, uint8_t> { options_.indentation };
 
     std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
                   [&](auto pixel) {
         switch (options_.bit_numbering) {
-        case SourceCodeOptions::LSB:
+        case source_code_options::LSB:
             bits[bit_pos] = pixel;
             break;
-        case SourceCodeOptions::MSB:
+        case source_code_options::MSB:
             bits[byte_size-1-bit_pos] = pixel;
             break;
         }
@@ -195,11 +195,11 @@ void FontSourceCodeGenerator::output_glyph(const font::Glyph& glyph, font::Size 
 }
 
 template<typename T>
-std::string FontSourceCodeGenerator::generate_all(const font::Face& face, std::string font_name)
+std::string font_source_code_generator::generate_all(const font::face& face, std::string font_name)
 {
-    using namespace SourceCode;
+    using namespace source_code;
 
-    auto [size, margins] = [&] () -> std::pair<font::Size, font::Margins> {
+    auto [size, margins] = [&] () -> std::pair<font::size, font::margins> {
         if (options_.include_line_spacing) {
             return { face.glyph_size(), {} };
         }
@@ -209,28 +209,28 @@ std::string FontSourceCodeGenerator::generate_all(const font::Face& face, std::s
     }();
 
     std::ostringstream s;
-    s << Idiom::Begin<T> { font_name, size, current_timestamp() };
-    s << Idiom::BeginArray<T, uint8_t> { std::move(font_name) };
+    s << idiom::begin<T> { font_name, size, current_timestamp() };
+    s << idiom::begin_array<T, uint8_t> { std::move(font_name) };
 
     std::size_t glyph_id { 0 };
     for (const auto& glyph : face.glyphs()) {
         output_glyph<T>(glyph, size, margins, s);
-        s << Idiom::Comment<T, uint8_t> { comment_for_glyph(glyph_id) };
-        s << Idiom::ArrayLineBreak<T, uint8_t> {};
+        s << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << idiom::array_line_break<T, uint8_t> {};
         ++glyph_id;
     }
 
-    s << Idiom::EndArray<T, uint8_t> {};
-    s << Idiom::End<T> {};
+    s << idiom::end_array<T, uint8_t> {};
+    s << idiom::end<T> {};
 
     return s.str();
 }
 
 template<typename T, typename V>
-std::string FontSourceCodeGenerator::subset_lut(const std::set<std::size_t>& exported_glyph_ids,
-                                                std::size_t bytes_per_glyph)
+std::string font_source_code_generator::subset_lut(const std::set<std::size_t>& exported_glyph_ids,
+                                                   std::size_t bytes_per_glyph)
 {
-    using namespace SourceCode;
+    using namespace source_code;
 
     std::ostringstream s;
 
@@ -238,28 +238,28 @@ std::string FontSourceCodeGenerator::subset_lut(const std::set<std::size_t>& exp
 
     auto last_exported_glyph = std::prev(exported_glyph_ids.end());
 
-    s << Idiom::BeginArray<T, V> { "lut" };
+    s << idiom::begin_array<T, V> { "lut" };
 
     bool is_previous_exported = true;
     for (std::size_t glyph_id = 0; glyph_id <= *last_exported_glyph; ++glyph_id) {
         if (exported_glyph_ids.find(glyph_id) != exported_glyph_ids.end()) {
             if (!is_previous_exported)
-                s << Idiom::ArrayLineBreak<T> {};
-            s << Idiom::BeginArrayRow<T, V> { options_.indentation };
-            s << Idiom::Value<T, V> { static_cast<V>(bytes_per_glyph * exported_id) };
-            s << Idiom::Comment<T> { comment_for_glyph(glyph_id) };
+                s << idiom::array_line_break<T> {};
+            s << idiom::begin_array_row<T, V> { options_.indentation };
+            s << idiom::value<T, V> { static_cast<V>(bytes_per_glyph * exported_id) };
+            s << idiom::comment<T> { comment_for_glyph(glyph_id) };
             ++exported_id;
-            s << Idiom::ArrayLineBreak<T> {};
+            s << idiom::array_line_break<T> {};
             is_previous_exported = true;
         } else {
             if (is_previous_exported)
-                s << Idiom::BeginArrayRow<T, V> { options_.indentation };
-            s << Idiom::Value<T, V> { 0 };
+                s << idiom::begin_array_row<T, V> { options_.indentation };
+            s << idiom::value<T, V> { 0 };
             is_previous_exported = false;
         }
     }
 
-    s << Idiom::EndArray<T, V> {};
+    s << idiom::end_array<T, V> {};
 
     return s.str();
 }
@@ -274,11 +274,11 @@ std::string FontSourceCodeGenerator::subset_lut(const std::set<std::size_t>& exp
  * end_array()
  */
 template<typename T>
-std::string FontSourceCodeGenerator::generate_subset(const font::Face& face, std::string font_name)
+std::string font_source_code_generator::generate_subset(const font::face& face, std::string font_name)
 {
-    using namespace SourceCode;
+    using namespace source_code;
 
-    auto [size, margins] = [&] () -> std::pair<font::Size, font::Margins> {
+    auto [size, margins] = [&] () -> std::pair<font::size, font::margins> {
         if (options_.include_line_spacing) {
             return { face.glyph_size(), {} };
         }
@@ -288,17 +288,17 @@ std::string FontSourceCodeGenerator::generate_subset(const font::Face& face, std
     }();
 
     std::ostringstream s;
-    s << Idiom::Begin<T> { font_name, size, current_timestamp() };
-    s << Idiom::BeginArray<T, uint8_t> { std::move(font_name) };
+    s << idiom::begin<T> { font_name, size, current_timestamp() };
+    s << idiom::begin_array<T, uint8_t> { std::move(font_name) };
 
     for (auto glyph_id : face.exported_glyph_ids()) {
         const auto& glyph = face.glyph_at(glyph_id);
         output_glyph<T>(glyph, size, margins, s);
-        s << Idiom::Comment<T, uint8_t> { comment_for_glyph(glyph_id) };
-        s << Idiom::ArrayLineBreak<T, uint8_t> {};
+        s << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << idiom::array_line_break<T, uint8_t> {};
     }
 
-    s << Idiom::EndArray<T, uint8_t> {};
+    s << idiom::end_array<T, uint8_t> {};
 
 
     auto bytes_per_line = size.width / byte_size + (size.width % byte_size ? 1 : 0);
@@ -316,18 +316,18 @@ std::string FontSourceCodeGenerator::generate_subset(const font::Face& face, std
         s << subset_lut<T,uint64_t>(face.exported_glyph_ids(), bytes_per_glyph);
     }
 
-    s << Idiom::End<T> {};
+    s << idiom::end<T> {};
 
     return s.str();
 }
 
 template<typename T>
-std::string FontSourceCodeGenerator::generate(const font::Face &face, std::string font_name)
+std::string font_source_code_generator::generate(const font::face &face, std::string font_name)
 {
     switch (options_.export_method) {
-    case SourceCodeOptions::ExportAll:
+    case source_code_options::ExportAll:
         return generate_all<T>(face, font_name);
-    case SourceCodeOptions::ExportSelected:
+    case source_code_options::ExportSelected:
         return generate_subset<T>(face, font_name);
     }
 }

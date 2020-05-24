@@ -33,7 +33,7 @@ protected:
     virtual void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void displayFace(f2b::font::Face& face);
+    void displayFace(f2b::font::face& face);
 
 private:
     void connectUpdateHelper();
@@ -54,7 +54,7 @@ private:
     void saveAs();
     void resetCurrentGlyph();
     void resetFont();
-    void displayGlyph(const f2b::font::Glyph& glyph);
+    void displayGlyph(const f2b::font::glyph& glyph);
     void updateUI(UIState uiState);
     void editGlyph(const BatchPixelChange& change);
     void switchActiveGlyph(std::optional<std::size_t> newIndex);

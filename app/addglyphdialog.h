@@ -23,14 +23,14 @@ public:
     ~AddGlyphDialog();
 
 signals:
-    void glyphSelected(const std::optional<f2b::font::Glyph>& glyph);
+    void glyphSelected(const std::optional<f2b::font::glyph>& glyph);
 
 private:
     Ui::AddGlyphDialog *ui_;
     FaceWidget *faceWidget_ { nullptr };
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
 
-    std::optional<f2b::font::Glyph> newGlyph_ {};
+    std::optional<f2b::font::glyph> newGlyph_ {};
 };
 
 #endif // ADDGLYPHDIALOG_H

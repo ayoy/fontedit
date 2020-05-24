@@ -36,7 +36,7 @@ void FaceWidget::reset()
     resetFocusWidget();
 }
 
-QSizeF FaceWidget::calculateImageSize(f2b::font::Size glyph_size)
+QSizeF FaceWidget::calculateImageSize(f2b::font::size glyph_size)
 {
     // height: 6 + desc.height + 6 + img.height + 6
     // width: 6 + img.width + 6
@@ -61,7 +61,7 @@ QSizeF FaceWidget::calculateImageSize(f2b::font::Size glyph_size)
     return imageSize;
 }
 
-void FaceWidget::load(const f2b::font::Face &face, f2b::font::Margins margins)
+void FaceWidget::load(const f2b::font::face &face, f2b::font::margins margins)
 {
     face_ = &face;
     margins_ = margins;
@@ -78,7 +78,7 @@ void FaceWidget::load(const f2b::font::Face &face, f2b::font::Margins margins)
     }
 }
 
-void FaceWidget::load(f2b::font::Face &face, f2b::font::Margins margins)
+void FaceWidget::load(f2b::font::face &face, f2b::font::margins margins)
 {
     face_ = &face;
     margins_ = margins;
@@ -144,7 +144,7 @@ void FaceWidget::setCurrentGlyphIndex(std::optional<std::size_t> index)
     }
 }
 
-void FaceWidget::updateGlyphInfo(std::size_t index, std::optional<f2b::font::Glyph> glyph, std::optional<bool> isExported)
+void FaceWidget::updateGlyphInfo(std::size_t index, std::optional<f2b::font::glyph> glyph, std::optional<bool> isExported)
 {
     auto item = glyphWidgetAtIndex(index);
     if (item) {

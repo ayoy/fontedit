@@ -14,7 +14,7 @@ class SourceCodeRunnable : public QRunnable
     using CompletionHandler = std::function<void(const QString&)>;
 
 public:
-    SourceCodeRunnable(f2b::font::Face face, f2b::SourceCodeOptions options,
+    SourceCodeRunnable(f2b::font::face face, f2b::source_code_options options,
                        const QString& format, const QString& fontArrayName)
         : QRunnable(),
           face_ { std::move(face) },
@@ -42,8 +42,8 @@ private:
     bool m_canceled { false };
     std::mutex mutex_;
 
-    f2b::font::Face face_;
-    f2b::FontSourceCodeGenerator generator_;
+    f2b::font::face face_;
+    f2b::font_source_code_generator generator_;
     std::string format_;
     std::string fontArrayName_;
     CompletionHandler handler_ {};

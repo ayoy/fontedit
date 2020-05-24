@@ -19,10 +19,10 @@ class GlyphWidget : public QGraphicsWidget
     };
 
 public:
-    explicit GlyphWidget(const f2b::font::Glyph& glyph, f2b::font::Margins margins = {}, QGraphicsItem* parent = nullptr);
+    explicit GlyphWidget(const f2b::font::glyph& glyph, f2b::font::margins margins = {}, QGraphicsItem* parent = nullptr);
     virtual ~GlyphWidget() = default;
 
-    void load(const f2b::font::Glyph& glyph, f2b::font::Margins margins = {});
+    void load(const f2b::font::glyph& glyph, f2b::font::margins margins = {});
     QRectF boundingRect() const override;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -42,17 +42,17 @@ protected:
 
 private:
     void handleMousePress(QGraphicsSceneMouseEvent *event);
-    void updateIfNeeded(UpdateMode updateMode, std::optional<f2b::font::Point> previousFocusedPixel);
+    void updateIfNeeded(UpdateMode updateMode, std::optional<f2b::font::point> previousFocusedPixel);
 
-    void togglePixel(f2b::font::Point p);
-    void setPixel(f2b::font::Point p, bool value);
+    void togglePixel(f2b::font::point p);
+    void setPixel(f2b::font::point p, bool value);
 
-    f2b::font::Point pointForEvent(QGraphicsSceneMouseEvent *event) const;
+    f2b::font::point pointForEvent(QGraphicsSceneMouseEvent *event) const;
 
-    f2b::font::Glyph glyph_;
-    f2b::font::Margins margins_;
+    f2b::font::glyph glyph_;
+    f2b::font::margins margins_;
     BatchPixelChange affectedPixels_;
-    std::optional<f2b::font::Point> focusedPixel_ {};
+    std::optional<f2b::font::point> focusedPixel_ {};
 
     bool isDuringMouseMove_ { false };
     bool penState_ { false };

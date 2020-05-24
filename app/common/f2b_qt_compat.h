@@ -19,29 +19,29 @@ namespace f2b {
 
 namespace font {
 
-inline font::Point point_with_qpoint(const QPoint &p)
+inline font::point point_with_qpoint(const QPoint &p)
 {
     return { static_cast<std::size_t>(qMax(0, p.x())),
                 static_cast<std::size_t>(qMax(0, p.y())) };
 }
 
-inline QPoint qpoint_with_point(const font::Point &p)
+inline QPoint qpoint_with_point(const font::point &p)
 {
     return QPoint { static_cast<int>(p.x), static_cast<int>(p.y) };
 }
 
-inline font::Size size_with_qsize(const QSize &s)
+inline font::size size_with_qsize(const QSize &s)
 {
     return { static_cast<std::size_t>(qMax(0, s.width())),
                 static_cast<std::size_t>(qMax(0, s.height())) };
 }
 
-inline QSize qsize_with_size(const font::Size &s)
+inline QSize qsize_with_size(const font::size &s)
 {
     return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };
 }
 
-inline QImage glyph_preview_image(const font::Glyph &g, font::Margins m)
+inline QImage glyph_preview_image(const font::glyph &g, font::margins m)
 {
     auto useful_glyph_size = g.size();
     useful_glyph_size.height -= m.top + m.bottom;
@@ -312,14 +312,14 @@ inline QDataStream& operator>>(QDataStream& s, std::unordered_map<std::size_t, V
     return s;
 }
 
-QDataStream& operator<<(QDataStream& s, const f2b::font::Glyph& glyph);
-QDataStream& operator>>(QDataStream& s, f2b::font::Glyph& glyph);
+QDataStream& operator<<(QDataStream& s, const f2b::font::glyph& glyph);
+QDataStream& operator>>(QDataStream& s, f2b::font::glyph& glyph);
 
-QDataStream& operator<<(QDataStream& s, const f2b::font::Face& face);
-QDataStream& operator>>(QDataStream& s, f2b::font::Face& face);
+QDataStream& operator<<(QDataStream& s, const f2b::font::face& face);
+QDataStream& operator>>(QDataStream& s, f2b::font::face& face);
 
 
-QVariant to_qvariant(const f2b::SourceCode::Indentation& i);
-f2b::SourceCode::Indentation from_qvariant(const QVariant& v);
+QVariant to_qvariant(const f2b::source_code::indentation& i);
+f2b::source_code::indentation from_qvariant(const QVariant& v);
 
 #endif // F2B_QT_COMPAT_H

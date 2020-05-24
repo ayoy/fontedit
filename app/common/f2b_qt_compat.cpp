@@ -8,7 +8,7 @@ static constexpr quint32 font_face_version = 2;
 
 using namespace f2b;
 
-QDataStream& operator<<(QDataStream& s, const font::Glyph& glyph)
+QDataStream& operator<<(QDataStream& s, const font::glyph& glyph)
 {
     s << font_glyph_magic_number;
     s << font_glyph_version;
@@ -20,7 +20,7 @@ QDataStream& operator<<(QDataStream& s, const font::Glyph& glyph)
     return s;
 }
 
-QDataStream& operator>>(QDataStream& s, font::Glyph& glyph)
+QDataStream& operator>>(QDataStream& s, font::glyph& glyph)
 {
     quint32 magic_number;
     quint32 version;
@@ -34,13 +34,13 @@ QDataStream& operator>>(QDataStream& s, font::Glyph& glyph)
         pixels.reserve(width * height);
         s >> pixels;
 
-        glyph = font::Glyph({width, height}, pixels);
+        glyph = font::glyph({width, height}, pixels);
     }
 
     return s;
 }
 
-QDataStream& operator<<(QDataStream& s, const font::Face& face)
+QDataStream& operator<<(QDataStream& s, const font::face& face)
 {
     s << font_face_magic_number;
     s << font_face_version;
@@ -54,7 +54,7 @@ QDataStream& operator<<(QDataStream& s, const font::Face& face)
 
 }
 
-QDataStream& operator>>(QDataStream& s, font::Face& face)
+QDataStream& operator>>(QDataStream& s, font::face& face)
 {
     quint32 magic_number;
     quint32 version;
@@ -64,7 +64,7 @@ QDataStream& operator>>(QDataStream& s, font::Face& face)
         quint32 width, height;
         s >> width >> height;
 
-        std::vector<font::Glyph> glyphs;
+        std::vector<font::glyph> glyphs;
         s >> glyphs;
 
         std::set<std::size_t> exported_glyph_ids;
@@ -75,30 +75,30 @@ QDataStream& operator>>(QDataStream& s, font::Face& face)
         } else {
             s >> exported_glyph_ids;
         }
-        face = font::Face({width, height}, glyphs, exported_glyph_ids);
+        face = font::face({width, height}, glyphs, exported_glyph_ids);
     }
 
     return s;
 }
 
-QVariant to_qvariant(const SourceCode::Indentation& i) {
-    if (std::holds_alternative<SourceCode::Tab>(i)) {
+QVariant to_qvariant(const source_code::indentation& i) {
+    if (std::holds_alternative<source_code::tab>(i)) {
         return QVariant(-1);
-    } else if (std::holds_alternative<SourceCode::Space>(i)) {
-        return QVariant((uint)std::get<SourceCode::Space>(i).num_spaces);
+    } else if (std::holds_alternative<source_code::space>(i)) {
+        return QVariant((uint)std::get<source_code::space>(i).num_spaces);
     }
     return QVariant();
 }
 
-SourceCode::Indentation from_qvariant(const QVariant& v) {
+source_code::indentation from_qvariant(const QVariant& v) {
     bool ok;
     auto intValue = v.toInt(&ok);
     if (ok && intValue == -1) {
-        return SourceCode::Tab {};
+        return source_code::tab {};
     }
     auto uintValue = v.toUInt(&ok);
     if (ok) {
-        return SourceCode::Space { uintValue };
+        return source_code::space { uintValue };
     }
-    return SourceCode::Tab {};
+    return source_code::tab {};
 }

@@ -4,12 +4,12 @@
 
 namespace f2b {
 
-font::Margins pixel_margins(font::Margins line_margins, font::Size glyph_size)
+font::margins pixel_margins(font::margins line_margins, font::size glyph_size)
 {
     return { line_margins.top * glyph_size.width, line_margins.bottom * glyph_size.width };
 }
 
-std::string FontSourceCodeGenerator::current_timestamp()
+std::string font_source_code_generator::current_timestamp()
 {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
@@ -18,7 +18,7 @@ std::string FontSourceCodeGenerator::current_timestamp()
     return s.str();
 }
 
-std::string FontSourceCodeGenerator::comment_for_glyph(std::size_t index)
+std::string font_source_code_generator::comment_for_glyph(std::size_t index)
 {
     index += 32;
     std::ostringstream s;
