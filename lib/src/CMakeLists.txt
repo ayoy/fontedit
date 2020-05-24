@@ -26,7 +26,7 @@ if (LIBFONTEDIT_STANDALONE_PROJECT)
         )
     
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        SOVERSION 1.0.0
+        SOVERSION 1.1.0
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 else ()
