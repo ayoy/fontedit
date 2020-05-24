@@ -11,6 +11,8 @@
 #include <QDataStream>
 #include <QString>
 
+using namespace f2b;
+
 template<typename T>
 void serialize_and_deserialize(const T& input, T& output)
 {

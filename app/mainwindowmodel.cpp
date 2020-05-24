@@ -12,8 +12,8 @@
 #include <iostream>
 #include <thread>
 
-Q_DECLARE_METATYPE(SourceCodeOptions::BitNumbering);
-Q_DECLARE_METATYPE(SourceCodeOptions::ExportMethod);
+Q_DECLARE_METATYPE(f2b::SourceCodeOptions::BitNumbering);
+Q_DECLARE_METATYPE(f2b::SourceCodeOptions::ExportMethod);
 
 namespace SettingsKey {
 static const QString showNonExportedGlyphs = "main_window/show_non_expoerted_glyphs";
@@ -47,27 +47,27 @@ MainWindowModel::MainWindowModel(QObject *parent) :
     shouldShowNonExportedGlyphs_ = settings_.value(SettingsKey::showNonExportedGlyphs, true).toBool();
 
     sourceCodeOptions_.export_method =
-            qvariant_cast<SourceCodeOptions::ExportMethod>(
-                settings_.value(SettingsKey::exportMethod, SourceCodeOptions::ExportSelected)
+            qvariant_cast<f2b::SourceCodeOptions::ExportMethod>(
+                settings_.value(SettingsKey::exportMethod, f2b::SourceCodeOptions::ExportSelected)
                 );
     sourceCodeOptions_.bit_numbering =
-            qvariant_cast<SourceCodeOptions::BitNumbering>(
-                settings_.value(SettingsKey::bitNumbering, SourceCodeOptions::LSB)
+            qvariant_cast<f2b::SourceCodeOptions::BitNumbering>(
+                settings_.value(SettingsKey::bitNumbering, f2b::SourceCodeOptions::LSB)
                 );
     sourceCodeOptions_.invert_bits = settings_.value(SettingsKey::invertBits, false).toBool();
     sourceCodeOptions_.include_line_spacing = settings_.value(SettingsKey::includeLineSpacing, false).toBool();
-    sourceCodeOptions_.indentation = from_qvariant(settings_.value(SettingsKey::indentation, to_qvariant(SourceCode::Tab {})));
+    sourceCodeOptions_.indentation = from_qvariant(settings_.value(SettingsKey::indentation, to_qvariant(f2b::SourceCode::Tab {})));
 
-    formats_.insert(QString::fromStdString(std::string(Format::C::identifier)), "C/C++");
-    formats_.insert(QString::fromStdString(std::string(Format::Arduino::identifier)), "Arduino");
-    formats_.insert(QString::fromStdString(std::string(Format::PythonList::identifier)), "Python List");
-    formats_.insert(QString::fromStdString(std::string(Format::PythonBytes::identifier)), "Python Bytes");
+    formats_.insert(QString::fromStdString(std::string(f2b::Format::C::identifier)), "C/C++");
+    formats_.insert(QString::fromStdString(std::string(f2b::Format::Arduino::identifier)), "Arduino");
+    formats_.insert(QString::fromStdString(std::string(f2b::Format::PythonList::identifier)), "Python List");
+    formats_.insert(QString::fromStdString(std::string(f2b::Format::PythonBytes::identifier)), "Python Bytes");
 
     currentFormat_ = settings_.value(SettingsKey::format, formats_.firstKey()).toString();
 
-    indentationStyles_.push_back({ SourceCode::Tab {}, tr("Tab") });
+    indentationStyles_.push_back({ f2b::SourceCode::Tab {}, tr("Tab") });
     for (std::size_t i = 1; i <= 8; ++i) {
-        indentationStyles_.push_back({ SourceCode::Space {i}, tr("%n Space(s)", "", i) });
+        indentationStyles_.push_back({ f2b::SourceCode::Space {i}, tr("%n Space(s)", "", i) });
     }
 
     connect(this, &MainWindowModel::runnableFinished,
@@ -245,7 +245,7 @@ void MainWindowModel::setShouldShowNonExportedGlyphs(bool enabled)
 
 void MainWindowModel::setExportAllEnabled(bool enabled)
 {
-    auto exportMethod = enabled ? SourceCodeOptions::ExportAll : SourceCodeOptions::ExportSelected;
+    auto exportMethod = enabled ? f2b::SourceCodeOptions::ExportAll : f2b::SourceCodeOptions::ExportSelected;
     sourceCodeOptions_.export_method = exportMethod;
     settings_.setValue(SettingsKey::exportMethod, exportMethod);
     reloadSourceCode();
@@ -260,7 +260,7 @@ void MainWindowModel::setInvertBits(bool enabled)
 
 void MainWindowModel::setMSBEnabled(bool enabled)
 {
-    auto bitNumbering = enabled ? SourceCodeOptions::MSB : SourceCodeOptions::LSB;
+    auto bitNumbering = enabled ? f2b::SourceCodeOptions::MSB : f2b::SourceCodeOptions::LSB;
     sourceCodeOptions_.bit_numbering = bitNumbering;
     settings_.setValue(SettingsKey::bitNumbering, bitNumbering);
     reloadSourceCode();
@@ -357,21 +357,21 @@ void MainWindowModel::resetGlyph(std::size_t index)
     reloadSourceCode();
 }
 
-void MainWindowModel::modifyGlyph(std::size_t index, const Font::Glyph &new_glyph)
+void MainWindowModel::modifyGlyph(std::size_t index, const f2b::Font::Glyph &new_glyph)
 {
     fontFaceViewModel_->modifyGlyph(index, new_glyph);
     reloadSourceCode();
 }
 
 void MainWindowModel::modifyGlyph(std::size_t index,
-                                     const BatchPixelChange &change,
-                                     BatchPixelChange::ChangeType changeType)
+                                  const BatchPixelChange &change,
+                                  BatchPixelChange::ChangeType changeType)
 {
     fontFaceViewModel_->modifyGlyph(index, change, changeType);
     reloadSourceCode();
 }
 
-void MainWindowModel::appendGlyph(Font::Glyph glyph)
+void MainWindowModel::appendGlyph(f2b::Font::Glyph glyph)
 {
     fontFaceViewModel_->appendGlyph(std::move(glyph));
     reloadSourceCode();

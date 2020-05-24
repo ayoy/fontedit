@@ -15,6 +15,8 @@
 #include <unordered_map>
 #include <set>
 
+namespace f2b {
+
 namespace Font {
 
 inline Font::Point point_with_qpoint(const QPoint &p)
@@ -60,7 +62,9 @@ inline QImage glyph_preview_image(const Font::Glyph &g, Font::Margins m)
     return image;
 }
 
-}
+} // namespace Font
+
+} // namespace f2b
 
 
 static constexpr quint32 std_optional_magic_number = 0x46b13680;
@@ -308,14 +312,14 @@ inline QDataStream& operator>>(QDataStream& s, std::unordered_map<std::size_t, V
     return s;
 }
 
-QDataStream& operator<<(QDataStream& s, const Font::Glyph& glyph);
-QDataStream& operator>>(QDataStream& s, Font::Glyph& glyph);
+QDataStream& operator<<(QDataStream& s, const f2b::Font::Glyph& glyph);
+QDataStream& operator>>(QDataStream& s, f2b::Font::Glyph& glyph);
 
-QDataStream& operator<<(QDataStream& s, const Font::Face& face);
-QDataStream& operator>>(QDataStream& s, Font::Face& face);
+QDataStream& operator<<(QDataStream& s, const f2b::Font::Face& face);
+QDataStream& operator>>(QDataStream& s, f2b::Font::Face& face);
 
 
-QVariant to_qvariant(const SourceCode::Indentation& i);
-SourceCode::Indentation from_qvariant(const QVariant& v);
+QVariant to_qvariant(const f2b::SourceCode::Indentation& i);
+f2b::SourceCode::Indentation from_qvariant(const QVariant& v);
 
 #endif // F2B_QT_COMPAT_H

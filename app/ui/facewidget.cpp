@@ -36,13 +36,13 @@ void FaceWidget::reset()
     resetFocusWidget();
 }
 
-QSizeF FaceWidget::calculateImageSize(Font::Size glyph_size)
+QSizeF FaceWidget::calculateImageSize(f2b::Font::Size glyph_size)
 {
     // height: 6 + desc.height + 6 + img.height + 6
     // width: 6 + img.width + 6
     // max image width: 80 - 2*6 = 68
 
-    QSizeF imageSize { Font::qsize_with_size(glyph_size) };
+    QSizeF imageSize { f2b::Font::qsize_with_size(glyph_size) };
     if (imageSize.width() > max_image_width) {
         imageSize.scale(max_image_width, qInf(), Qt::KeepAspectRatio);
     } else if (imageSize.height() < min_image_height) {
@@ -61,7 +61,7 @@ QSizeF FaceWidget::calculateImageSize(Font::Size glyph_size)
     return imageSize;
 }
 
-void FaceWidget::load(const Font::Face &face, Font::Margins margins)
+void FaceWidget::load(const f2b::Font::Face &face, f2b::Font::Margins margins)
 {
     face_ = &face;
     margins_ = margins;
@@ -78,7 +78,7 @@ void FaceWidget::load(const Font::Face &face, Font::Margins margins)
     }
 }
 
-void FaceWidget::load(Font::Face &face, Font::Margins margins)
+void FaceWidget::load(f2b::Font::Face &face, f2b::Font::Margins margins)
 {
     face_ = &face;
     margins_ = margins;
@@ -144,7 +144,7 @@ void FaceWidget::setCurrentGlyphIndex(std::optional<std::size_t> index)
     }
 }
 
-void FaceWidget::updateGlyphInfo(std::size_t index, std::optional<Font::Glyph> glyph, std::optional<bool> isExported)
+void FaceWidget::updateGlyphInfo(std::size_t index, std::optional<f2b::Font::Glyph> glyph, std::optional<bool> isExported)
 {
     auto item = glyphWidgetAtIndex(index);
     if (item) {

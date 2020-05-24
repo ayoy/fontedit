@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <string>
 
+namespace f2b {
+
 Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size)
 {
     return { line_margins.top * glyph_size.width, line_margins.bottom * glyph_size.width };
@@ -31,4 +33,6 @@ std::string FontSourceCodeGenerator::comment_for_glyph(std::size_t index)
     s << ")";
 
     return s.str();
+}
+
 }

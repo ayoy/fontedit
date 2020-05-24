@@ -127,12 +127,12 @@ void MainWindow::connectViewModelOutputs()
         setWindowTitle(QString("FontEdit (%1)").arg(title));
     });
     connect(viewModel_.get(), &MainWindowModel::uiStateChanged, this, &MainWindow::updateUI);
-    connect(viewModel_.get(), &MainWindowModel::faceLoaded, [&](Font::Face& face) {
+    connect(viewModel_.get(), &MainWindowModel::faceLoaded, [&](f2b::Font::Face& face) {
         undoStack_->clear();
         displayFace(face);
     });
     connect(viewModel_.get(), &MainWindowModel::documentError, this, &MainWindow::displayError);
-    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, [&](std::optional<Font::Glyph> glyph) {
+    connect(viewModel_.get(), &MainWindowModel::activeGlyphChanged, [&](std::optional<f2b::Font::Glyph> glyph) {
         if (glyph.has_value()) {
             displayGlyph(glyph.value());
         } else if (auto g = glyphWidget_.get()) {
@@ -388,7 +388,7 @@ void MainWindow::showAddGlyphDialog()
     auto addGlyph = new AddGlyphDialog(*viewModel_->faceModel(), this);
     addGlyph->show();
 
-    connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<Font::Glyph>& glyph) {
+    connect(addGlyph, &AddGlyphDialog::glyphSelected, [&](const std::optional<f2b::Font::Glyph>& glyph) {
         if (glyph.has_value()) {
 
             auto numberOfGlyphs = viewModel_->faceModel()->face().num_glyphs();
@@ -497,7 +497,7 @@ MainWindow::SavePromptButton MainWindow::promptToSaveDirtyDocument()
     return static_cast<MainWindow::SavePromptButton>(ret);
 }
 
-void MainWindow::displayFace(Font::Face& face)
+void MainWindow::displayFace(f2b::Font::Face& face)
 {
     if (faceWidget_ == nullptr) {
         faceWidget_ = new FaceWidget();
@@ -601,7 +601,7 @@ void MainWindow::updateDefaultFontName(const FaceInfo &faceInfo)
     ui_->fontArrayNameEdit->setText(fontName);
 }
 
-void MainWindow::displayGlyph(const Font::Glyph& glyph)
+void MainWindow::displayGlyph(const f2b::Font::Glyph& glyph)
 {
     auto margins = viewModel_->faceModel()->originalFaceMargins();
     if (!glyphWidget_.get()) {
@@ -662,7 +662,7 @@ void MainWindow::switchActiveGlyph(std::optional<std::size_t> newIndex)
 
 void MainWindow::resetCurrentGlyph()
 {
-    Font::Glyph currentGlyphState { viewModel_->faceModel()->activeGlyph().value() };
+    f2b::Font::Glyph currentGlyphState { viewModel_->faceModel()->activeGlyph().value() };
     auto glyphIndex = viewModel_->faceModel()->activeGlyphIndex().value();
 
     pushUndoCommand(new Command(tr("Reset Glyph"), [&, currentGlyphState, glyphIndex] {

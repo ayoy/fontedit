@@ -6,6 +6,8 @@ static constexpr quint32 font_face_magic_number = 0x03f59a82;
 static constexpr quint32 font_glyph_version = 1;
 static constexpr quint32 font_face_version = 2;
 
+using namespace f2b;
+
 QDataStream& operator<<(QDataStream& s, const Font::Glyph& glyph)
 {
     s << font_glyph_magic_number;

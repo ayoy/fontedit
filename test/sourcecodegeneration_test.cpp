@@ -10,6 +10,8 @@
 #include <QString>
 #include <QFile>
 
+using namespace f2b;
+
 template<typename T>
 QString asset(const T& fileName)
 {

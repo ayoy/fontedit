@@ -5,6 +5,8 @@
 #include <iostream>
 #include <set>
 
+namespace f2b {
+
 namespace Font {
 
 /**
@@ -198,9 +200,11 @@ inline bool operator!=(const Face& lhs, const Face& rhs) noexcept {
     return !(lhs == rhs);
 }
 
-}
+} // namespace font
 
-inline std::ostream& operator<<(std::ostream& os, const Font::Glyph& g) {
+} // namespace f2b
+
+inline std::ostream& operator<<(std::ostream& os, const f2b::Font::Glyph& g) {
 
     std::size_t col = 0;
     for (auto p : g.pixels()) {

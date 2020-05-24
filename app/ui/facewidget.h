@@ -19,10 +19,10 @@ public:
 
     explicit FaceWidget(int columnCount = 3, QGraphicsItem *parent = nullptr);
 
-    void load(const Font::Face& face, Font::Margins margins);
-    void load(Font::Face& face, Font::Margins margins);
+    void load(const f2b::Font::Face& face, f2b::Font::Margins margins);
+    void load(f2b::Font::Face& face, f2b::Font::Margins margins);
     void setCurrentGlyphIndex(std::optional<std::size_t> index);
-    void updateGlyphInfo(std::size_t index, std::optional<Font::Glyph> glyph, std::optional<bool> isExported = {});
+    void updateGlyphInfo(std::size_t index, std::optional<f2b::Font::Glyph> glyph, std::optional<bool> isExported = {});
 
     bool showsNonExportedItems() const { return showsNonExportedItems_; }
     void setShowsNonExportedItems(bool isEnabled);
@@ -41,7 +41,7 @@ private:
     void handleMousePress(QGraphicsSceneMouseEvent *event);
     void reloadFace();
     void reset();
-    QSizeF calculateImageSize(Font::Size glyph_size);
+    QSizeF calculateImageSize(f2b::Font::Size glyph_size);
     void addGlyphInfoWidget(QGraphicsLayoutItem* glyphWidget, std::size_t index);
     void setFocusForItem(QGraphicsLayoutItem *item, bool isFocused);
     void resetFocusWidget();
@@ -57,8 +57,8 @@ private:
     QSizeF itemSize_;
     int columnCount_;
     bool showsNonExportedItems_;
-    const Font::Face* face_ { nullptr };
-    Font::Margins margins_;
+    const f2b::Font::Face* face_ { nullptr };
+    f2b::Font::Margins margins_;
 };
 
 #endif // FACEWIDGET_H

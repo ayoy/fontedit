@@ -12,8 +12,8 @@
 struct FaceInfo
 {
     QString fontName;
-    Font::Size size;
-    Font::Size sizeWithoutMargins;
+    f2b::Font::Size size;
+    f2b::Font::Size sizeWithoutMargins;
     std::size_t numberOfGlyphs;
     std::size_t numberOfExportedGlyphs;
 };
@@ -23,20 +23,20 @@ class FontFaceViewModel
 public:
     explicit FontFaceViewModel() = default;
     explicit FontFaceViewModel(const QString& documentPath);
-    explicit FontFaceViewModel(Font::Face face, std::optional<QString> name) noexcept;
+    explicit FontFaceViewModel(f2b::Font::Face face, std::optional<QString> name) noexcept;
     explicit FontFaceViewModel(const QFont& font);
 
     void saveToFile(const QString& documentPath);
 
     std::optional<QFont> font() const noexcept { return font_; }
 
-    const Font::Face& face() const noexcept { return face_; }
-    Font::Face& face() noexcept { return face_; }
+    const f2b::Font::Face& face() const noexcept { return face_; }
+    f2b::Font::Face& face() noexcept { return face_; }
 
     FaceInfo faceInfo() const;
 
-    Font::Face originalFace() const noexcept;
-    Font::Margins originalFaceMargins() const noexcept { return originalMargins_; }
+    f2b::Font::Face originalFace() const noexcept;
+    f2b::Font::Margins originalFaceMargins() const noexcept { return originalMargins_; }
 
     void setGlyphExportedState(std::size_t idx, bool isExported) {
         if (idx >= face_.num_glyphs()) {
@@ -61,7 +61,7 @@ public:
         return activeGlyphIndex_;
     }
 
-    std::optional<Font::Glyph> activeGlyph() const {
+    std::optional<f2b::Font::Glyph> activeGlyph() const {
         if (activeGlyphIndex_.has_value()) {
             return face_.glyph_at(activeGlyphIndex_.value());
         }
@@ -78,10 +78,10 @@ public:
     void reset();
 
     void resetGlyph(std::size_t index);
-    void modifyGlyph(std::size_t index, const Font::Glyph& new_glyph);
+    void modifyGlyph(std::size_t index, const f2b::Font::Glyph& new_glyph);
     void modifyGlyph(std::size_t index, const BatchPixelChange& change,
                       BatchPixelChange::ChangeType changeType = BatchPixelChange::ChangeType::Normal);
-    void appendGlyph(Font::Glyph newGlyph);
+    void appendGlyph(f2b::Font::Glyph newGlyph);
     void deleteGlyph(std::size_t index);
 
     bool isModified() const {
@@ -98,13 +98,13 @@ public:
     }
 
 private:
-    void doModifyGlyph(std::size_t idx, std::function<void(Font::Glyph&)> change);
+    void doModifyGlyph(std::size_t idx, std::function<void(f2b::Font::Glyph&)> change);
 
-    Font::Face face_;
+    f2b::Font::Face face_;
     std::optional<QString> name_;
-    Font::Margins originalMargins_;
+    f2b::Font::Margins originalMargins_;
     // this holds copies of unmodified glyphs once they are edited.
-    std::unordered_map<std::size_t, Font::Glyph> originalGlyphs_;
+    std::unordered_map<std::size_t, f2b::Font::Glyph> originalGlyphs_;
     std::optional<QFont> font_;
 
     // not persisted

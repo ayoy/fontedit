@@ -6,6 +6,8 @@
 #include <iomanip>
 #include "sourcecode.h"
 
+namespace f2b
+{
 
 /// This namespace defines available source code formats
 namespace Format
@@ -54,13 +56,13 @@ constexpr auto available_formats = {
     PythonBytes::identifier
 };
 
-}
+} // namespace Format
 
 /// Type trait that is true for C-based language formats
 template<typename T, typename = void>
 struct is_c_based : std::false_type {};
 template<typename T>
-struct is_c_based<T, std::enable_if_t<std::is_same<typename T::lang, Format::c_based>::value>> : std::true_type {};
+struct is_c_based<T, std::enable_if_t<std::is_same<typename T::lang, f2b::Format::c_based>::value>> : std::true_type {};
 
 /// Type trait that is true for Python language formats
 template<typename T, typename = void>
@@ -330,6 +332,8 @@ inline std::ostream& operator<<(std::ostream& s, SourceCode::Idiom::End<T>)
     s << "\n\n";
     return s;
 }
+
+} // namespace f2b
 
 
 #endif // FORMAT_H

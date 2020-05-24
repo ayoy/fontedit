@@ -6,8 +6,9 @@
 #include <iostream>
 #include <variant>
 
-namespace SourceCode
-{
+namespace f2b  {
+
+namespace SourceCode {
 
 /// A struct representing a Tabulation character
 struct Tab {};
@@ -37,6 +38,7 @@ using Indentation = std::variant<Tab,Space>;
  * code idiom to the given output stream. \c FontSourceCodeGenerator uses them
  * with an \c std::stringstream to output the resulting source code of the font face.
  */
+
 namespace Idiom {
 
 template<typename T>
@@ -81,28 +83,28 @@ struct EndArray {};
 template<typename T>
 struct End {};
 
-};
+} // namespace Idiom
 
+inline bool operator==(const Indentation& lhs, const Indentation& rhs) {
+    if (std::holds_alternative<Tab>(lhs) && std::holds_alternative<Tab>(rhs)) {
+        return true;
+    }
+    if (std::holds_alternative<Space>(lhs) && std::holds_alternative<Space>(rhs)) {
+        return std::get<Space>(lhs).num_spaces == std::get<Space>(rhs).num_spaces;
+    }
+    return false;
 }
 
-
-inline std::ostream& operator<<(std::ostream& o, const SourceCode::Indentation& t) {
-    if (std::holds_alternative<SourceCode::Space>(t)) {
-        o << std::string(std::get<SourceCode::Space>(t).num_spaces, ' ');
+inline std::ostream& operator<<(std::ostream& o, const Indentation& t) {
+    if (std::holds_alternative<Space>(t)) {
+        o << std::string(std::get<Space>(t).num_spaces, ' ');
     } else {
         o << "\t";
     }
     return o;
 }
 
-inline bool operator==(const SourceCode::Indentation& lhs, const SourceCode::Indentation& rhs) {
-    if (std::holds_alternative<SourceCode::Tab>(lhs) && std::holds_alternative<SourceCode::Tab>(rhs)) {
-        return true;
-    }
-    if (std::holds_alternative<SourceCode::Space>(lhs) && std::holds_alternative<SourceCode::Space>(rhs)) {
-        return std::get<SourceCode::Space>(lhs).num_spaces == std::get<SourceCode::Space>(rhs).num_spaces;
-    }
-    return false;
-}
+} // namespace SourceCode
+} // namespace f2b
 
 #endif // SOURCECODE_H

@@ -10,6 +10,9 @@
 #include <bitset>
 #include <algorithm>
 
+namespace f2b
+{
+
 static constexpr auto byte_size = 8;
 
 struct SourceCodeOptions
@@ -329,6 +332,7 @@ std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::strin
     }
 }
 
+} // namespace f2b
 
 
 #endif // FONTSOURCECODEGENERATOR_H

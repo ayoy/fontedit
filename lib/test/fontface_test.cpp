@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "fontdata.h"
 
+using namespace f2b;
+
 class TestFaceData : public Font::FaceReader
 {
 public:

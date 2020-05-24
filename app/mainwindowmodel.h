@@ -76,7 +76,7 @@ public:
     }
 
     bool exportAllEnabled() const {
-        return sourceCodeOptions_.export_method == SourceCodeOptions::ExportMethod::ExportAll
+        return sourceCodeOptions_.export_method == f2b::SourceCodeOptions::ExportMethod::ExportAll
                 ? Qt::Checked : Qt::Unchecked;
     }
 
@@ -85,7 +85,7 @@ public:
     }
 
     Qt::CheckState msbEnabled() const {
-        return sourceCodeOptions_.bit_numbering == SourceCodeOptions::BitNumbering::MSB
+        return sourceCodeOptions_.bit_numbering == f2b::SourceCodeOptions::BitNumbering::MSB
                 ? Qt::Checked : Qt::Unchecked;
     }
 
@@ -101,7 +101,7 @@ public:
         return formats_.value(currentFormat_, formats_.first());
     }
 
-    const std::vector<std::pair<SourceCode::Indentation, QString>>& indentationStyles() const {
+    const std::vector<std::pair<f2b::SourceCode::Indentation, QString>>& indentationStyles() const {
         return indentationStyles_;
     }
 
@@ -129,11 +129,11 @@ public:
     void setLastSourceCodeDirectory(const QString& path);
 
     void resetGlyph(std::size_t index);
-    void modifyGlyph(std::size_t index, const Font::Glyph &new_glyph);
+    void modifyGlyph(std::size_t index, const f2b::Font::Glyph &new_glyph);
     void modifyGlyph(std::size_t index,
                      const BatchPixelChange &change,
                      BatchPixelChange::ChangeType changeType);
-    void appendGlyph(Font::Glyph glyph);
+    void appendGlyph(f2b::Font::Glyph glyph);
     void deleteGlyph(std::size_t index);
     void setGlyphExported(std::size_t index, bool isExported);
 
@@ -160,8 +160,8 @@ public slots:
 
 signals:
     void uiStateChanged(UIState state) const;
-    void faceLoaded(Font::Face& face) const;
-    void activeGlyphChanged(std::optional<Font::Glyph> glyph) const;
+    void faceLoaded(f2b::Font::Face& face) const;
+    void activeGlyphChanged(std::optional<f2b::Font::Glyph> glyph) const;
     void sourceCodeUpdating() const;
     void sourceCodeChanged() const;
     void runnableFinished() const;
@@ -180,7 +180,7 @@ private:
     std::optional<QString> documentPath_;
     QString documentTitle_;
     QString fontArrayName_;
-    SourceCodeOptions sourceCodeOptions_;
+    f2b::SourceCodeOptions sourceCodeOptions_;
     bool shouldShowNonExportedGlyphs_;
 
     QString sourceCode_;
@@ -188,7 +188,7 @@ private:
 
     QMap<QString, QString> formats_; // identifier <-> human-readable
     QString currentFormat_; // identifier
-    std::vector<std::pair<SourceCode::Indentation, QString>> indentationStyles_;
+    std::vector<std::pair<f2b::SourceCode::Indentation, QString>> indentationStyles_;
     QSettings settings_;
 };
 

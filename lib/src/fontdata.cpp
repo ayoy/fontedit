@@ -1,7 +1,9 @@
 #include "fontdata.h"
 #include <algorithm>
 
-using namespace Font;
+namespace f2b {
+
+namespace Font {
 
 Glyph::Glyph(Size sz) :
     size_ { sz },
@@ -86,3 +88,6 @@ Margins Face::calculate_margins() const noexcept
 
     return m;
 }
+
+} // namespace Font
+} // namespace f2b
