@@ -566,7 +566,7 @@ void MainWindow::setGlyphExported(std::size_t index, bool isExported)
             }
         }
 
-        viewModel_->setGlyphExported(index, !isExported);
+        viewModel_->setGlyphExported(index, isExported);
         updateFaceInfoLabel(faceModel->faceInfo());
 
         if (shouldUpdateCurrentIndex) {

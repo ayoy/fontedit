@@ -47,6 +47,7 @@ public:
         } else {
             face_.exported_glyph_ids().erase(idx);
         }
+        isDirty_ = true;
     }
 
     void setActiveGlyphIndex(std::optional<std::size_t> idx) {

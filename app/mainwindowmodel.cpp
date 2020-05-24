@@ -391,6 +391,6 @@ void MainWindowModel::deleteGlyph(std::size_t index)
 
 void MainWindowModel::setGlyphExported(std::size_t index, bool isExported)
 {
-    fontFaceViewModel_->setGlyphExportedState(index, !isExported);
+    fontFaceViewModel_->setGlyphExportedState(index, isExported);
     reloadSourceCode();
 }
