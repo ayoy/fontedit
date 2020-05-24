@@ -357,7 +357,7 @@ void MainWindowModel::resetGlyph(std::size_t index)
     reloadSourceCode();
 }
 
-void MainWindowModel::modifyGlyph(std::size_t index, const f2b::Font::Glyph &new_glyph)
+void MainWindowModel::modifyGlyph(std::size_t index, const f2b::font::Glyph &new_glyph)
 {
     fontFaceViewModel_->modifyGlyph(index, new_glyph);
     reloadSourceCode();
@@ -371,7 +371,7 @@ void MainWindowModel::modifyGlyph(std::size_t index,
     reloadSourceCode();
 }
 
-void MainWindowModel::appendGlyph(f2b::Font::Glyph glyph)
+void MainWindowModel::appendGlyph(f2b::font::Glyph glyph)
 {
     fontFaceViewModel_->appendGlyph(std::move(glyph));
     reloadSourceCode();

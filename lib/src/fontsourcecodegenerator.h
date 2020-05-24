@@ -34,7 +34,7 @@ struct SourceCodeOptions
  * @param glyph_size
  * @return Margins expressed in pixel offset for a given glyph size (width).
  */
-Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size);
+font::Margins pixel_margins(font::Margins line_margins, font::Size glyph_size);
 
 
 class FontSourceCodeGeneratorInterface
@@ -120,21 +120,21 @@ public:
      * @see SourceCode::Idiom
      */
     template<typename T>
-    std::string generate(const Font::Face& face, std::string font_name = "font");
+    std::string generate(const font::Face& face, std::string font_name = "font");
 
 private:
     template<typename T>
-    std::string generate_all(const Font::Face& face, std::string font_name = "font");
+    std::string generate_all(const font::Face& face, std::string font_name = "font");
 
     template<typename T>
-    std::string generate_subset(const Font::Face& face, std::string font_name = "font");
+    std::string generate_subset(const font::Face& face, std::string font_name = "font");
 
     template<typename T, typename V>
     std::string subset_lut(const std::set<std::size_t>& exported_glyph_ids,
                            std::size_t bytes_per_glyph);
 
     template<typename T>
-    void output_glyph(const Font::Glyph& glyph, Font::Size size, Font::Margins margins, std::ostream& s);
+    void output_glyph(const font::Glyph& glyph, font::Size size, font::Margins margins, std::ostream& s);
 
 
     std::string current_timestamp() override;
@@ -143,7 +143,7 @@ private:
 };
 
 template<typename T>
-void FontSourceCodeGenerator::output_glyph(const Font::Glyph& glyph, Font::Size size, Font::Margins margins, std::ostream& s)
+void FontSourceCodeGenerator::output_glyph(const font::Glyph& glyph, font::Size size, font::Margins margins, std::ostream& s)
 {
     using namespace SourceCode;
     std::bitset<byte_size> bits;
@@ -195,11 +195,11 @@ void FontSourceCodeGenerator::output_glyph(const Font::Glyph& glyph, Font::Size 
 }
 
 template<typename T>
-std::string FontSourceCodeGenerator::generate_all(const Font::Face& face, std::string font_name)
+std::string FontSourceCodeGenerator::generate_all(const font::Face& face, std::string font_name)
 {
     using namespace SourceCode;
 
-    auto [size, margins] = [&] () -> std::pair<Font::Size, Font::Margins> {
+    auto [size, margins] = [&] () -> std::pair<font::Size, font::Margins> {
         if (options_.include_line_spacing) {
             return { face.glyph_size(), {} };
         }
@@ -274,11 +274,11 @@ std::string FontSourceCodeGenerator::subset_lut(const std::set<std::size_t>& exp
  * end_array()
  */
 template<typename T>
-std::string FontSourceCodeGenerator::generate_subset(const Font::Face& face, std::string font_name)
+std::string FontSourceCodeGenerator::generate_subset(const font::Face& face, std::string font_name)
 {
     using namespace SourceCode;
 
-    auto [size, margins] = [&] () -> std::pair<Font::Size, Font::Margins> {
+    auto [size, margins] = [&] () -> std::pair<font::Size, font::Margins> {
         if (options_.include_line_spacing) {
             return { face.glyph_size(), {} };
         }
@@ -322,7 +322,7 @@ std::string FontSourceCodeGenerator::generate_subset(const Font::Face& face, std
 }
 
 template<typename T>
-std::string FontSourceCodeGenerator::generate(const Font::Face &face, std::string font_name)
+std::string FontSourceCodeGenerator::generate(const font::Face &face, std::string font_name)
 {
     switch (options_.export_method) {
     case SourceCodeOptions::ExportAll:

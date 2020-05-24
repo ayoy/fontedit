@@ -4,7 +4,7 @@
 
 namespace f2b {
 
-Font::Margins pixel_margins(Font::Margins line_margins, Font::Size glyph_size)
+font::Margins pixel_margins(font::Margins line_margins, font::Size glyph_size)
 {
     return { line_margins.top * glyph_size.width, line_margins.bottom * glyph_size.width };
 }

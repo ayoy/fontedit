@@ -7,7 +7,7 @@
 
 namespace f2b {
 
-namespace Font {
+namespace font {
 
 /**
  * @brief A struct that describes font top and bottom margins
@@ -204,7 +204,7 @@ inline bool operator!=(const Face& lhs, const Face& rhs) noexcept {
 
 } // namespace f2b
 
-inline std::ostream& operator<<(std::ostream& os, const f2b::Font::Glyph& g) {
+inline std::ostream& operator<<(std::ostream& os, const f2b::font::Glyph& g) {
 
     std::size_t col = 0;
     for (auto p : g.pixels()) {

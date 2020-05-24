@@ -17,31 +17,31 @@
 
 namespace f2b {
 
-namespace Font {
+namespace font {
 
-inline Font::Point point_with_qpoint(const QPoint &p)
+inline font::Point point_with_qpoint(const QPoint &p)
 {
     return { static_cast<std::size_t>(qMax(0, p.x())),
                 static_cast<std::size_t>(qMax(0, p.y())) };
 }
 
-inline QPoint qpoint_with_point(const Font::Point &p)
+inline QPoint qpoint_with_point(const font::Point &p)
 {
     return QPoint { static_cast<int>(p.x), static_cast<int>(p.y) };
 }
 
-inline Font::Size size_with_qsize(const QSize &s)
+inline font::Size size_with_qsize(const QSize &s)
 {
     return { static_cast<std::size_t>(qMax(0, s.width())),
                 static_cast<std::size_t>(qMax(0, s.height())) };
 }
 
-inline QSize qsize_with_size(const Font::Size &s)
+inline QSize qsize_with_size(const font::Size &s)
 {
     return QSize { static_cast<int>(s.width), static_cast<int>(s.height) };
 }
 
-inline QImage glyph_preview_image(const Font::Glyph &g, Font::Margins m)
+inline QImage glyph_preview_image(const font::Glyph &g, font::Margins m)
 {
     auto useful_glyph_size = g.size();
     useful_glyph_size.height -= m.top + m.bottom;
@@ -312,11 +312,11 @@ inline QDataStream& operator>>(QDataStream& s, std::unordered_map<std::size_t, V
     return s;
 }
 
-QDataStream& operator<<(QDataStream& s, const f2b::Font::Glyph& glyph);
-QDataStream& operator>>(QDataStream& s, f2b::Font::Glyph& glyph);
+QDataStream& operator<<(QDataStream& s, const f2b::font::Glyph& glyph);
+QDataStream& operator>>(QDataStream& s, f2b::font::Glyph& glyph);
 
-QDataStream& operator<<(QDataStream& s, const f2b::Font::Face& face);
-QDataStream& operator>>(QDataStream& s, f2b::Font::Face& face);
+QDataStream& operator<<(QDataStream& s, const f2b::font::Face& face);
+QDataStream& operator>>(QDataStream& s, f2b::font::Face& face);
 
 
 QVariant to_qvariant(const f2b::SourceCode::Indentation& i);

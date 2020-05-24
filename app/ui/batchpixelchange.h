@@ -7,7 +7,7 @@
 #include <f2b.h>
 
 struct PointHash {
-    size_t operator()(const f2b::Font::Point &p) const {
+    size_t operator()(const f2b::font::Point &p) const {
         return std::hash<std::size_t>()(p.x) ^ std::hash<std::size_t>()(p.y);
     }
 };
@@ -17,9 +17,9 @@ struct BatchPixelChange {
         Normal, Reverse
     };
 
-    std::unordered_map<f2b::Font::Point,bool,PointHash> changes;
+    std::unordered_map<f2b::font::Point,bool,PointHash> changes;
 
-    void add(const f2b::Font::Point &pixel, bool value) {
+    void add(const f2b::font::Point &pixel, bool value) {
         auto i = changes.find(pixel);
         if (i == changes.end()) {
             changes.insert({ pixel, value });
@@ -28,7 +28,7 @@ struct BatchPixelChange {
         }
     }
 
-    void apply(f2b::Font::Glyph& glyph, ChangeType type = ChangeType::Normal) const {
+    void apply(f2b::font::Glyph& glyph, ChangeType type = ChangeType::Normal) const {
         for (const auto& i : changes) {
             glyph.set_pixel_set(i.first, type == ChangeType::Normal ? i.second : !i.second);
         }

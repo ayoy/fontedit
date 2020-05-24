@@ -108,8 +108,8 @@ TEST(SerializationTest, unordered_map_int_qstring)
 
 TEST(SerializationTest, font_glyph)
 {
-    Font::Glyph data({2, 3}, { false, true, false, false, true, true });
-    Font::Glyph deserialized;
+    font::Glyph data({2, 3}, { false, true, false, false, true, true });
+    font::Glyph deserialized;
 
     serialize_and_deserialize(data, deserialized);
 
@@ -118,9 +118,9 @@ TEST(SerializationTest, font_glyph)
 
 TEST(SerializationTest, font_face)
 {
-    Font::Glyph glyph({2, 3}, { false, true, false, false, true, true });
-    Font::Face data({2, 3}, { glyph, glyph, glyph, glyph });
-    Font::Face deserialized;
+    font::Glyph glyph({2, 3}, { false, true, false, false, true, true });
+    font::Face data({2, 3}, { glyph, glyph, glyph, glyph });
+    font::Face deserialized;
 
     serialize_and_deserialize(data, deserialized);
 

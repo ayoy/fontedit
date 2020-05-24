@@ -16,12 +16,12 @@ public:
     static constexpr auto cellMargin = 6.0;
     static constexpr auto descriptionHeight = 50.0;
 
-    GlyphInfoWidget(const f2b::Font::Glyph& glyph, std::size_t index, bool isExported,
+    GlyphInfoWidget(const f2b::font::Glyph& glyph, std::size_t index, bool isExported,
                     unsigned char asciiCode, QSizeF imageSize,
-                    f2b::Font::Margins margins = {}, QGraphicsItem *parent = nullptr);
+                    f2b::font::Margins margins = {}, QGraphicsItem *parent = nullptr);
 
     std::size_t glyphIndex() const { return glyphIndex_; }
-    void updateGlyph(std::optional<f2b::Font::Glyph> glyph, std::optional<bool> isExported = {}, std::optional<f2b::Font::Margins> margins = {});
+    void updateGlyph(std::optional<f2b::font::Glyph> glyph, std::optional<bool> isExported = {}, std::optional<f2b::font::Margins> margins = {});
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -39,7 +39,7 @@ private:
     bool isExportedAdjustable_;
     bool isExported_;
     QImage preview_;
-    f2b::Font::Margins margins_;
+    f2b::font::Margins margins_;
     QAction toggleExportedAction_;
 
     std::size_t glyphIndex_;

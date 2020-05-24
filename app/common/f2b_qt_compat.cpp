@@ -8,7 +8,7 @@ static constexpr quint32 font_face_version = 2;
 
 using namespace f2b;
 
-QDataStream& operator<<(QDataStream& s, const Font::Glyph& glyph)
+QDataStream& operator<<(QDataStream& s, const font::Glyph& glyph)
 {
     s << font_glyph_magic_number;
     s << font_glyph_version;
@@ -20,7 +20,7 @@ QDataStream& operator<<(QDataStream& s, const Font::Glyph& glyph)
     return s;
 }
 
-QDataStream& operator>>(QDataStream& s, Font::Glyph& glyph)
+QDataStream& operator>>(QDataStream& s, font::Glyph& glyph)
 {
     quint32 magic_number;
     quint32 version;
@@ -34,13 +34,13 @@ QDataStream& operator>>(QDataStream& s, Font::Glyph& glyph)
         pixels.reserve(width * height);
         s >> pixels;
 
-        glyph = Font::Glyph({width, height}, pixels);
+        glyph = font::Glyph({width, height}, pixels);
     }
 
     return s;
 }
 
-QDataStream& operator<<(QDataStream& s, const Font::Face& face)
+QDataStream& operator<<(QDataStream& s, const font::Face& face)
 {
     s << font_face_magic_number;
     s << font_face_version;
@@ -54,7 +54,7 @@ QDataStream& operator<<(QDataStream& s, const Font::Face& face)
 
 }
 
-QDataStream& operator>>(QDataStream& s, Font::Face& face)
+QDataStream& operator>>(QDataStream& s, font::Face& face)
 {
     quint32 magic_number;
     quint32 version;
@@ -64,7 +64,7 @@ QDataStream& operator>>(QDataStream& s, Font::Face& face)
         quint32 width, height;
         s >> width >> height;
 
-        std::vector<Font::Glyph> glyphs;
+        std::vector<font::Glyph> glyphs;
         s >> glyphs;
 
         std::set<std::size_t> exported_glyph_ids;
@@ -75,7 +75,7 @@ QDataStream& operator>>(QDataStream& s, Font::Face& face)
         } else {
             s >> exported_glyph_ids;
         }
-        face = Font::Face({width, height}, glyphs, exported_glyph_ids);
+        face = font::Face({width, height}, glyphs, exported_glyph_ids);
     }
 
     return s;

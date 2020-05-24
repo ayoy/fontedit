@@ -3,7 +3,7 @@
 
 namespace f2b {
 
-namespace Font {
+namespace font {
 
 Glyph::Glyph(Size sz) :
     size_ { sz },
@@ -81,7 +81,7 @@ Margins Face::calculate_margins() const noexcept
 {
     Margins m {sz_.height, sz_.height};
 
-    std::for_each(glyphs_.begin(), glyphs_.end(), [&](const Font::Glyph& g) {
+    std::for_each(glyphs_.begin(), glyphs_.end(), [&](const font::Glyph& g) {
         m.top = std::min(m.top, g.top_margin());
         m.bottom = std::min(m.bottom, g.bottom_margin());
     });

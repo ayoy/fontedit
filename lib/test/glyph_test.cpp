@@ -5,7 +5,7 @@ using namespace f2b;
 
 TEST(GlyphTest, API)
 {
-    Font::Size sz { 5, 5 };
+    font::Size sz { 5, 5 };
 
-    EXPECT_EQ(sz, Font::Glyph(sz).size());
+    EXPECT_EQ(sz, font::Glyph(sz).size());
 }

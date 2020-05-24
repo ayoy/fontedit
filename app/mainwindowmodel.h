@@ -129,11 +129,11 @@ public:
     void setLastSourceCodeDirectory(const QString& path);
 
     void resetGlyph(std::size_t index);
-    void modifyGlyph(std::size_t index, const f2b::Font::Glyph &new_glyph);
+    void modifyGlyph(std::size_t index, const f2b::font::Glyph &new_glyph);
     void modifyGlyph(std::size_t index,
                      const BatchPixelChange &change,
                      BatchPixelChange::ChangeType changeType);
-    void appendGlyph(f2b::Font::Glyph glyph);
+    void appendGlyph(f2b::font::Glyph glyph);
     void deleteGlyph(std::size_t index);
     void setGlyphExported(std::size_t index, bool isExported);
 
@@ -160,8 +160,8 @@ public slots:
 
 signals:
     void uiStateChanged(UIState state) const;
-    void faceLoaded(f2b::Font::Face& face) const;
-    void activeGlyphChanged(std::optional<f2b::Font::Glyph> glyph) const;
+    void faceLoaded(f2b::font::Face& face) const;
+    void activeGlyphChanged(std::optional<f2b::font::Glyph> glyph) const;
     void sourceCodeUpdating() const;
     void sourceCodeChanged() const;
     void runnableFinished() const;

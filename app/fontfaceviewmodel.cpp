@@ -12,10 +12,10 @@
 #include <QFileInfo>
 
 
-f2b::Font::Face import_face(const QFont &font)
+f2b::font::Face import_face(const QFont &font)
 {
     QFontFaceReader adapter(font);
-    return f2b::Font::Face(adapter);
+    return f2b::font::Face(adapter);
 }
 
 QString font_name(const QFont &font)
@@ -53,7 +53,7 @@ FontFaceViewModel::FontFaceViewModel(const QString& documentFilePath)
     isDirty_ = false;
 }
 
-FontFaceViewModel::FontFaceViewModel(f2b::Font::Face face, std::optional<QString> name) noexcept :
+FontFaceViewModel::FontFaceViewModel(f2b::font::Face face, std::optional<QString> name) noexcept :
     face_ { face },
     name_ { name },
     originalMargins_ { face.calculate_margins() }
@@ -93,9 +93,9 @@ FaceInfo FontFaceViewModel::faceInfo() const
     return { fontName, face_.glyph_size(), size, face_.num_glyphs(), face_.exported_glyph_ids().size() };
 }
 
-void FontFaceViewModel::modifyGlyph(std::size_t index, const f2b::Font::Glyph &new_glyph)
+void FontFaceViewModel::modifyGlyph(std::size_t index, const f2b::font::Glyph &new_glyph)
 {
-    doModifyGlyph(index, [&](f2b::Font::Glyph &glyph) {
+    doModifyGlyph(index, [&](f2b::font::Glyph &glyph) {
         glyph = new_glyph;
     });
 }
@@ -104,14 +104,14 @@ void FontFaceViewModel::modifyGlyph(std::size_t index,
                                      const BatchPixelChange &change,
                                      BatchPixelChange::ChangeType changeType)
 {
-    doModifyGlyph(index, [&](f2b::Font::Glyph& glyph) {
+    doModifyGlyph(index, [&](f2b::font::Glyph& glyph) {
         change.apply(glyph, changeType);
     });
 }
 
-void FontFaceViewModel::doModifyGlyph(std::size_t idx, std::function<void (f2b::Font::Glyph&)> change)
+void FontFaceViewModel::doModifyGlyph(std::size_t idx, std::function<void (f2b::font::Glyph&)> change)
 {
-    f2b::Font::Glyph& glyph { face_.glyph_at(idx) };
+    f2b::font::Glyph& glyph { face_.glyph_at(idx) };
     bool first_change = false;
 
     if (originalGlyphs_.count(idx) == 0) {
@@ -146,7 +146,7 @@ void FontFaceViewModel::resetGlyph(std::size_t index)
     }
 }
 
-void FontFaceViewModel::appendGlyph(f2b::Font::Glyph newGlyph)
+void FontFaceViewModel::appendGlyph(f2b::font::Glyph newGlyph)
 {
     face_.append_glyph(std::move(newGlyph));
     isDirty_ = true;
@@ -165,9 +165,9 @@ void FontFaceViewModel::deleteGlyph(std::size_t index)
     isDirty_ = true;
 }
 
-f2b::Font::Face FontFaceViewModel::originalFace() const noexcept
+f2b::font::Face FontFaceViewModel::originalFace() const noexcept
 {
-    f2b::Font::Face f = face_;
+    f2b::font::Face f = face_;
     for (const auto& pair : originalGlyphs_) {
         f.set_glyph(pair.second, pair.first);
     }
