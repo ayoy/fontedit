@@ -1,11 +1,11 @@
-#ifndef UPDATEMANAGER_H
-#define UPDATEMANAGER_H
+#ifndef UPDATEHELPER_H
+#define UPDATEHELPER_H
 
 #include <QObject>
 #include <QtNetwork>
 #include <memory>
 
-class UpdateManager : public QObject
+class UpdateHelper : public QObject
 {
     Q_OBJECT
 public:
@@ -17,7 +17,7 @@ public:
         QUrl webpageURL;
     };
 
-    explicit UpdateManager(QObject *parent = nullptr);
+    explicit UpdateHelper(QObject *parent = nullptr);
 
     void checkForUpdatesIfNeeded();
     void checkForUpdates(bool verbose = false);
@@ -38,4 +38,4 @@ private:
     QSettings settings_;
 };
 
-#endif // UPDATEMANAGER_H
+#endif // UPDATEHELPER_H

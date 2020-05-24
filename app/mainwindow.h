@@ -7,7 +7,7 @@
 #include <QTimer>
 
 #include "mainwindowmodel.h"
-#include "updatemanager.h"
+#include "updatehelper.h"
 #include "facewidget.h"
 #include "glyphwidget.h"
 #include "batchpixelchange.h"
@@ -36,13 +36,13 @@ private slots:
     void displayFace(Font::Face& face);
 
 private:
-    void connectUpdateManager();
+    void connectUpdateHelper();
     void connectUIInputs();
     void connectViewModelOutputs();
     void initUI();
     void setupActions();
 
-    void showUpdateDialog(std::optional<UpdateManager::Update> update);
+    void showUpdateDialog(std::optional<UpdateHelper::Update> update);
 
     void showAboutDialog();
     void showFontDialog();
@@ -86,7 +86,7 @@ private:
     std::unique_ptr<GlyphWidget> glyphWidget_ {};
     FaceWidget *faceWidget_ { nullptr };
     QLabel *statusLabel_;
-    std::unique_ptr<UpdateManager> updateManager_ { std::make_unique<UpdateManager>() };
+    std::unique_ptr<UpdateHelper> updateHelper_ { std::make_unique<UpdateHelper>() };
     std::unique_ptr<MainWindowModel> viewModel_ { std::make_unique<MainWindowModel>() };
     std::unique_ptr<QGraphicsScene> faceScene_ { std::make_unique<QGraphicsScene>() };
     std::unique_ptr<QUndoStack> undoStack_ { std::make_unique<QUndoStack>() };

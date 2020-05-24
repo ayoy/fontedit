@@ -1,4 +1,4 @@
-#include "updatemanager.h"
+#include "updatehelper.h"
 #include <QtNetwork>
 #include <QJsonDocument>
 #include <QApplication>
@@ -8,28 +8,28 @@ namespace SettingsKey {
 static const QString checkForUpdatesAtStartup = "main_window/check_for_updates_at_startup";
 }
 
-UpdateManager::UpdateManager(QObject *parent) : QObject(parent),
+UpdateHelper::UpdateHelper(QObject *parent) : QObject(parent),
     manager_ { std::make_unique<QNetworkAccessManager>() }
 {
     shouldCheckAtStartup_ = settings_.value(SettingsKey::checkForUpdatesAtStartup, true).toBool();
     manager_->setStrictTransportSecurityEnabled(true);
-    connect(manager_.get(), &QNetworkAccessManager::finished, this, &UpdateManager::handleReply);
+    connect(manager_.get(), &QNetworkAccessManager::finished, this, &UpdateHelper::handleReply);
 }
 
-void UpdateManager::setShouldCheckAtStartup(bool check)
+void UpdateHelper::setShouldCheckAtStartup(bool check)
 {
     shouldCheckAtStartup_ = check;
     settings_.setValue(SettingsKey::checkForUpdatesAtStartup, check);
 }
 
-void UpdateManager::checkForUpdatesIfNeeded()
+void UpdateHelper::checkForUpdatesIfNeeded()
 {
     if (shouldCheckAtStartup_) {
         checkForUpdates(false);
     }
 }
 
-void UpdateManager::checkForUpdates(bool verbose)
+void UpdateHelper::checkForUpdates(bool verbose)
 {
     QNetworkRequest request(QUrl("https://api.github.com/repos/ayoy/fontedit/releases/latest"));
     request.setRawHeader("Accept", "application/vnd.github.v3+json");
@@ -37,7 +37,7 @@ void UpdateManager::checkForUpdates(bool verbose)
     manager_->get(request);
 }
 
-void UpdateManager::handleReply(QNetworkReply *reply)
+void UpdateHelper::handleReply(QNetworkReply *reply)
 {
     auto verbose = reply->request().attribute(QNetworkRequest::User).toBool();
 

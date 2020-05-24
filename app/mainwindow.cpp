@@ -42,14 +42,14 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     updateUI(viewModel_->uiState());
 
-    connectUpdateManager();
+    connectUpdateHelper();
     connectUIInputs();
     connectViewModelOutputs();
     viewModel_->restoreSession();
 
     ui_->statusBar->addPermanentWidget(statusLabel_);
 
-    updateManager_->checkForUpdatesIfNeeded();
+    updateHelper_->checkForUpdatesIfNeeded();
 }
 
 MainWindow::~MainWindow()
@@ -57,13 +57,13 @@ MainWindow::~MainWindow()
     delete ui_;
 }
 
-void MainWindow::connectUpdateManager()
+void MainWindow::connectUpdateHelper()
 {
-    connect(updateManager_.get(), &UpdateManager::updateAvailable,
-            [&] (UpdateManager::Update update) {
+    connect(updateHelper_.get(), &UpdateHelper::updateAvailable,
+            [&] (UpdateHelper::Update update) {
         showUpdateDialog(update);
     });
-    connect(updateManager_.get(), &UpdateManager::updateNotAvailable,
+    connect(updateHelper_.get(), &UpdateHelper::updateNotAvailable,
             [&] {
         showUpdateDialog({});
     });
@@ -117,7 +117,7 @@ void MainWindow::connectUIInputs()
     });
 
     connect(ui_->actionCheck_for_Updates, &QAction::triggered, [&] {
-        updateManager_->checkForUpdates(true);
+        updateHelper_->checkForUpdates(true);
     });
 }
 
@@ -198,14 +198,14 @@ void MainWindow::initUI()
     ui_->sourceCodeTextBrowser->setFont(f);
 }
 
-void MainWindow::showUpdateDialog(std::optional<UpdateManager::Update> update)
+void MainWindow::showUpdateDialog(std::optional<UpdateHelper::Update> update)
 {
     QMessageBox messageBox;
     messageBox.setCheckBox(new QCheckBox(tr("Check for updates at start-up")));
-    messageBox.checkBox()->setChecked(updateManager_->shouldCheckAtStartup());
+    messageBox.checkBox()->setChecked(updateHelper_->shouldCheckAtStartup());
 
     connect(messageBox.checkBox(), &QCheckBox::toggled, [&] (bool isChecked) {
-        updateManager_->setShouldCheckAtStartup(isChecked);
+        updateHelper_->setShouldCheckAtStartup(isChecked);
     });
 
     if (update.has_value()) {
@@ -541,8 +541,8 @@ void MainWindow::displayFace(Font::Face& face)
 void MainWindow::setGlyphExported(std::size_t index, bool isExported)
 {
     pushUndoCommand(new Command(tr("Toggle Glyph Exported"), [&, index, isExported] {
+        viewModel_->setGlyphExported(index, !isExported);
         auto faceModel = viewModel_->faceModel();
-        faceModel->setGlyphExportedState(index, !isExported);
         updateFaceInfoLabel(faceModel->faceInfo());
         if (!faceWidget_->showsNonExportedItems()) {
             auto margins = faceModel->originalFaceMargins();
@@ -566,7 +566,7 @@ void MainWindow::setGlyphExported(std::size_t index, bool isExported)
             }
         }
 
-        faceModel->setGlyphExportedState(index, isExported);
+        viewModel_->setGlyphExported(index, !isExported);
         updateFaceInfoLabel(faceModel->faceInfo());
 
         if (shouldUpdateCurrentIndex) {

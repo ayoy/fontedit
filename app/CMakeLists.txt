@@ -42,8 +42,8 @@ set(SRC_FILES
     semver.hpp
     sourcecoderunnable.cpp
     sourcecoderunnable.h
-    updatemanager.cpp
-    updatemanager.h
+    updatehelper.cpp
+    updatehelper.h
     )
 
 add_library(appbundle ${SRC_FILES})
