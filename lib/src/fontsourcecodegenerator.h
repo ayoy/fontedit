@@ -17,6 +17,7 @@ struct SourceCodeOptions
     enum BitNumbering { LSB, MSB };
     enum ExportMethod { ExportSelected, ExportAll };
 
+    uint8_t wrap_column = 80;
     ExportMethod export_method { ExportSelected };
     BitNumbering bit_numbering { LSB };
     bool invert_bits { false };
@@ -129,10 +130,66 @@ private:
     std::string subset_lut(const std::set<std::size_t>& exported_glyph_ids,
                            std::size_t bytes_per_glyph);
 
+    template<typename T>
+    void output_glyph(const Font::Glyph& glyph, Font::Size size, Font::Margins margins, std::ostream& s);
+
+
     std::string current_timestamp() override;
     std::string comment_for_glyph(std::size_t index) override;
     SourceCodeOptions options_;
 };
+
+template<typename T>
+void FontSourceCodeGenerator::output_glyph(const Font::Glyph& glyph, Font::Size size, Font::Margins margins, std::ostream& s)
+{
+    using namespace SourceCode;
+    std::bitset<byte_size> bits;
+    std::size_t bit_pos { 0 };
+    std::size_t col { 0 };
+
+    auto append_byte = [&](std::bitset<byte_size>& bits, std::ios::pos_type& pos) {
+        if (options_.invert_bits) {
+            bits.flip();
+        }
+        auto byte = static_cast<uint8_t>(bits.to_ulong());
+        s << Idiom::Value<T, uint8_t> { std::move(byte) };
+        bits.reset();
+
+        if (s.tellp() - pos >= options_.wrap_column) {
+            s << Idiom::ArrayLineBreak<T, uint8_t> {};
+            pos = s.tellp();
+            s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
+        }
+    };
+
+
+    auto pos = s.tellp();
+    s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
+
+    std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
+                  [&](auto pixel) {
+        switch (options_.bit_numbering) {
+        case SourceCodeOptions::LSB:
+            bits[bit_pos] = pixel;
+            break;
+        case SourceCodeOptions::MSB:
+            bits[byte_size-1-bit_pos] = pixel;
+            break;
+        }
+
+        ++bit_pos;
+        ++col;
+
+        if (col >= size.width) {
+            append_byte(bits, pos);
+            bit_pos = 0;
+            col = 0;
+        } else if (bit_pos >= byte_size) {
+            append_byte(bits, pos);
+            bit_pos = 0;
+        }
+    });
+}
 
 template<typename T>
 std::string FontSourceCodeGenerator::generate_all(const Font::Face& face, std::string font_name)
@@ -152,52 +209,11 @@ std::string FontSourceCodeGenerator::generate_all(const Font::Face& face, std::s
     s << Idiom::Begin<T> { font_name, size, current_timestamp() };
     s << Idiom::BeginArray<T, uint8_t> { std::move(font_name) };
 
-    std::bitset<byte_size> bits;
-    std::size_t bit_pos { 0 };
-    std::size_t col { 0 };
     std::size_t glyph_id { 0 };
-
-    auto append_byte = [&](std::bitset<byte_size> &bits) {
-        if (options_.invert_bits) {
-            bits.flip();
-        }
-        auto byte = static_cast<uint8_t>(bits.to_ulong());
-        s << Idiom::Value<T, uint8_t> { std::move(byte) };
-        bits.reset();
-    };
-
-    auto width = size.width;
-
     for (const auto& glyph : face.glyphs()) {
-        s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
-
-        std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
-                      [&](auto pixel) {
-            switch (options_.bit_numbering) {
-            case SourceCodeOptions::LSB:
-                bits[bit_pos] = pixel;
-                break;
-            case SourceCodeOptions::MSB:
-                bits[byte_size-1-bit_pos] = pixel;
-                break;
-            }
-
-            ++bit_pos;
-            ++col;
-
-            if (col >= width) {
-                append_byte(bits);
-                bit_pos = 0;
-                col = 0;
-            } else if (bit_pos >= byte_size) {
-                append_byte(bits);
-                bit_pos = 0;
-            }
-        });
-
+        output_glyph<T>(glyph, size, margins, s);
         s << Idiom::Comment<T, uint8_t> { comment_for_glyph(glyph_id) };
         s << Idiom::ArrayLineBreak<T, uint8_t> {};
-
         ++glyph_id;
     }
 
@@ -272,49 +288,9 @@ std::string FontSourceCodeGenerator::generate_subset(const Font::Face& face, std
     s << Idiom::Begin<T> { font_name, size, current_timestamp() };
     s << Idiom::BeginArray<T, uint8_t> { std::move(font_name) };
 
-    std::bitset<byte_size> bits;
-    std::size_t bit_pos { 0 };
-    std::size_t col { 0 };
-
-    auto append_byte = [&](std::bitset<byte_size> &bits) {
-        if (options_.invert_bits) {
-            bits.flip();
-        }
-        auto byte = static_cast<uint8_t>(bits.to_ulong());
-        s << Idiom::Value<T, uint8_t> { std::move(byte) };
-        bits.reset();
-    };
-
-    auto width = size.width;
-
     for (auto glyph_id : face.exported_glyph_ids()) {
         const auto& glyph = face.glyph_at(glyph_id);
-        s << Idiom::BeginArrayRow<T, uint8_t> { options_.indentation };
-
-        std::for_each(glyph.pixels().cbegin() + margins.top, glyph.pixels().cend() - margins.bottom,
-                      [&](auto pixel) {
-            switch (options_.bit_numbering) {
-            case SourceCodeOptions::LSB:
-                bits[bit_pos] = pixel;
-                break;
-            case SourceCodeOptions::MSB:
-                bits[byte_size-1-bit_pos] = pixel;
-                break;
-            }
-
-            ++bit_pos;
-            ++col;
-
-            if (col >= width) {
-                append_byte(bits);
-                bit_pos = 0;
-                col = 0;
-            } else if (bit_pos >= byte_size) {
-                append_byte(bits);
-                bit_pos = 0;
-            }
-        });
-
+        output_glyph<T>(glyph, size, margins, s);
         s << Idiom::Comment<T, uint8_t> { comment_for_glyph(glyph_id) };
         s << Idiom::ArrayLineBreak<T, uint8_t> {};
     }
