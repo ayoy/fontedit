@@ -287,7 +287,6 @@ inline std::ostream& operator<<(std::ostream& s, source_code::idiom::comment<T, 
     if constexpr (is_c_based<T>::value) {
         s << " // " << b.comment;
     } else if constexpr (is_python<T>::value && !is_bytearray<T,V>::value) {
-        std::cout << is_bytearray<T,V>::value << T::identifier << std::endl;
         s << " # " << b.comment;
     }
     return s;
