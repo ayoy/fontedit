@@ -209,13 +209,22 @@ std::string font_source_code_generator::generate_all(const font::face& face, std
     }();
 
     std::ostringstream s;
-    s << idiom::begin<T> { font_name, size, current_timestamp() };
+    s << idiom::begin<T> { font_name, size, current_timestamp() } << std::endl;
+
+    s << idiom::comment<T> {} << std::endl;
+    s << idiom::comment<T> { "pseudocode to retrieve data for a specific character:" } << std::endl;
+    s << idiom::comment<T> {} << std::endl;
+    s << idiom::comment<T> { "bytes_per_char = font_height * (font_width / 8 + ((font_width % 8) ? 1 : 0))" } << std::endl;
+    s << idiom::comment<T> { "offset = (ascii_code(character) - ascii_code(' ')) * bytes_per_char" } << std::endl;
+    s << idiom::comment<T> { "data = " + font_name + "[offset]" } << std::endl;
+    s << idiom::comment<T> {};
+
     s << idiom::begin_array<T, uint8_t> { std::move(font_name) };
 
     std::size_t glyph_id { 0 };
     for (const auto& glyph : face.glyphs()) {
         output_glyph<T>(glyph, size, margins, s);
-        s << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << " " << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
         s << idiom::array_line_break<T, uint8_t> {};
         ++glyph_id;
     }
@@ -279,7 +288,15 @@ std::string font_source_code_generator::generate_subset(const font::face& face, 
     }();
 
     std::ostringstream s;
-    s << idiom::begin<T> { font_name, size, current_timestamp() };
+    s << idiom::begin<T> { font_name, size, current_timestamp() } << std::endl;
+
+    s << idiom::comment<T> {} << std::endl;
+    s << idiom::comment<T> { "pseudocode to retrieve data for a specific character:" } << std::endl;
+    s << idiom::comment<T> {} << std::endl;
+    s << idiom::comment<T> { "offset = ascii_code(character) - ascii_code(' ')" } << std::endl;
+    s << idiom::comment<T> { "data = " + font_name + "[lut[offset]]" } << std::endl;
+    s << idiom::comment<T> {};
+
     s << idiom::begin_array<T, uint8_t> { std::move(font_name) };
 
     // Not exported characters are replaced with a space character.
@@ -287,14 +304,14 @@ std::string font_source_code_generator::generate_subset(const font::face& face, 
     // we add a dummy blank character and default all not exported characters to it.
     if (face.exported_glyph_ids().find(0) == face.exported_glyph_ids().end()) {
         output_glyph<T>(font::glyph(size), size, margins, s);
-        s << idiom::comment<T, uint8_t> { "Dummy blank character" };
+        s << " " << idiom::comment<T, uint8_t> { "Dummy blank character" };
         s << idiom::array_line_break<T, uint8_t> {};
     }
 
     for (auto glyph_id : face.exported_glyph_ids()) {
         const auto& glyph = face.glyph_at(glyph_id);
         output_glyph<T>(glyph, size, margins, s);
-        s << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << " " << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
         s << idiom::array_line_break<T, uint8_t> {};
     }
 

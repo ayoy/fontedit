@@ -285,9 +285,9 @@ template<typename T, typename V>
 inline std::ostream& operator<<(std::ostream& s, source_code::idiom::comment<T, V> b)
 {
     if constexpr (is_c_based<T>::value) {
-        s << " // " << b.comment;
+        s << "// " << b.comment;
     } else if constexpr (is_python<T>::value && !is_bytearray<T,V>::value) {
-        s << " # " << b.comment;
+        s << "# " << b.comment;
     }
     return s;
 }
