@@ -256,7 +256,7 @@ std::string font_source_code_generator::subset_lut(const std::set<std::size_t>& 
                 s << idiom::array_line_break<T> {};
             s << idiom::begin_array_row<T, V> { options_.indentation };
             s << idiom::value<T, V> { static_cast<V>(bytes_per_glyph * exported_id) };
-            s << idiom::comment<T> { comment_for_glyph(glyph_id) };
+            s << " " << idiom::comment<T> { comment_for_glyph(glyph_id) };
             ++exported_id;
             s << idiom::array_line_break<T> {};
             is_previous_exported = true;

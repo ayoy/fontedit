@@ -6,6 +6,13 @@
 
 #include <stdint.h>
 
+// 
+// pseudocode to retrieve data for a specific character:
+// 
+// bytes_per_char = font_height * (font_width / 8 + ((font_width % 8) ? 1 : 0))
+// offset = (ascii_code(character) - ascii_code(' ')) * bytes_per_char
+// data = font[offset]
+// 
 
 const unsigned char font[] = {
 	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // Character 0x20 (32: ' ')
