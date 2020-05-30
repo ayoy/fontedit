@@ -25,7 +25,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabEdit">
        <attribute name="title">
@@ -236,6 +236,9 @@
           </item>
           <item>
            <widget class="QCheckBox" name="showNonExportedGlyphsCheckBox">
+            <property name="statusTip">
+             <string>Toggle exported state by pressing Space on a selected glyph</string>
+            </property>
             <property name="text">
              <string>Show non-exported Glyphs</string>
             </property>
