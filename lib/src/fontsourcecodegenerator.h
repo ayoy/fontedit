@@ -131,6 +131,7 @@ private:
 
     template<typename T, typename V>
     std::string subset_lut(const std::set<std::size_t>& exported_glyph_ids,
+                           bool has_dummy_blank_glyph,
                            std::size_t bytes_per_glyph);
 
     template<typename T>
@@ -224,7 +225,7 @@ std::string font_source_code_generator::generate_all(const font::face& face, std
     std::size_t glyph_id { 0 };
     for (const auto& glyph : face.glyphs()) {
         output_glyph<T>(glyph, size, margins, s);
-        s << " " << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
         s << idiom::array_line_break<T, uint8_t> {};
         ++glyph_id;
     }
@@ -237,18 +238,21 @@ std::string font_source_code_generator::generate_all(const font::face& face, std
 
 template<typename T, typename V>
 std::string font_source_code_generator::subset_lut(const std::set<std::size_t>& exported_glyph_ids,
+                                                   bool has_dummy_blank_glyph,
                                                    std::size_t bytes_per_glyph)
 {
     using namespace source_code;
 
     std::ostringstream s;
 
-    uint16_t exported_id { 0 };
+    // If there's a dummy blank glyph, first exported character is at index 1, not 0.
+    V exported_id { static_cast<V>(has_dummy_blank_glyph) };
 
     auto last_exported_glyph = std::prev(exported_glyph_ids.end());
 
     s << idiom::begin_array<T, V> { "lut" };
 
+    // Control line breaks with this flag - add a line break only before an exported glyph
     bool is_previous_exported = true;
     for (std::size_t glyph_id = 0; glyph_id <= *last_exported_glyph; ++glyph_id) {
         if (exported_glyph_ids.find(glyph_id) != exported_glyph_ids.end()) {
@@ -302,16 +306,18 @@ std::string font_source_code_generator::generate_subset(const font::face& face, 
     // Not exported characters are replaced with a space character.
     // If space character (ASCII 32, the first glyph) itself is not exported,
     // we add a dummy blank character and default all not exported characters to it.
+    bool has_dummy_blank_glyph = false;
     if (face.exported_glyph_ids().find(0) == face.exported_glyph_ids().end()) {
-        output_glyph<T>(font::glyph(size), size, margins, s);
-        s << " " << idiom::comment<T, uint8_t> { "Dummy blank character" };
+        output_glyph<T>(font::glyph(face.glyphs_size()), size, margins, s);
+        s << idiom::comment<T, uint8_t> { "Dummy blank character" };
         s << idiom::array_line_break<T, uint8_t> {};
+        has_dummy_blank_glyph = true;
     }
 
     for (auto glyph_id : face.exported_glyph_ids()) {
         const auto& glyph = face.glyph_at(glyph_id);
         output_glyph<T>(glyph, size, margins, s);
-        s << " " << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
+        s << idiom::comment<T, uint8_t> { comment_for_glyph(glyph_id) };
         s << idiom::array_line_break<T, uint8_t> {};
     }
 
@@ -324,13 +330,13 @@ std::string font_source_code_generator::generate_subset(const font::face& face, 
     auto max_offset = (face.exported_glyph_ids().size() - 1) * bytes_per_glyph;
 
     if (max_offset < (1<<8)) {
-        s << subset_lut<T,uint8_t>(face.exported_glyph_ids(), bytes_per_glyph);
+        s << subset_lut<T,uint8_t>(face.exported_glyph_ids(), has_dummy_blank_glyph, bytes_per_glyph);
     } else if (max_offset < (1<<16)) {
-        s << subset_lut<T,uint16_t>(face.exported_glyph_ids(), bytes_per_glyph);
+        s << subset_lut<T,uint16_t>(face.exported_glyph_ids(), has_dummy_blank_glyph, bytes_per_glyph);
     } else if (max_offset < (1ull<<32)) {
-        s << subset_lut<T,uint32_t>(face.exported_glyph_ids(), bytes_per_glyph);
+        s << subset_lut<T,uint32_t>(face.exported_glyph_ids(), has_dummy_blank_glyph, bytes_per_glyph);
     } else {
-        s << subset_lut<T,uint64_t>(face.exported_glyph_ids(), bytes_per_glyph);
+        s << subset_lut<T,uint64_t>(face.exported_glyph_ids(), has_dummy_blank_glyph, bytes_per_glyph);
     }
 
     s << idiom::end<T> {};

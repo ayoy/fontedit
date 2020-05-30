@@ -285,8 +285,14 @@ template<typename T, typename V>
 inline std::ostream& operator<<(std::ostream& s, source_code::idiom::comment<T, V> b)
 {
     if constexpr (is_c_based<T>::value) {
+        if constexpr (!std::is_void<V>::value) { // add a space if a comment is inside an array
+            s << " ";
+        }
         s << "// " << b.comment;
     } else if constexpr (is_python<T>::value && !is_bytearray<T,V>::value) {
+        if constexpr (!std::is_void<V>::value) {
+            s << " ";
+        }
         s << "# " << b.comment;
     }
     return s;
