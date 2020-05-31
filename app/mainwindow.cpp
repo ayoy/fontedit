@@ -512,6 +512,8 @@ void MainWindow::displayFace(f2b::font::face& face)
                 [&](bool checked) {
             viewModel_->setShouldShowNonExportedGlyphs(checked);
             faceWidget_->setShowsNonExportedItems(checked);
+            QApplication::processEvents();
+            ui_->faceGraphicsView->setSceneRect(faceWidget_->rect());
         });
     }
 
