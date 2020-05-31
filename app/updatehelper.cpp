@@ -13,6 +13,7 @@ UpdateHelper::UpdateHelper(QObject *parent) : QObject(parent),
 {
     shouldCheckAtStartup_ = settings_.value(SettingsKey::checkForUpdatesAtStartup, true).toBool();
     manager_->setStrictTransportSecurityEnabled(true);
+//    qDebug() << QSslSocket::supportsSsl() << QSslSocket::sslLibraryBuildVersionString() << QSslSocket::sslLibraryVersionString();
     connect(manager_.get(), &QNetworkAccessManager::finished, this, &UpdateHelper::handleReply);
 }
 
