@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0
+## 1.1.0 - 2020-05-31
 * Export subset of font characters (only the characters that you really
   need in the font) - helps to reduce font size when you only use a bunch
   of characters and not the whole ASCII table
