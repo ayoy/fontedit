@@ -213,7 +213,7 @@ std::string font_source_code_generator::generate_all(const font::face& face, std
     s << idiom::begin<T> { font_name, size, current_timestamp() } << std::endl;
 
     s << idiom::comment<T> {} << std::endl;
-    s << idiom::comment<T> { "pseudocode to retrieve data for a specific character:" } << std::endl;
+    s << idiom::comment<T> { "Pseudocode for retrieving data for a specific character:" } << std::endl;
     s << idiom::comment<T> {} << std::endl;
     s << idiom::comment<T> { "bytes_per_char = font_height * (font_width / 8 + ((font_width % 8) ? 1 : 0))" } << std::endl;
     s << idiom::comment<T> { "offset = (ascii_code(character) - ascii_code(' ')) * bytes_per_char" } << std::endl;
@@ -295,7 +295,7 @@ std::string font_source_code_generator::generate_subset(const font::face& face, 
     s << idiom::begin<T> { font_name, size, current_timestamp() } << std::endl;
 
     s << idiom::comment<T> {} << std::endl;
-    s << idiom::comment<T> { "pseudocode to retrieve data for a specific character:" } << std::endl;
+    s << idiom::comment<T> { "Pseudocode for retrieving data for a specific character:" } << std::endl;
     s << idiom::comment<T> {} << std::endl;
     s << idiom::comment<T> { "offset = ascii_code(character) - ascii_code(' ')" } << std::endl;
     s << idiom::comment<T> { "data = " + font_name + "[lut[offset]]" } << std::endl;
