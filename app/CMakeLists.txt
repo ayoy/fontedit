@@ -64,7 +64,7 @@ if (APPLE)
     file(MAKE_DIRECTORY ${RESOURCES_DIR})
     file(COPY ${PROJECT_SOURCE_DIR}/macos/fontedit.icns DESTINATION ${RESOURCES_DIR})
 elseif(WIN32)
-    set(OPENSSL_ROOT_DIR "C:/Qt/Tools/OpenSSL/Win_x64" CACHE STRING "OpenSSL dir")
+    set(OPENSSL_ROOT_DIR "${Qt5_DIR}/../../../../Tools/OpenSSL/Win_x64" CACHE STRING "OpenSSL dir")
     include(FindOpenSSL)
     add_executable(${PROJECT_NAME} WIN32
         main.cpp
