@@ -257,12 +257,12 @@ std::string font_source_code_generator::subset_lut(const std::set<std::size_t>& 
     for (std::size_t glyph_id = 0; glyph_id <= *last_exported_glyph; ++glyph_id) {
         if (exported_glyph_ids.find(glyph_id) != exported_glyph_ids.end()) {
             if (!is_previous_exported)
-                s << idiom::array_line_break<T> {};
+                s << idiom::array_line_break<T, V> {};
             s << idiom::begin_array_row<T, V> { options_.indentation };
             s << idiom::value<T, V> { static_cast<V>(bytes_per_glyph * exported_id) };
-            s << " " << idiom::comment<T> { comment_for_glyph(glyph_id) };
+            s << idiom::comment<T, V> { comment_for_glyph(glyph_id) };
             ++exported_id;
-            s << idiom::array_line_break<T> {};
+            s << idiom::array_line_break<T, V> {};
             is_previous_exported = true;
         } else {
             if (is_previous_exported)
