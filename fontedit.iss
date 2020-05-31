@@ -37,6 +37,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "C:\Users\ayoy\build-fontedit-Desktop_Qt_5_14_1_MinGW_64_bit-Release\FontEdit.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\ayoy\build-fontedit-Desktop_Qt_5_14_1_MinGW_64_bit-Release\win\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Qt\Tools\OpenSSL\Win_x64\bin\lib*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

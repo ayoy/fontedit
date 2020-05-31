@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 // 
-// pseudocode to retrieve data for a specific character:
+// Pseudocode for retrieving data for a specific character:
 // 
 // offset = ascii_code(character) - ascii_code(' ')
 // data = font[lut[offset]]

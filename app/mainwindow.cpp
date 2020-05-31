@@ -512,6 +512,8 @@ void MainWindow::displayFace(f2b::font::face& face)
                 [&](bool checked) {
             viewModel_->setShouldShowNonExportedGlyphs(checked);
             faceWidget_->setShowsNonExportedItems(checked);
+            QApplication::processEvents();
+            ui_->faceGraphicsView->setSceneRect(faceWidget_->rect());
         });
     }
 
@@ -589,7 +591,7 @@ void MainWindow::updateFaceInfoLabel(const FaceInfo &faceInfo)
     lines << tr("Size (full): %1x%2px").arg(faceInfo.size.width).arg(faceInfo.size.height);
     lines << tr("Size (adjusted): %1x%2px").arg(faceInfo.sizeWithoutMargins.width).arg(faceInfo.sizeWithoutMargins.height);
     lines << QString("%1, %2").arg(tr("%n Glyph(s)", "", faceInfo.numberOfGlyphs),
-                                   tr("%1 to export").arg(QString::number(faceInfo.numberOfExportedGlyphs)));
+                                   tr("%n to export", "", faceInfo.numberOfExportedGlyphs));
     ui_->faceInfoLabel->setText(lines.join("\n"));
 }
 
