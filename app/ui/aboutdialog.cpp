@@ -43,7 +43,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QIcon icon(":/icon/assets/icon/fontedit96.png");
     ui->iconLabel->setPixmap(icon.pixmap(ui->iconLabel->size()));
     auto text = QString::fromStdString({about});
-    text.replace("##version##", VERSION);
+    text.replace("##version##", QApplication::applicationVersion());
     text.replace("##build##", BUILD);
     text.replace("##year##", YEAR);
 

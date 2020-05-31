@@ -17,21 +17,22 @@ AddGlyphDialog::AddGlyphDialog(const FontFaceViewModel& faceViewModel, QWidget *
     ui_->faceGraphicsView->setScene(faceScene_.get());
     ui_->faceGraphicsView->scene()->addItem(faceWidget_);
 
-    faceWidget_->load(faceViewModel.face(), Font::Margins {});
+    faceWidget_->load(faceViewModel.face(), f2b::font::margins {});
     connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged, ui_->copyRadio, &QRadioButton::click);
-    connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged, [&, faceViewModel](std::size_t index) {
-        newGlyph_ = faceViewModel.face().glyph_at(index);
+    connect(faceWidget_, &FaceWidget::currentGlyphIndexChanged, [&, faceViewModel](std::optional<std::size_t> index) {
+        if (index.has_value())
+            newGlyph_ = faceViewModel.face().glyph_at(index.value());
     });
     connect(ui_->buttonBox, &QDialogButtonBox::accepted, [&, faceViewModel] {
         if (ui_->emptyRadio->isChecked()) {
-            newGlyph_ = Font::Glyph { faceViewModel.face().glyph_size() };
+            newGlyph_ = f2b::font::glyph { faceViewModel.face().glyphs_size() };
         } else if (ui_->characterRadio->isChecked()) {
             QFontFaceReader adapter {
                 faceViewModel.font().value(),
                 ui_->characterLineEdit->text().toStdString(),
-                faceViewModel.face().glyph_size()
+                faceViewModel.face().glyphs_size()
             };
-            newGlyph_ = Font::Face(adapter).glyph_at(0);
+            newGlyph_ = f2b::font::face(adapter).glyph_at(0);
         }
         emit glyphSelected(newGlyph_);
     });

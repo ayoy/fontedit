@@ -17,7 +17,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Widgets Network REQUIRED)
 find_package(Qt5LinguistTools)
 
 add_subdirectory(utf8)
@@ -39,13 +39,16 @@ set(SRC_FILES
     mainwindowmodel.h
     qfontfacereader.cpp
     qfontfacereader.h
+    semver.hpp
     sourcecoderunnable.cpp
     sourcecoderunnable.h
+    updatehelper.cpp
+    updatehelper.h
     )
 
 add_library(appbundle ${SRC_FILES})
 target_include_directories(appbundle PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} utf8 common ui)
-target_link_libraries(appbundle PUBLIC Qt5::Widgets Qt5::Core common ui font2bytes GSL)
+target_link_libraries(appbundle PUBLIC Qt5::Widgets Qt5::Core Qt5::Network common ui font2bytes GSL)
 
 if (APPLE)
     message(STATUS "Building MacOS X Bundle")
@@ -61,11 +64,14 @@ if (APPLE)
     file(MAKE_DIRECTORY ${RESOURCES_DIR})
     file(COPY ${PROJECT_SOURCE_DIR}/macos/fontedit.icns DESTINATION ${RESOURCES_DIR})
 elseif(WIN32)
+    set(OPENSSL_ROOT_DIR "${Qt5_DIR}/../../../../Tools/OpenSSL/Win_x64" CACHE STRING "OpenSSL dir")
+    include(FindOpenSSL)
     add_executable(${PROJECT_NAME} WIN32
         main.cpp
         assets.qrc
         win/fontedit.rc
         )
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 else()
     add_executable(${PROJECT_NAME}
         main.cpp

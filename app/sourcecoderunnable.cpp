@@ -8,14 +8,14 @@ void SourceCodeRunnable::run()
 
     QElapsedTimer timer;
     timer.start();
-    if (format_ == Format::Arduino::identifier) {
-        output = QString::fromStdString(generator_.generate<Format::Arduino>(face_, fontArrayName_));
-    } else if (format_ == Format::C::identifier) {
-        output = QString::fromStdString(generator_.generate<Format::C>(face_, fontArrayName_));
-    } else if (format_ == Format::PythonList::identifier) {
-        output = QString::fromStdString(generator_.generate<Format::PythonList>(face_, fontArrayName_));
-    } else if (format_ == Format::PythonBytes::identifier) {
-        output = QString::fromStdString(generator_.generate<Format::PythonBytes>(face_, fontArrayName_));
+    if (format_ == f2b::format::arduino::identifier) {
+        output = QString::fromStdString(generator_.generate<f2b::format::arduino>(face_, fontArrayName_));
+    } else if (format_ == f2b::format::c::identifier) {
+        output = QString::fromStdString(generator_.generate<f2b::format::c>(face_, fontArrayName_));
+    } else if (format_ == f2b::format::python_list::identifier) {
+        output = QString::fromStdString(generator_.generate<f2b::format::python_list>(face_, fontArrayName_));
+    } else if (format_ == f2b::format::python_bytes::identifier) {
+        output = QString::fromStdString(generator_.generate<f2b::format::python_bytes>(face_, fontArrayName_));
     }
     qDebug() << "Generation finished in" << timer.elapsed() << "ms";
 

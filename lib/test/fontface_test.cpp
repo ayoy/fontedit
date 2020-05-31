@@ -1,13 +1,15 @@
 #include "gtest/gtest.h"
 #include "fontdata.h"
 
-class TestFaceData : public Font::FaceReader
+using namespace f2b;
+
+class TestFaceData : public font::face_reader
 {
 public:
-    Font::Size font_size() const override { return { 4, 3 }; }
+    font::glyph_size font_size() const override { return { 4, 3 }; }
     std::size_t num_glyphs() const override { return 5; }
 
-    bool is_pixel_set(std::size_t glyph_id, Font::Point p) const override
+    bool is_pixel_set(std::size_t glyph_id, font::point p) const override
     {
         auto glyph_offset = glyph_id * font_size().width * font_size().height;
         return pixels[glyph_offset + p.offset(font_size())];
@@ -41,7 +43,7 @@ public:
 TEST(FaceTest, Initialization)
 {
     TestFaceData test_data;
-    Font::Face face(test_data);
+    font::face face(test_data);
 
     EXPECT_EQ(5, face.num_glyphs());
 
@@ -55,7 +57,7 @@ TEST(FaceTest, Initialization)
         for (std::size_t y = 0; y < test_data.font_size().height; y++) {
             for (std::size_t x = 0; x < test_data.font_size().width; x++) {
 
-                Font::Point p { x, y };
+                font::point p { x, y };
                 auto offset = g_offset + p.offset(test_data.font_size());
                 EXPECT_EQ(bool(test_data.pixels[offset]), g.is_pixel_set(p))
                         << "glyph: " << i << " x: " << x << " y: " << y;

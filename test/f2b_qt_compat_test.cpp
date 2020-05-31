@@ -3,12 +3,15 @@
 
 #include <optional>
 #include <vector>
+#include <set>
 #include <unordered_map>
 
 #include <QByteArray>
 #include <QBuffer>
 #include <QDataStream>
 #include <QString>
+
+using namespace f2b;
 
 template<typename T>
 void serialize_and_deserialize(const T& input, T& output)
@@ -67,6 +70,22 @@ TEST(SerializationTest, vector_bool)
     EXPECT_EQ(data, deserialized);
 }
 
+TEST(SerializationTest, set_size_t)
+{
+    std::set<std::size_t> data;
+    std::set<std::size_t> deserialized = { 1, 2, 3 };
+
+    serialize_and_deserialize(data, deserialized);
+    EXPECT_TRUE(deserialized.empty());
+    EXPECT_EQ(data, deserialized);
+
+
+    data = { 100, 152, 3, 6, 17, 0x541882, 1500, 4, 2, 8 };
+
+    serialize_and_deserialize(data, deserialized);
+    EXPECT_EQ(data, deserialized);
+}
+
 TEST(SerializationTest, unordered_map_int_qstring)
 {
     std::unordered_map<int,QString> data;
@@ -89,8 +108,8 @@ TEST(SerializationTest, unordered_map_int_qstring)
 
 TEST(SerializationTest, font_glyph)
 {
-    Font::Glyph data({2, 3}, { false, true, false, false, true, true });
-    Font::Glyph deserialized;
+    font::glyph data({2, 3}, { false, true, false, false, true, true });
+    font::glyph deserialized;
 
     serialize_and_deserialize(data, deserialized);
 
@@ -99,9 +118,9 @@ TEST(SerializationTest, font_glyph)
 
 TEST(SerializationTest, font_face)
 {
-    Font::Glyph glyph({2, 3}, { false, true, false, false, true, true });
-    Font::Face data({2, 3}, { glyph, glyph, glyph, glyph });
-    Font::Face deserialized;
+    font::glyph glyph({2, 3}, { false, true, false, false, true, true });
+    font::face data({2, 3}, { glyph, glyph, glyph, glyph });
+    font::face deserialized;
 
     serialize_and_deserialize(data, deserialized);
 

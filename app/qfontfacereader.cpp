@@ -14,8 +14,8 @@ using namespace std::literals::string_view_literals;
 static constexpr std::string_view ascii_glyphs =
         " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"sv;
 
-QFontFaceReader::QFontFaceReader(const QFont &font, std::string text, std::optional<Font::Size> forced_size) :
-    Font::FaceReader()
+QFontFaceReader::QFontFaceReader(const QFont &font, std::string text, std::optional<f2b::font::glyph_size> forced_size) :
+    f2b::font::face_reader()
 {
     std::string source_text { text.empty() ? ascii_glyphs : std::move(text) };
     num_glyphs_ = source_text.length();
@@ -25,10 +25,10 @@ QFontFaceReader::QFontFaceReader(const QFont &font, std::string text, std::optio
     font_image_ = std::move(result.second);
 }
 
-bool QFontFaceReader::is_pixel_set(std::size_t glyph_id, Font::Point p) const
+bool QFontFaceReader::is_pixel_set(std::size_t glyph_id, f2b::font::point p) const
 {
     p.y += glyph_id * sz_.height;
-    return font_image_->pixelColor(Font::qpoint_with_point(p)) == Qt::color1;
+    return font_image_->pixelColor(f2b::font::qpoint_with_point(p)) == Qt::color1;
 }
 
 QString QFontFaceReader::template_text(std::string text)
@@ -47,10 +47,10 @@ QString QFontFaceReader::template_text(std::string text)
     return QString::fromStdString(stream.str());
 }
 
-std::pair<Font::Size, std::unique_ptr<QImage>> QFontFaceReader::read_font(
+std::pair<f2b::font::glyph_size, std::unique_ptr<QImage>> QFontFaceReader::read_font(
             const QFont &font,
             std::string text,
-            std::optional<Font::Size> forced_size)
+            std::optional<f2b::font::glyph_size> forced_size)
 {
     auto text_length = text.length();
     auto template_text = QFontFaceReader::template_text(std::move(text));
@@ -105,6 +105,6 @@ std::pair<Font::Size, std::unique_ptr<QImage>> QFontFaceReader::read_font(
 
 //    image->save("output.bmp");
 
-    return { Font::size_with_qsize(QSize(width, fm.lineSpacing())), std::move(image) };
+    return { f2b::font::size_with_qsize(QSize(width, fm.lineSpacing())), std::move(image) };
 }
 

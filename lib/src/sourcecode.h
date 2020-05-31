@@ -6,74 +6,105 @@
 #include <iostream>
 #include <variant>
 
-namespace SourceCode
-{
+namespace f2b  {
 
-struct Tab {};
-struct Space { std::size_t num_spaces; };
+namespace source_code {
 
-using Indentation = std::variant<Tab,Space>;
+/// A struct representing a Tabulation character
+struct tab {};
 
-namespace Idiom {
+/// A struct representing a repeated space character (used instead of tabulator)
+struct space { std::size_t num_spaces; };
+
+/// Indentation can be either a Tab, or multiple Spaces.
+using indentation = std::variant<tab,space>;
+
+/**
+ * This namespace gathers building blocks for a source code generator:
+ * - begin (source code file)
+ * - begin array
+ * - begin array row
+ * - constant definition
+ * - value (e.g. byte)
+ * - comment
+ * - line break with an array
+ * - end array
+ * - end (source code file).
+ *
+ * All the structs in this namespace are templates taking Source Code Format
+ * as a template parameter. They also take parameters as necessary (e.g.
+ * \c array_name for \c BeginArray).
+ * All the structs define the \c operator<< which outputs the relevant source
+ * code idiom to the given output stream. \c FontSourceCodeGenerator uses them
+ * with an \c std::stringstream to output the resulting source code of the font face.
+ */
+
+namespace idiom {
 
 template<typename T>
-struct Begin {
+struct begin {
     std::string font_name;
-    Font::Size font_size;
+    font::glyph_size font_size;
     std::string timestamp;
 };
 
-template<typename T>
-struct BeginArray {
+template<typename T, typename V>
+struct constant {
+    std::string name;
+    V value;
+};
+
+template<typename T, typename V>
+struct begin_array {
     std::string array_name;
 };
 
-template<typename T>
-struct BeginArrayRow {
-    Indentation tab;
+template<typename T, typename V>
+struct begin_array_row {
+    indentation tab;
 };
 
-template<typename T>
-struct Byte {
-    uint8_t byte;
+template<typename T, typename V>
+struct value {
+    V value;
 };
 
-template<typename T>
-struct Comment {
+template<typename T, typename V = void>
+struct comment {
     std::string comment;
 };
 
-template<typename T>
-struct LineBreak {};
+template<typename T, typename V = void>
+struct array_line_break {};
+
+template<typename T, typename V = void>
+struct end_array {};
 
 template<typename T>
-struct EndArray {};
+struct end {};
 
-template<typename T>
-struct End {};
+} // namespace Idiom
 
-};
-
+inline bool operator==(const indentation& lhs, const indentation& rhs) {
+    if (std::holds_alternative<tab>(lhs) && std::holds_alternative<tab>(rhs)) {
+        return true;
+    }
+    if (std::holds_alternative<space>(lhs) && std::holds_alternative<space>(rhs)) {
+        return std::get<space>(lhs).num_spaces == std::get<space>(rhs).num_spaces;
+    }
+    return false;
 }
 
-
-inline std::ostream& operator<<(std::ostream& o, const SourceCode::Indentation& t) {
-    if (std::holds_alternative<SourceCode::Space>(t)) {
-        o << std::string(std::get<SourceCode::Space>(t).num_spaces, ' ');
+inline std::ostream& operator<<(std::ostream& o, const indentation& t) {
+    if (std::holds_alternative<space>(t)) {
+        o << std::string(std::get<space>(t).num_spaces, ' ');
     } else {
         o << "\t";
     }
     return o;
 }
 
-inline bool operator==(const SourceCode::Indentation& lhs, const SourceCode::Indentation& rhs) {
-    if (std::holds_alternative<SourceCode::Tab>(lhs) && std::holds_alternative<SourceCode::Tab>(rhs)) {
-        return true;
-    }
-    if (std::holds_alternative<SourceCode::Space>(lhs) && std::holds_alternative<SourceCode::Space>(rhs)) {
-        return std::get<SourceCode::Space>(lhs).num_spaces == std::get<SourceCode::Space>(rhs).num_spaces;
-    }
-    return false;
-}
+} // namespace SourceCode
+} // namespace f2b
 
 #endif // SOURCECODE_H
