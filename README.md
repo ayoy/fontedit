@@ -25,9 +25,10 @@ With FontEdit you can:
 * export the font as source code (in a form of byte array) suitable for Arduino,
   C/C++ or Python,
 * save your progress to a file - the font document file is cross-platform so you can
-  e.g. import and edit it on MacOS and then move to RPi and export the code from there.
+  e.g. import and edit it on MacOS and then move to RPi and export the code from there,
 * as of 1.1.0 you can do partial exports, i.e. export only a bunch of font characters
-  that you really need for your application.
+  that you really need for your application (read more in 
+  [this blog post](https://kapusta.cc/2020/05/31/fontedit-1-1-0)).
 
 ### Font Editor
 
