@@ -28,6 +28,8 @@
     <string>4</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.14</string>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
 	<key>NSPrincipalClass</key>
