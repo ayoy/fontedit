@@ -6,6 +6,7 @@
 #include <QImage>
 #include <memory>
 #include <utility>
+#include <optional>
 
 class QFontFaceReader : public f2b::font::face_reader
 {
