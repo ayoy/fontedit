@@ -7,6 +7,7 @@
 #include "focuswidget.h"
 
 #include <memory>
+#include <optional>
 
 class GlyphInfoWidget;
 
