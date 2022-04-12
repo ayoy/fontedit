@@ -13,6 +13,10 @@ add_library(common
     f2b_qt_compat.cpp
     f2b_qt_compat.h)
 
+if (APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0)
+endif()
+
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(common PRIVATE Qt6::Widgets Qt6::Core font2bytes)

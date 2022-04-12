@@ -38,7 +38,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-if (UNIX AND NOT APPLE)
+if (APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0)
+elseif (UNIX)
     if (LIBFONTEDIT_STANDALONE_PROJECT)
         INSTALL(FILES ${HEADERS} DESTINATION include/f2b)
         INSTALL(FILES include/f2b.h DESTINATION include)
