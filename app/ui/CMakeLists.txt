@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(ui LANGUAGES CXX)
 
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 
 add_library(ui
     aboutdialog.cpp
@@ -21,4 +21,4 @@ add_library(ui
     glyphwidget.h
 )
 
-target_link_libraries(ui PRIVATE Qt5::Widgets Qt5::Core common font2bytes)
+target_link_libraries(ui PRIVATE Qt6::Widgets Qt6::Core common font2bytes)

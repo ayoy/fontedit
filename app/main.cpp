@@ -14,10 +14,9 @@ int main(int argc, char *argv[])
     QApplication::setApplicationVersion(QString::fromStdString(std::string(Global::application_version)));
 
     QTranslator myappTranslator;
-    myappTranslator.load(":/l10n/fontedit_en.qm");
-    a.installTranslator(&myappTranslator);
-
-    a.setAttribute(Qt::AA_UseHighDpiPixmaps);
+    if (myappTranslator.load(":/l10n/fontedit_en.qm")) {
+        a.installTranslator(&myappTranslator);
+    }
 
     MainWindow w;
     w.show();

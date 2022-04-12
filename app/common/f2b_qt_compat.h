@@ -10,6 +10,7 @@
 #include "common.h"
 
 #include <QDataStream>
+#include <QVariant>
 #include <optional>
 #include <vector>
 #include <unordered_map>

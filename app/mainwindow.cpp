@@ -95,7 +95,7 @@ void MainWindow::connectUIInputs()
             viewModel_->registerInputEvent(UIState::InterfaceAction::ActionTabEdit);
         }
     });
-    connect(ui_->exportMethodButtonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), [&](int buttonID) {
+    connect(ui_->exportMethodButtonGroup, qOverload<int>(&QButtonGroup::idClicked), [&](int buttonID) {
         viewModel_->setExportAllEnabled(buttonID == exportAllButtonIndex);
     });
     connect(ui_->invertBitsCheckBox, &QCheckBox::stateChanged, [&](int state) {
@@ -493,7 +493,7 @@ MainWindow::SavePromptButton MainWindow::promptToSaveDirtyDocument()
     auto ret = QMessageBox::information(this,
                                         "",
                                         tr("Do you want to save the changes you made? Your changes will be lost if you don't save them."),
-                                        buttons[0], buttons[1], buttons[2], 0, 2);
+                                        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     return static_cast<MainWindow::SavePromptButton>(ret);
 }
 

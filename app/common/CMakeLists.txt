@@ -6,7 +6,7 @@ set(CMAKE_AUTORCC OFF)
 
 project(common LANGUAGES CXX)
 
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 
 add_library(common
     common.h
@@ -15,4 +15,4 @@ add_library(common
 
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(common PRIVATE Qt5::Widgets Qt5::Core font2bytes)
+target_link_libraries(common PRIVATE Qt6::Widgets Qt6::Core font2bytes)
