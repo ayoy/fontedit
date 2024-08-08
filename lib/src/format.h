@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <cstdint>
 #include "sourcecode.h"
 
 namespace f2b
