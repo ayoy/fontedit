@@ -111,3 +111,9 @@ The app uses icons from [www.flaticon.com](https://www.flaticon.com) made by
 [Smashicons](https://www.flaticon.com/authors/smashicons),
 [Freepik](https://www.flaticon.com/authors/freepik) and
 [Pixel perfect](https://www.flaticon.com/authors/pixel-perfect).
+
+## SwiftUI prototype
+
+The `swiftui/FontEditSwiftUI` directory contains a SwiftUI reimagining of the
+app focused on glyph editing and code export flows. Open it in Xcode to run the
+prototype on macOS. See `swiftui/README.md` for details.
